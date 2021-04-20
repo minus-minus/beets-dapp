@@ -62,7 +62,7 @@ export class PrintList extends React.Component {
 
   async componentDidMount() {
     this.refreshTracks();
-    setInterval(() => this.refreshTracks(), 2000)
+    setInterval(() => this.refreshTracks(), 3000)
   }
 
   render() {
