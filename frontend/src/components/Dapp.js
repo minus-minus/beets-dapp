@@ -96,12 +96,6 @@ export class Dapp extends React.Component {
                       getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
   }
 
-  componentWillUnmount() {
-    // We poll the user's balance, so we have to stop doing that when Dapp
-    // gets unmounted
-    this._stopPollingData();
-  }
-
   async _connectWallet() {
     this.setState({isLoadingWallet: true})
     // This method is run when the user clicks the Connect. It connects the
@@ -122,7 +116,6 @@ export class Dapp extends React.Component {
 
     // We reinitialize it whenever the user changes their account.
     window.ethereum.on("accountsChanged", ([newAddress]) => {
-      this._stopPollingData();
       // `accountsChanged` event can be triggered with an undefined newAddress.
       // This happens when the user removes the Dapp from the "Connected
       // list of sites allowed access to your addresses" (Metamask > Settings > Connections)
@@ -136,7 +129,6 @@ export class Dapp extends React.Component {
     
     // We reset the dapp state if the network is changed
     window.ethereum.on("networkChanged", ([networkId]) => {
-      this._stopPollingData();
       this._resetState();
     });
 
@@ -166,7 +158,7 @@ export class Dapp extends React.Component {
     this.EBcontract = new ethers.Contract(
       ENIGMA_TOKEN_CONTRACT_ADDRESS,
       _abi,
-      this._provider.getSigner(0)
+      this._provider.getSigner()
     )
   }
 
