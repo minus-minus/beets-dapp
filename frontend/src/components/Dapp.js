@@ -5,8 +5,8 @@ import { ethers } from "ethers";
 
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import TokenArtifact from "../contracts/Token.json";
-import contractAddress from "../contracts/contract-address.json";
+// import TokenArtifact from "../contracts/Token.json";
+// import contractAddress from "../contracts/contract-address.json";
 
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
@@ -14,11 +14,11 @@ import contractAddress from "../contracts/contract-address.json";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-import { Transfer } from "./Transfer";
-import { TransactionErrorMessage } from "./TransactionErrorMessage";
-import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
-import { NoTokensMessage } from "./NoTokensMessage";
-import { PrintList } from './PrintList';
+// import { Transfer } from "./Transfer";
+// import { TransactionErrorMessage } from "./TransactionErrorMessage";
+// import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
+// import { NoTokensMessage } from "./NoTokensMessage";
+// import { PrintList } from './PrintList';
 import {_abi} from "../utils/EB/EulerBeatsAbi";
 import {ENIGMA_TOKEN_CONTRACT_ADDRESS} from "../utils/EB/constants";
 
@@ -75,8 +75,8 @@ export class Dapp extends React.Component {
     if (!this.state.selectedAddress) {
       return (
         <div>
-        <ConnectWallet 
-          connectWallet={() => this._connectWallet()} 
+        <ConnectWallet
+          connectWallet={() => this._connectWallet()}
           networkError={this.state.networkError}
           dismiss={() => this._dismissNetworkError()}
         />
@@ -91,9 +91,10 @@ export class Dapp extends React.Component {
     }
 
     // If everything is loaded, we render the application.
-    return <PrintList mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-                      getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-                      getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
+    // return <PrintList mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+    //                   getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+    //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
+    return <div></div>
   }
 
   async _connectWallet() {
@@ -103,7 +104,7 @@ export class Dapp extends React.Component {
 
     // To connect to the user's wallet, we have to run this method.
     // It returns a promise that will resolve to the user's address.
-    const [selectedAddress] = await window.ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     // Once we have the address, we can initialize the application.
 
@@ -112,23 +113,23 @@ export class Dapp extends React.Component {
     //   return;
     // }
 
-    this._initialize(selectedAddress);
+    this._initialize(accounts[0]);
 
     // We reinitialize it whenever the user changes their account.
     window.ethereum.on("accountsChanged", ([newAddress]) => {
       // `accountsChanged` event can be triggered with an undefined newAddress.
       // This happens when the user removes the Dapp from the "Connected
       // list of sites allowed access to your addresses" (Metamask > Settings > Connections)
-      // To avoid errors, we reset the dapp state 
+      // To avoid errors, we reset the dapp state
       if (newAddress === undefined) {
         return this._resetState();
       }
-      
+
       this._initialize(newAddress);
     });
-    
+
     // We reset the dapp state if the network is changed
-    window.ethereum.on("networkChanged", ([networkId]) => {
+    window.ethereum.on("chainChanged", ([networkId]) => {
       this._resetState();
     });
 
@@ -226,13 +227,13 @@ export class Dapp extends React.Component {
     this.setState(this.initialState);
   }
 
-  // This method checks if Metamask selected network is Localhost:8545 
+  // This method checks if Metamask selected network is Localhost:8545
   _checkNetwork() {
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
     }
 
-    this.setState({ 
+    this.setState({
       networkError: 'Please connect Metamask to Localhost:8545'
     });
 
