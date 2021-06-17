@@ -7,7 +7,9 @@ import { ethers } from "ethers";
 // using them with ethers
 // import TokenArtifact from "../contracts/Token.json";
 // import contractAddress from "../contracts/contract-address.json";
-
+import HT_ARTIFACT from "../artifacts/contracts/HarbergerAsset.sol/HarbergerAsset.json";
+import { HT_CONTRACT_ADDRESS, HT_CREATOR_ADDRESS, HT_IPFS_HASH, HT_TOKEN_ID, HT_EVENT_ABI } from "../utils/HT/constants";
+import HarbergerAsset from "./HarbergerAsset";
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
 // logic. They just render HTML.
@@ -19,13 +21,13 @@ import { Loading } from "./Loading";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
 // import { PrintList } from './PrintList';
-import {_abi} from "../utils/EB/EulerBeatsAbi";
+import {ENIGMA_ABI} from "../utils/EB/EulerBeatsAbi";
 import {ENIGMA_TOKEN_CONTRACT_ADDRESS} from "../utils/EB/constants";
 
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
-const HARDHAT_NETWORK_ID = '31337';
+const HARDHAT_NETWORK_ID = '1337';
 
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
@@ -94,7 +96,11 @@ export class Dapp extends React.Component {
     // return <PrintList mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
     //                   getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
     //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
-    return <div></div>
+    return (
+      <HarbergerAsset
+        selectedAddress={this.state.selectedAddress}
+      />
+    )
   }
 
   async _connectWallet() {
@@ -158,9 +164,36 @@ export class Dapp extends React.Component {
 
     this.EBcontract = new ethers.Contract(
       ENIGMA_TOKEN_CONTRACT_ADDRESS,
-      _abi,
+      ENIGMA_ABI,
       this._provider.getSigner()
     )
+
+    this.HTcontract = new ethers.Contract(
+      HT_CONTRACT_ADDRESS,
+      HT_ARTIFACT.abi,
+      this._provider.getSigner()
+    )
+  }
+
+  async loadContractData() {
+    const contractAdmin = await this.HTcontract.admin()
+    const contractBalance = await this._provider.getBalance(HT_CONTRACT_ADDRESS);
+    const logs = await this._provider.getLogs({ address: HT_CONTRACT_ADDRESS, fromBlock: 0 })
+    const iface = new ethers.utils.Interface(HT_EVENT_ABI)
+    const events = logs.map(async (log, i) => {
+      const block = await this._provider.getBlock(logs[i].blockNumber)
+      if (!block) return
+      return Object.assign(iface.parseLog(log), {blockNumber: block.number, timestamp: block.timestamp})
+    })
+
+    this.setState({
+      contractAddress: HT_CONTRACT_ADDRESS,
+      contractAdmin: contractAdmin,
+      contractBalance: contractBalance,
+      events: events,
+    })
+
+    console.log("Contract State:", this.state)
   }
 
   async getTrackSupply(originalTokenId) {

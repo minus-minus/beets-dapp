@@ -1,4 +1,4 @@
-export const _abi = [
+export const ENIGMA_ABI = [
   {
     inputs: [
       {

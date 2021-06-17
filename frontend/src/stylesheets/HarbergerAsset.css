@@ -1,0 +1,89 @@
+.beets-logo {
+  width: 90px;
+  height: 65px;
+}
+
+.container {
+  min-width: 65%;
+}
+
+.jumbotron {
+  width: 100%;
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.btn:focus,
+.btn:active:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.btn-secondary,
+.btn-secondary:hover,
+.btn-secondary:active,
+.btn-secondary:visited {
+  border-style: none;
+  background-color: #AA00FF !important;
+  float: left;
+}
+
+.btn-dark,
+.btn-dark:hover,
+.btn-dark:active,
+.btn-dark:visited {
+  width: 100%;
+  font-weight: bold;
+  color: #fff;
+  background-color: #198754 !important;
+  border-style: none;
+}
+
+.btn-light,
+.btn-light:hover,
+.btn-light:active,
+.btn-light:visited {
+  width: 100%;
+  font-weight: bold;
+  color: #fff !important;
+  background-color: #0d6efd !important;
+  border-style: none;
+}
+
+.btn-info {
+  float: right;
+}
+
+.space {
+  width: 100%;
+  height: auto;
+  border: 5px solid #AA00FF;
+}
+
+.placeholder {
+  width: 100%;
+  height: auto;
+  border: 5px solid #808080;
+}
+
+
+.provenance {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  max-height: 350px;
+  border-radius: 5px;
+}
+
+.ether {
+  width: 12px;
+  height: auto;
+  margin-bottom: 5px;
+  margin-right: 5px;
+}
+
+@media (min-width: 548px) {
+  .jumbotron {
+    min-width: 500px;
+  }
+}
