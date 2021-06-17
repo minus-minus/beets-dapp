@@ -1,27 +1,27 @@
 import React from "react";
-
-// We'll use ethers to interact with the Ethereum network and our contract
 import { ethers } from "ethers";
 
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
+import contractAddress from "../contracts/contract-address.json";
+// import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
 import HTAX_ARTIFACT from "../artifacts/contracts/HarbergerAsset.sol/HarbergerAsset.json";
-import { HTAX_CONTRACT_ADDRESS, HTAX_EVENT_ABI } from "../utils/HTAX/constants";
-import HarbergerAsset from "./HarbergerAsset";
+import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
+import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
+import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
+
 // All the logic of this dapp is contained in the Dapp component.
 // These other components are just presentational ones: they don't have any
 // logic. They just render HTML.
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
+import HarbergerAsset from "./HarbergerAsset";
 // import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
 // import { PrintList } from './PrintList';
-import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
-import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
-
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.
@@ -168,7 +168,7 @@ export class Dapp extends React.Component {
     )
 
     this.HTcontract = new ethers.Contract(
-      HTAX_CONTRACT_ADDRESS,
+      contractAddress.HarbergerAsset,
       HTAX_ARTIFACT.abi,
       this._provider.getSigner()
     )
@@ -176,9 +176,9 @@ export class Dapp extends React.Component {
 
   async loadContractData() {
     const contractAdmin = await this.HTcontract.admin()
-    const contractBalance = await this._provider.getBalance(HTAX_CONTRACT_ADDRESS)
+    const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset)
 
-    const logs = await this._provider.getLogs({ address: HTAX_CONTRACT_ADDRESS, fromBlock: 0 })
+    const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 })
     const iface = new ethers.utils.Interface(HTAX_EVENT_ABI)
     const eventsLogs = logs.map(async (log, i) => {
       const block = await this._provider.getBlock(logs[i].blockNumber)
@@ -187,7 +187,7 @@ export class Dapp extends React.Component {
     })
 
     this.setState({
-      contractAddress: HTAX_CONTRACT_ADDRESS,
+      contractAddress: contractAddress.HarbergerAsset,
       contractAdmin: contractAdmin,
       contractBalance: contractBalance.toString(),
       eventsLogs: eventsLogs,

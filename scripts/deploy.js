@@ -1,31 +1,59 @@
-const hre = require("hardhat");
+const hre = require("hardhat")
 
 async function main() {
-  await hre.run("compile");
+  await hre.run("compile")
 
-  // This is just a convenience check
-  if (network.name === "hardhat") {
-    console.warn(
-      "You are trying to deploy a contract to the Hardhat Network, which" +
-        "gets automatically created and destroyed every time. Use the Hardhat" +
-        " option '--network localhost'"
-    );
-  }
-
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying the contracts with the account:", await deployer.getAddress());
-  console.log("Account balance:", (await deployer.getBalance()).toString());
-
-  const HarbergerAsset = await ethers.getContractFactory("HarbergerAsset");
+  const HarbergerAsset = await hre.ethers.getContractFactory("HarbergerAsset");
   const harbergerAsset = await HarbergerAsset.deploy();
   await harbergerAsset.deployed();
 
-  console.log("HarbergerAsset address:", harbergerAsset.address);
+  console.log("HarbergerAsset deployed to:", harbergerAsset.address);
+
+  const Token = await ethers.getContractFactory("Token");
+  const token = await Token.deploy();
+  await token.deployed();
+
+  console.log("Token deployed to:", token.address);
+
+// We also save the contract's artifacts and address in the frontend directory
+  saveFrontendFiles(harbergerAsset, token);
 }
+
+function saveFrontendFiles(harbergerAsset, token) {
+  const fs = require("fs");
+  const contractsDir = __dirname + "/../frontend/src/contracts";
+
+  if (!fs.existsSync(contractsDir)) {
+    fs.mkdirSync(contractsDir);
+  }
+
+  fs.writeFileSync(
+    contractsDir + "/contract-address.json",
+    JSON.stringify({
+      HarbergerAsset: harbergerAsset.address,
+      Token: token.address
+    }, undefined, 2)
+  );
+
+  const HarbergerArtifact = artifacts.readArtifactSync("HarbergerAsset");
+
+  fs.writeFileSync(
+    contractsDir + "/HarbergerAsset.json",
+    JSON.stringify(HarbergerArtifact, null, 2)
+  );
+
+  const TokenArtifact = artifacts.readArtifactSync("Token")
+
+  fs.writeFileSync(
+    contractsDir + "/Token.json",
+    JSON.stringify(TokenArtifact, null, 2)
+  );
+}
+
 
 main()
   .then(() => process.exit(0))
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+  .catch(error => {
+    console.error(error)
+    process.exit(1)
+  })
