@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 // using them with ethers
 import contractAddress from "../contracts/contract-address.json";
 import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
-import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
+import { HTAX_EVENT_ABI, HTAX_TOKEN_ID } from "../utils/HTAX/constants";
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 
@@ -30,6 +30,9 @@ const HARDHAT_NETWORK_ID = '1337';
 // This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 
+// Library for API request
+const axios = require('axios');
+
 // This component is in charge of doing these things:
 //   1. It connects to the user's wallet
 //   2. Initializes ethers and the Token contract
@@ -53,6 +56,9 @@ export class Dapp extends React.Component {
       txBeingSent: undefined,
       transactionError: undefined,
       networkError: undefined,
+      isLoadingContract: true,
+      isLoadingToken: true,
+      isLoadingMetadata: true
     };
 
     this.state = this.initialState;
@@ -96,7 +102,10 @@ export class Dapp extends React.Component {
     //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
     return (
       <HarbergerAsset
+        artist={this.state.assetCreator}
+        mintToken={this.mintToken}
         selectedAddress={this.state.selectedAddress}
+        tokenURI={this.state.tokenURI}
       />
     )
   }
@@ -145,7 +154,7 @@ export class Dapp extends React.Component {
 
     // We first store the user's address in the component's state
     this.setState({
-      selectedAddress: userAddress,
+      selectedAddress: userAddress
     });
 
     // Then, we initialize ethers, fetch the token's data, and start polling
@@ -167,7 +176,7 @@ export class Dapp extends React.Component {
       this._provider.getSigner()
     )
 
-    this.HTcontract = new ethers.Contract(
+    this.HTAXcontract = new ethers.Contract(
       contractAddress.HarbergerAsset,
       HTAX_ARTIFACT.abi,
       this._provider.getSigner()
@@ -175,15 +184,15 @@ export class Dapp extends React.Component {
   }
 
   async loadContractData() {
-    const contractAdmin = await this.HTcontract.admin()
-    const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset)
+    const contractAdmin = await this.HTAXcontract.admin();
+    const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
 
-    const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 })
-    const iface = new ethers.utils.Interface(HTAX_EVENT_ABI)
+    const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
+    const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
     const eventsLogs = logs.map(async (log, i) => {
-      const block = await this._provider.getBlock(logs[i].blockNumber)
-      if (!block) return
-      return Object.assign(iface.parseLog(log), {blockNumber: block.number, timestamp: block.timestamp})
+      const block = await this._provider.getBlock(logs[i].blockNumber);
+      if (!block) return;
+      return Object.assign(iface.parseLog(log), {blockNumber: block.number, timestamp: block.timestamp});
     })
 
     this.setState({
@@ -191,9 +200,181 @@ export class Dapp extends React.Component {
       contractAdmin: contractAdmin,
       contractBalance: contractBalance.toString(),
       eventsLogs: eventsLogs,
+      isLoadingContract: false
     })
 
-    console.log("HTAX Contract State:", this.state)
+    console.log("HTAX Contract State:", this.state);
+    this.loadTokenData();
+  }
+
+  async loadTokenData() {
+    try {
+      const asset = await this.HTAXcontract.assets(HTAX_TOKEN_ID);
+      const assetOwner = await this.HTAXcontract.ownerOf(HTAX_TOKEN_ID);
+      const approvedAccount = await this.HTAXcontract.getApproved(HTAX_TOKEN_ID);
+      const timeExpired = await this.HTAXcontract.timeExpired(HTAX_TOKEN_ID);
+      const tokenURI = await this.HTAXcontract.tokenURI(HTAX_TOKEN_ID);
+      const taxRate = await this.HTAXcontract.taxPercentage();
+      const baseInterval = await this.HTAXcontract.baseInterval();
+      const adminBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, this.state.contractAdmin);
+      const creatorBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, asset.creator);
+
+      this.setState({
+        adminBalance: adminBalance.toString(),
+        assetCreator: asset.creator,
+        assetDeadline: asset.deadline.toString(),
+        assetLastDeposit: asset.lastDeposit.toString(),
+        assetOwner: assetOwner,
+        assetPrice: asset.price.toString(),
+        assetTaxAmount: asset.taxAmount.toString(),
+        assetTotalDeposit: asset.totalDeposit.toString(),
+        approvedAccount: approvedAccount,
+        baseInterval: baseInterval.toString(),
+        creatorBalance: creatorBalance.toString(),
+        taxRate: `${taxRate}%`,
+        timeExpired: timeExpired,
+        tokenURI: tokenURI,
+        isLoadingToken: false
+      })
+
+      console.log("HTAX Token State:", this.state);
+      // this.apiRequest();
+    } catch(err) {
+      console.log(err);
+    }
+  }
+
+  async apiRequest() {
+    try {
+      const tokenURI = this.state.tokenURI;
+      const response = await axios.get(tokenURI);
+
+      this.setState({
+        tokenArtist: response.data.artist,
+        tokenDescription: response.data.description,
+        tokenImage: response.data.image,
+        tokenName: response.data.name,
+        isLoadingMetadata: false
+      })
+
+      console.log("HTAX Metadata State:", this.state);
+    } catch(err) {
+      alert(err);
+    }
+  }
+
+  async mintToken(ipfsHash) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      console.log(contract)
+      const transaction = await contract.mintToken(ipfsHash);
+      const receipt = await transaction.wait();
+
+      console.log("Transaction Receipt:", receipt);
+      this.loadContractData();
+    } catch(err) {
+      alert(err);
+    }
+  }
+
+  async listAsset(amount) {
+    if (this.state.approvedAccount !== contractAddress) {
+      this.setApproval();
+    } else {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+      try {
+        const transaction = await contract.listAssetForSaleInWei(HTAX_TOKEN_ID, amount);
+        const receipt = await transaction.wait();
+
+        console.log("Transaction Receipt:", receipt);
+        this.loadContractData();
+      } catch(err) {
+        alert(err);
+      }
+    }
+  }
+
+  async setApproval() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.approve(contractAddress.HarbergerAsset, HTAX_TOKEN_ID);
+      const receipt = await transaction.wait();
+
+      console.log("Transaction Receipt:", receipt);
+      this.loadContractData();
+    } catch(err) {
+      alert(err);
+    }
+  }
+
+  async depositTax(amount) {
+    if (this.state.approvedAccount !== contractAddress.HarbergerAsset) {
+      this.setApproval();
+    } else {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+      try {
+        const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
+        const receipt = await transaction.wait();
+
+        console.log("Transaction Receipt:", receipt);
+        this.loadContractData();
+      } catch(err) {
+        alert(err);
+      }
+    }
+  }
+
+  async buyAsset() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.buyAssetInWei(HTAX_TOKEN_ID, { value: this.state.assetPrice });
+      const receipt = await transaction.wait();
+
+      console.log("Transaction Receipt:", receipt);
+      this.loadContractData();
+    } catch(err) {
+      alert(err);
+    }
+  }
+
+  async collectFunds() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.collectFunds(HTAX_TOKEN_ID);
+      const receipt = await transaction.wait();
+
+      console.log("Transaction Receipt:", receipt);
+      this.loadContractData();
+    } catch(err) {
+      alert(err);
+    }
+  }
+
+  async reclaimAsset() {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.reclaimAsset(HTAX_TOKEN_ID);
+      const receipt = await transaction.wait();
+
+      console.log("Transaction Receipt:", receipt);
+      this.loadContractData();
+    } catch(err) {
+      alert(err);
+    }
   }
 
   async getTrackSupply(originalTokenId) {
