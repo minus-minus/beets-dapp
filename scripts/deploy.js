@@ -1,7 +1,7 @@
-const hre = require("hardhat")
+const hre = require("hardhat");
 
 async function main() {
-  await hre.run('compile');
+  await hre.run("compile");
 
   // This is just a convenience check
   if (network.name === "hardhat") {

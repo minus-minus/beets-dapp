@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import moment from "moment";
+// import moment from "moment";
 import "moment-timezone";
 import { Container, Navbar, Row, Col, Button } from "react-bootstrap";
 import "../stylesheets/HarbergerAsset.css";
@@ -37,12 +37,9 @@ class HarbergerAsset extends Component {
         <Container className="mt-5">
           <Row>
             <h1 className="text-center mb-5">Harberger Taxes</h1>
-
             <Col className="d-flex justify-content-center">
-
             </Col>
             <Col className="d-flex justify-content-center">
-
             </Col>
           </Row>
         </Container>
