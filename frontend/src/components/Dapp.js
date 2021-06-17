@@ -4,8 +4,7 @@ import { ethers } from "ethers";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import contractAddress from "../contracts/contract-address.json";
-// import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
-import HTAX_ARTIFACT from "../artifacts/contracts/HarbergerAsset.sol/HarbergerAsset.json";
+import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
 import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
@@ -22,6 +21,7 @@ import HarbergerAsset from "./HarbergerAsset";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
 // import { PrintList } from './PrintList';
+
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
 // to use when deploying to other networks.

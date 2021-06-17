@@ -10,9 +10,9 @@ module.exports = {
   networks: {
     hardhat: {
       chainId: 1337,
-      // forking: {
-      //   url: "https://eth-mainnet.alchemyapi.io/v2/Rz6eIxUOE7wjSHFw33d31XxNT5XAVcYj"
-      // }
+      forking: {
+        url: "https://eth-mainnet.alchemyapi.io/v2/Rz6eIxUOE7wjSHFw33d31XxNT5XAVcYj"
+      }
     }
   }
 };
