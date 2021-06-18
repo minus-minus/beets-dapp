@@ -313,7 +313,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("MintToken Transaction Receipt:", receipt);
-      this._resetState();
+      this._connectWallet();
     } catch(err) {
       console.log("MintToken Error");
       alert(this._parseErrorMsg(err));
@@ -330,7 +330,7 @@ export class Dapp extends React.Component {
         const receipt = await transaction.wait();
 
         console.log("ListAsset Transaction Receipt:", receipt);
-        this._resetState();
+        this._connectWallet();
       } catch(err) {
         console.log("ListAsset Error");
         alert(this._parseErrorMsg(err));
@@ -350,7 +350,7 @@ export class Dapp extends React.Component {
         const receipt = await transaction.wait();
 
         console.log("DepositTax Transaction Receipt:", receipt);
-        this._resetState();
+        this._connectWallet();
       } catch(err) {
         console.log("DepositTax Error");
         alert(this._parseErrorMsg(err));
@@ -369,7 +369,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("SetApproval Transaction Receipt:", receipt);
-      this._resetState();
+      this._connectWallet();
     } catch(err) {
       console.log("SetApproval Error");
       alert(this._parseErrorMsg(err));
@@ -385,7 +385,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("BuyAsset Transaction Receipt:", receipt);
-      this._resetState();
+      this._connectWallet();
     } catch(err) {
       console.log("BuyAsset Error");
       alert(this._parseErrorMsg(err));
@@ -401,7 +401,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("CollectFunds Transaction Receipt:", receipt);
-      this._resetState();
+      this._connectWallet();
     } catch(err) {
       console.log("CollectFunds Error");
       alert(this._parseErrorMsg(err));
@@ -417,7 +417,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this._resetState();
+      this._connectWallet();
     } catch(err) {
       console.log("ReclaimAsset Error");
       alert(this._parseErrorMsg(err));
