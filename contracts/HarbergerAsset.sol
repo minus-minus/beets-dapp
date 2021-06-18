@@ -106,7 +106,7 @@ contract HarbergerAsset is ERC721URIStorage {
     require(_exists(_tokenId), "Token does not exist");
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
     require(assets[_tokenId].price > 0, "Must first set a sales price");
-    require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
+    require(msg.value >= assets[_tokenId].taxAmount, "Insufficient tax funds deposited");
 
     uint256 multiplier = msg.value.div(baseTaxPrice);
     assets[_tokenId].deadline += baseInterval.mul(multiplier);

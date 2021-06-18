@@ -115,10 +115,36 @@ export class Dapp extends React.Component {
     //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
     return (
       <HarbergerAsset
-        artist={this.state.assetCreator}
+        adminAddress={this.state.adminAddress}
+        adminBalance={this.state.adminBalance}
+        approvedAddress={this.state.approvedAddress}
+        assetDeadline={this.state.assetDeadline}
+        assetLastDeposit={this.state.lastDeposit}
+        assetPrice={this.state.assetPrice}
+        assetTaxAmount={this.state.assetTaxAmount}
+        assetTotalDeposit={this.state.assetTotalDeposit}
+        baseInterval={this.state.baseInterval}
+        buyAsset={this.buyAsset}
+        collectFunds={this.collectFunds}
+        creatorAddress={this.state.creatorAddress}
+        creatorBalance={this.state.creatorBalance}
+        depositTax={this.depositTax}
+        eventLogs={[]}
+        isLoadingContract={this.state.isLoadingContract}
+        isLoadingToken={this.state.isLoadingToken}
+        isLoadingMetadata={this.state.isLoadingMetadata}
+        listAsset={this.listAsset}
         mintToken={this.mintToken}
+        ownerAddress={this.state.ownerAddress}
+        reclaimAsset={this.reclaimAsset}
         selectedAddress={this.state.selectedAddress}
+        taxRatePercentage={this.state.taxRatePercentage}
+        timeExpired={this.state.timeExpired}
         tokenURI={this.state.tokenURI}
+        tokenArtist={this.state.tokenArtist}
+        tokenDescription={this.state.description}
+        tokenImage={this.state.tokenImage}
+        tokenName={this.state.tokenName}
       />
     )
   }
@@ -167,7 +193,7 @@ export class Dapp extends React.Component {
 
     // We first store the user's address in the component's state
     this.setState({
-      selectedAddress: userAddress
+      selectedAddress: ethers.utils.getAddress(userAddress)
     });
 
     // Then, we initialize ethers, fetch the token's data, and start polling
@@ -209,14 +235,15 @@ export class Dapp extends React.Component {
     })
 
     this.setState({
-      contractAddress: contractAddress.HarbergerAsset,
-      contractAdmin: contractAdmin,
+      adminAddress: ethers.utils.getAddress(contractAdmin),
+      contractAddress: ethers.utils.getAddress(contractAddress.HarbergerAsset),
       contractBalance: contractBalance.toString(),
       eventsLogs: eventsLogs,
       network: network,
       isLoadingContract: false
     })
 
+    console.clear();
     console.log("HTAX Contract State:", this.state);
     this.loadTokenData();
   }
@@ -228,24 +255,24 @@ export class Dapp extends React.Component {
       const approvedAccount = await this.HTAXcontract.getApproved(HTAX_TOKEN_ID);
       const timeExpired = await this.HTAXcontract.timeExpired(HTAX_TOKEN_ID);
       const tokenURI = await this.HTAXcontract.tokenURI(HTAX_TOKEN_ID);
-      const taxRate = await this.HTAXcontract.taxPercentage();
+      const taxRatePercentage = await this.HTAXcontract.taxPercentage();
       const baseInterval = await this.HTAXcontract.baseInterval();
-      const adminBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, this.state.contractAdmin);
+      const adminBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, this.state.adminAddress);
       const creatorBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, asset.creator);
 
       this.setState({
         adminBalance: adminBalance.toString(),
-        assetCreator: asset.creator,
+        approvedAddress: ethers.utils.getAddress(approvedAccount),
         assetDeadline: asset.deadline.toString(),
         assetLastDeposit: asset.lastDeposit.toString(),
-        assetOwner: assetOwner,
         assetPrice: asset.price.toString(),
         assetTaxAmount: asset.taxAmount.toString(),
         assetTotalDeposit: asset.totalDeposit.toString(),
-        approvedAccount: approvedAccount,
         baseInterval: baseInterval.toString(),
+        creatorAddress: ethers.utils.getAddress(asset.creator),
         creatorBalance: creatorBalance.toString(),
-        taxRate: `${taxRate}%`,
+        ownerAddress: ethers.utils.getAddress(assetOwner),
+        taxRatePercentage: taxRatePercentage.toString(),
         timeExpired: timeExpired,
         tokenURI: tokenURI,
         isLoadingToken: false
@@ -254,9 +281,7 @@ export class Dapp extends React.Component {
       console.log("HTAX Token State:", this.state);
       this.apiRequest();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log(err);
     }
   }
 
@@ -275,9 +300,7 @@ export class Dapp extends React.Component {
 
       console.log("HTAX Metadata State:", this.state);
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log(err);
     }
   }
 
@@ -289,19 +312,16 @@ export class Dapp extends React.Component {
       const transaction = await contract.mintToken(ipfsHash);
       const receipt = await transaction.wait();
 
-      console.log("Transaction Receipt:", receipt);
+      console.log("MintToken Transaction Receipt:", receipt);
       this._resetState();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log("MintToken Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
   async listAsset(amount) {
-    if (this.state.approvedAccount !== contractAddress) {
-      this.setApproval();
-    } else {
+    if (this.state.approvedAddress === this.state.contractAddress) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
@@ -309,13 +329,34 @@ export class Dapp extends React.Component {
         const transaction = await contract.listAssetForSaleInWei(HTAX_TOKEN_ID, amount);
         const receipt = await transaction.wait();
 
-        console.log("Transaction Receipt:", receipt);
+        console.log("ListAsset Transaction Receipt:", receipt);
         this._resetState();
       } catch(err) {
-        const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-        this.setState({ transactionError: msg });
-        console.error(this.state);
+        console.log("ListAsset Error");
+        alert(this._parseErrorMsg(err));
       }
+    } else {
+      this.setApproval();
+    }
+  }
+
+  async depositTax(amount) {
+    if (this.state.approvedAddress === this.state.contractAddress) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+      try {
+        const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
+        const receipt = await transaction.wait();
+
+        console.log("DepositTax Transaction Receipt:", receipt);
+        this._resetState();
+      } catch(err) {
+        console.log("DepositTax Error");
+        alert(this._parseErrorMsg(err));
+      }
+    } else {
+      this.setApproval();
     }
   }
 
@@ -327,33 +368,11 @@ export class Dapp extends React.Component {
       const transaction = await contract.approve(contractAddress.HarbergerAsset, HTAX_TOKEN_ID);
       const receipt = await transaction.wait();
 
-      console.log("Transaction Receipt:", receipt);
+      console.log("SetApproval Transaction Receipt:", receipt);
       this._resetState();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
-    }
-  }
-
-  async depositTax(amount) {
-    if (this.state.approvedAccount !== contractAddress.HarbergerAsset) {
-      this.setApproval();
-    } else {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-      try {
-        const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
-        const receipt = await transaction.wait();
-
-        console.log("Transaction Receipt:", receipt);
-        this._resetState();
-      } catch(err) {
-        const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-        this.setState({ transactionError: msg });
-        console.error(this.state);
-      }
+      console.log("SetApproval Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
@@ -365,12 +384,11 @@ export class Dapp extends React.Component {
       const transaction = await contract.buyAssetInWei(HTAX_TOKEN_ID, { value: this.state.assetPrice });
       const receipt = await transaction.wait();
 
-      console.log("Transaction Receipt:", receipt);
+      console.log("BuyAsset Transaction Receipt:", receipt);
       this._resetState();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log("BuyAsset Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
@@ -382,12 +400,11 @@ export class Dapp extends React.Component {
       const transaction = await contract.collectFunds(HTAX_TOKEN_ID);
       const receipt = await transaction.wait();
 
-      console.log("Transaction Receipt:", receipt);
+      console.log("CollectFunds Transaction Receipt:", receipt);
       this._resetState();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log("CollectFunds Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
@@ -402,9 +419,8 @@ export class Dapp extends React.Component {
       console.log("Transaction Receipt:", receipt);
       this._resetState();
     } catch(err) {
-      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
-      this.setState({ transactionError: msg });
-      console.error(this.state);
+      console.log("ReclaimAsset Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
@@ -479,9 +495,13 @@ export class Dapp extends React.Component {
     }
 
     this.setState({
-      networkError: 'Please connect Metamask to Localhost:8545'
+      networkError: 'Please connect Metamask to localhost:3000'
     });
 
     return false;
+  }
+
+  _parseErrorMsg(err) {
+    return err.data ? err.data.message : err.message;
   }
 }

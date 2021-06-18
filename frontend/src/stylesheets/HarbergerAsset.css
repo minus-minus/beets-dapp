@@ -1,4 +1,4 @@
-.beets-logo {
+.logo {
   width: 90px;
   height: 65px;
 }
@@ -13,59 +13,67 @@
   border-radius: 10px;
 }
 
-.btn:focus,
-.btn:active:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.btn-secondary,
-.btn-secondary:hover,
-.btn-secondary:active,
-.btn-secondary:visited {
-  border-style: none;
+.btn-secondary {
+  border-color: #AA00FF !important;
   background-color: #AA00FF !important;
   float: left;
-}
-
-.btn-dark,
-.btn-dark:hover,
-.btn-dark:active,
-.btn-dark:visited {
-  width: 100%;
-  font-weight: bold;
-  color: #fff;
-  background-color: #198754 !important;
-  border-style: none;
-}
-
-.btn-light,
-.btn-light:hover,
-.btn-light:active,
-.btn-light:visited {
-  width: 100%;
-  font-weight: bold;
-  color: #fff !important;
-  background-color: #0d6efd !important;
-  border-style: none;
 }
 
 .btn-info {
   float: right;
 }
 
-.space {
+button.subheader.btn.btn-success,
+button.subheader.btn.btn-success:hover,
+button.subheader.btn.btn-success:active,
+button.subheader.btn.btn-success:visited {
+  width: 100%;
+  font-weight: bold;
+}
+
+button.subheader.btn.btn-primary,
+button.subheader.btn.btn-primary:hover,
+button.subheader.btn.btn-primary:active,
+button.subheader.btn.btn-primary:visited {
+  width: 100%;
+  font-weight: bold;
+}
+
+button.subheader.btn.btn-success:focus,
+button.subheader.btn.btn-success:active:focus,
+button.subheader.btn.btn-primary:focus,
+button.subheader.btn.btn-primary:active:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.token {
   width: 100%;
   height: auto;
   border: 5px solid #AA00FF;
 }
 
-.placeholder {
+.placeholder-img {
   width: 100%;
   height: auto;
   border: 5px solid #808080;
 }
 
+.explainer {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  max-height: 350px;
+  border-radius: 5px;
+}
+
+.explainer > p {
+  font-size: 18px;
+}
+
+input {
+  text-align: center;
+}
 
 .provenance {
   flex: 1;
@@ -81,6 +89,7 @@
   margin-bottom: 5px;
   margin-right: 5px;
 }
+
 
 @media (min-width: 548px) {
   .jumbotron {
