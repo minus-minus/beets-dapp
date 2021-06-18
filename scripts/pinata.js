@@ -1,14 +1,13 @@
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
-const basePinataURI = "https://api.pinata.cloud/pinning"
-const baseIpfsURI = "https://ipfs.io/ipfs/"
-const fileName = "./frontend/public/space.jpg"
+const tokenFileName = "./frontend/public/space.jpg"
+const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
-  const pinFileUrl = basePinataURI + "/pinFileToIPFS"
+  const pinFileUrl = process.env.PINATA_BASE_URI + "/pinFileToIPFS"
   let data = new FormData()
-  data.append("file", fs.createReadStream(fileName))
+  data.append("file", fs.createReadStream(tokenFileName))
 
   const header = {
     maxContentLength: "Infinity",
@@ -31,7 +30,7 @@ async function pinFileToIPFS() {
 }
 
 async function pinMetadata(hash) {
-  const pinJsonUrl = basePinataURI + "/pinJSONToIPFS"
+  const pinJsonUrl = process.env.PINATA_BASE_URI + "/pinJSONToIPFS"
   const metadata =
   {
     pinataMetadata: {
@@ -41,7 +40,7 @@ async function pinMetadata(hash) {
       "name": "Stary Night",
       "artist": "Vincent Van Go",
       "description": "A painting of the night sky",
-      "image": baseIpfsURI + hash,
+      "image": process.env.IPFS_BASE_URI + hash,
       "attributes": []
     }
   }
@@ -67,8 +66,6 @@ async function pinMetadata(hash) {
 }
 
 function saveFrontendFiles(ipfsHash) {
-  const contractsDir = __dirname + "/../frontend/src/contracts"
-
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir)
   }

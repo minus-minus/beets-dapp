@@ -1,4 +1,6 @@
 const hre = require("hardhat")
+const fs = require("fs");
+const contractsDir = __dirname + "/../frontend/src/contracts";
 
 async function main() {
   await hre.run("compile")
@@ -9,14 +11,10 @@ async function main() {
 
   console.log("HarbergerAsset deployed to:", harbergerAsset.address);
 
-// We also save the contract's artifacts and address in the frontend directory
   saveFrontendFiles(harbergerAsset);
 }
 
 function saveFrontendFiles(harbergerAsset) {
-  const fs = require("fs");
-  const contractsDir = __dirname + "/../frontend/src/contracts";
-
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
   }

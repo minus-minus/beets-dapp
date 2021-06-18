@@ -6,6 +6,7 @@ import { ethers } from "ethers";
 import contractAddress from "../contracts/contract-address.json";
 import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
 import { HTAX_EVENT_ABI, HTAX_TOKEN_ID } from "../utils/HTAX/constants";
+
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 
@@ -56,6 +57,7 @@ export class Dapp extends React.Component {
       txBeingSent: undefined,
       transactionError: undefined,
       networkError: undefined,
+      // Wait for data to load before continuing
       isLoadingContract: true,
       isLoadingToken: true,
       isLoadingMetadata: true
@@ -197,7 +199,7 @@ export class Dapp extends React.Component {
   async loadContractData() {
     const contractAdmin = await this.HTAXcontract.admin();
     const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
-
+    const network = await this._provider.getNetwork();
     const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
     const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
     const eventsLogs = logs.map(async (log, i) => {
@@ -211,6 +213,7 @@ export class Dapp extends React.Component {
       contractAdmin: contractAdmin,
       contractBalance: contractBalance.toString(),
       eventsLogs: eventsLogs,
+      network: network,
       isLoadingContract: false
     })
 
@@ -283,12 +286,11 @@ export class Dapp extends React.Component {
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
     try {
-      // console.log(ipfsHash)
       const transaction = await contract.mintToken(ipfsHash);
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this.loadContractData();
+      this._resetState();
     } catch(err) {
       const msg = err.data ? err.data.message.split('revert ')[1] : err.message
       this.setState({ transactionError: msg });
@@ -308,7 +310,7 @@ export class Dapp extends React.Component {
         const receipt = await transaction.wait();
 
         console.log("Transaction Receipt:", receipt);
-        this.loadContractData();
+        this._resetState();
       } catch(err) {
         const msg = err.data ? err.data.message.split('revert ')[1] : err.message
         this.setState({ transactionError: msg });
@@ -326,7 +328,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this.loadContractData();
+      this._resetState();
     } catch(err) {
       const msg = err.data ? err.data.message.split('revert ')[1] : err.message
       this.setState({ transactionError: msg });
@@ -346,7 +348,7 @@ export class Dapp extends React.Component {
         const receipt = await transaction.wait();
 
         console.log("Transaction Receipt:", receipt);
-        this.loadContractData();
+        this._resetState();
       } catch(err) {
         const msg = err.data ? err.data.message.split('revert ')[1] : err.message
         this.setState({ transactionError: msg });
@@ -364,7 +366,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this.loadContractData();
+      this._resetState();
     } catch(err) {
       const msg = err.data ? err.data.message.split('revert ')[1] : err.message
       this.setState({ transactionError: msg });
@@ -381,7 +383,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this.loadContractData();
+      this._resetState();
     } catch(err) {
       const msg = err.data ? err.data.message.split('revert ')[1] : err.message
       this.setState({ transactionError: msg });
@@ -398,7 +400,7 @@ export class Dapp extends React.Component {
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
-      this.loadContractData();
+      this._resetState();
     } catch(err) {
       const msg = err.data ? err.data.message.split('revert ')[1] : err.message
       this.setState({ transactionError: msg });
