@@ -61,6 +61,17 @@ export class Dapp extends React.Component {
       isLoadingMetadata: true
     };
 
+    this.loadContractData = this.loadContractData.bind(this)
+    this.loadTokenData = this.loadTokenData.bind(this)
+    this.apiRequest = this.apiRequest.bind(this)
+    this.mintToken = this.mintToken.bind(this)
+    this.setApproval = this.setApproval.bind(this)
+    this.listAsset = this.listAsset.bind(this)
+    this.depositTax = this.depositTax.bind(this)
+    this.buyAsset = this.buyAsset.bind(this)
+    this.collectFunds = this.collectFunds.bind(this)
+    this.reclaimAsset = this.reclaimAsset.bind(this)
+
     this.state = this.initialState;
   }
 
@@ -122,9 +133,9 @@ export class Dapp extends React.Component {
     // Once we have the address, we can initialize the application.
 
     // First we check the network
-    // if (!this._checkNetwork()) {
-    //   return;
-    // }
+    if (!this._checkNetwork()) {
+      return;
+    }
 
     this._initialize(accounts[0]);
 
@@ -238,9 +249,11 @@ export class Dapp extends React.Component {
       })
 
       console.log("HTAX Token State:", this.state);
-      // this.apiRequest();
+      this.apiRequest();
     } catch(err) {
-      console.log(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -259,7 +272,9 @@ export class Dapp extends React.Component {
 
       console.log("HTAX Metadata State:", this.state);
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -268,14 +283,16 @@ export class Dapp extends React.Component {
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
     try {
-      console.log(contract)
+      // console.log(ipfsHash)
       const transaction = await contract.mintToken(ipfsHash);
       const receipt = await transaction.wait();
 
       console.log("Transaction Receipt:", receipt);
       this.loadContractData();
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -293,7 +310,9 @@ export class Dapp extends React.Component {
         console.log("Transaction Receipt:", receipt);
         this.loadContractData();
       } catch(err) {
-        alert(err);
+        const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+        this.setState({ transactionError: msg });
+        console.error(this.state);
       }
     }
   }
@@ -309,7 +328,9 @@ export class Dapp extends React.Component {
       console.log("Transaction Receipt:", receipt);
       this.loadContractData();
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -327,7 +348,9 @@ export class Dapp extends React.Component {
         console.log("Transaction Receipt:", receipt);
         this.loadContractData();
       } catch(err) {
-        alert(err);
+        const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+        this.setState({ transactionError: msg });
+        console.error(this.state);
       }
     }
   }
@@ -343,7 +366,9 @@ export class Dapp extends React.Component {
       console.log("Transaction Receipt:", receipt);
       this.loadContractData();
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -358,7 +383,9 @@ export class Dapp extends React.Component {
       console.log("Transaction Receipt:", receipt);
       this.loadContractData();
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 
@@ -373,7 +400,9 @@ export class Dapp extends React.Component {
       console.log("Transaction Receipt:", receipt);
       this.loadContractData();
     } catch(err) {
-      alert(err);
+      const msg = err.data ? err.data.message.split('revert ')[1] : err.message
+      this.setState({ transactionError: msg });
+      console.error(this.state);
     }
   }
 

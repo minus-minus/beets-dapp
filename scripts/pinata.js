@@ -46,7 +46,7 @@ async function pinMetadata(hash) {
     }
   }
 
-  console.log("Metadata:", metadata);
+  console.log("Metadata:" + "\n", metadata);
 
   const header = {
     headers: {
@@ -60,10 +60,23 @@ async function pinMetadata(hash) {
   try {
     const ipfsHash = response.data["IpfsHash"]
     console.log("JSON Hash:", ipfsHash)
-    return ipfsHash
+    saveFrontendFiles(ipfsHash)
   } catch (err) {
     console.log(err)
   }
+}
+
+function saveFrontendFiles(ipfsHash) {
+  const contractsDir = __dirname + "/../frontend/src/contracts"
+
+  if (!fs.existsSync(contractsDir)) {
+    fs.mkdirSync(contractsDir)
+  }
+
+  fs.writeFileSync(
+    contractsDir + "/ipfs-hash.json",
+    JSON.stringify({ HarbergerAsset: ipfsHash }, undefined, 2)
+  )
 }
 
 pinFileToIPFS()

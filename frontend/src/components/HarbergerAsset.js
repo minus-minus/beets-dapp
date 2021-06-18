@@ -4,7 +4,8 @@ import moment from "moment";
 import "moment-timezone";
 import BigNumber from "bignumber.js"
 import { Container, Navbar, Row, Col, Button } from "react-bootstrap";
-import { HTAX_CREATOR_ADDRESS, HTAX_IPFS_HASH } from "../utils/HTAX/constants";
+import { HTAX_CREATOR_ADDRESS } from "../utils/HTAX/constants";
+import ipfsHash from "../contracts/ipfs-hash.json";
 import "../stylesheets/HarbergerAsset.css";
 
 class HarbergerAsset extends Component {
@@ -15,14 +16,22 @@ class HarbergerAsset extends Component {
     }
 
     this.minifyHash = this.minifyHash.bind(this)
+    this.convertToEth = this.convertToEth.bind(this)
+    this.convertToWei = this.convertToWei.bind(this)
+    this.handleToggle = this.handleToggle.bind(this)
+    this.parseInput = this.parseInput.bind(this)
+    this.parseError = this.parseError.bind(this)
+    this.formatTime = this.formatTime.bind(this)
+    this.timeRemaining = this.timeRemaining.bind(this)
   }
 
   minifyHash = (hash) => {
+    if (!hash) return
     const length = hash.length
     return `${hash.substring(0, 6)}...${hash.substring(length-4, length)}`
   }
 
-  handleClick = () => {
+  handleToggle = () => {
     this.setState({ toggleHeader: !this.state.toggleHeader })
   }
 
@@ -85,7 +94,7 @@ class HarbergerAsset extends Component {
             <h1 className="text-center mb-5">Harberger Taxes</h1>
             {this.props.selectedAddress === HTAX_CREATOR_ADDRESS && !this.props.tokenURI ? (
               <div className="text-center my-2">
-                <Button className="py-2 px-3" variant="success" onClick={(e) => {this.props.mintToken(HTAX_IPFS_HASH)}}>Mint Token</Button>
+                <Button className="py-2 px-3" variant="success" onClick={(e) => {this.props.mintToken(ipfsHash.HarbergerAsset)}}>Mint Token</Button>
               </div>
             ) : (
               null
