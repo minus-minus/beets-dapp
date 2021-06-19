@@ -16,7 +16,8 @@ class HarbergerAsset extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      toggleHeader: true
+      toggleHeader: true,
+      timeExpired: this.props.timeExpired
     }
 
     this.handleToggle = this.handleToggle.bind(this)
@@ -25,6 +26,11 @@ class HarbergerAsset extends Component {
     this.convertToWei = this.convertToWei.bind(this)
     this.formatTime = this.formatTime.bind(this)
     this.timeRemaining = this.timeRemaining.bind(this)
+  }
+
+  componentDidMount() {
+    this.timeRemaining(this.props.assetDeadline)
+    setInterval(() => this.timeRemaining(this.props.assetDeadline), 100)
   }
 
   handleToggle = () => {
@@ -64,16 +70,15 @@ class HarbergerAsset extends Component {
 
     var current = Math.round((new Date()).getTime() / 1000)
     var remaining = unixTime - current
+    var days = Math.floor(remaining / (3600 * 24))
+    var hrs = Math.floor(remaining % (3600 * 24) / 3600)
+    var mins = Math.floor(remaining % 3600 / 60)
+    var secs = Math.floor(remaining % 60)
 
-    var d = Math.floor(remaining / (3600 * 24))
-    var h = Math.floor(remaining % (3600 * 24) / 3600)
-    var m = Math.floor(remaining % 3600 / 60)
-    var s = Math.floor(remaining % 60)
-
-    if (current >= unixTime || this.props.timeExpired) {
-      return "TIME EXPIRED"
+    if (current >= unixTime) {
+      this.setState({ timeExpired: true })
     } else {
-      return `${d} days, ${h} hrs, ${m} mins, ${s} secs`
+      this.setState({ days, hrs, mins, secs })
     }
   }
 
@@ -103,8 +108,8 @@ class HarbergerAsset extends Component {
               {!this.props.isLoadingToken ? (
                 <Col className="d-flex justify-content-center">
                   <Jumbotron className="p-5 mb-5 mx-2">
-                    <p className="text-center mb-3"><b>{this.timeRemaining(this.props.assetDeadline)}</b></p>
-                    <div className="token d-flex justify-content-center">
+                    <p className="text-center mb-3"><b>{!this.state.timeExpired ? `${this.state.days} days, ${this.state.hrs} hrs, ${this.state.mins} mins, ${this.state.secs} secs` : "TIME EXPIRED"}</b></p>
+                    <div className="d-flex justify-content-center">
                       {this.props.tokenImage ? (
                         <img className="token" src={this.props.tokenImage} alt="space"/>
                       ) : (

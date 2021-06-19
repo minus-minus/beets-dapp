@@ -26,7 +26,7 @@ export function Loading() {
           textAlign: "center",
         }}
       >
-        <span className="sr-only">Loading...</span>
+        <span className="sr-only">Loading...</span><br/><br/>
         <div className="spinner-border" role="status">
         </div>
       </div>

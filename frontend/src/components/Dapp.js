@@ -485,6 +485,7 @@ export class Dapp extends React.Component {
 
   // This method resets the state
   _resetState() {
+    console.clear();
     this.setState(this.initialState);
   }
 
