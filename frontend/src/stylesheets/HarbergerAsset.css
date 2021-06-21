@@ -13,6 +13,10 @@
   border-radius: 10px;
 }
 
+.font-bold {
+  font-weight: bold;
+}
+
 .btn-secondary {
   border-color: #AA00FF !important;
   background-color: #AA00FF !important;
@@ -23,6 +27,10 @@
   float: right;
 }
 
+button.subheader.btn.btn-primary,
+button.subheader.btn.btn-primary:hover,
+button.subheader.btn.btn-primary:active,
+button.subheader.btn.btn-primary:visited,
 button.subheader.btn.btn-success,
 button.subheader.btn.btn-success:hover,
 button.subheader.btn.btn-success:active,
@@ -31,23 +39,15 @@ button.subheader.btn.btn-success:visited {
   font-weight: bold;
 }
 
-button.subheader.btn.btn-primary,
-button.subheader.btn.btn-primary:hover,
-button.subheader.btn.btn-primary:active,
-button.subheader.btn.btn-primary:visited {
-  width: 100%;
-  font-weight: bold;
-}
-
-button.subheader.btn.btn-success:focus,
-button.subheader.btn.btn-success:active:focus,
 button.subheader.btn.btn-primary:focus,
-button.subheader.btn.btn-primary:active:focus {
+button.subheader.btn.btn-primary:active:focus,
+button.subheader.btn.btn-success:focus,
+button.subheader.btn.btn-success:active:focus {
   outline: none;
   box-shadow: none;
 }
 
-.token {
+.asset-token {
   width: 100%;
   height: auto;
   border: 5px solid #AA00FF;
@@ -59,7 +59,7 @@ button.subheader.btn.btn-primary:active:focus {
   border: 5px solid #808080;
 }
 
-.explainer {
+.asset-info {
   flex: 1;
   overflow-y: scroll;
   background: #fff;
@@ -67,7 +67,7 @@ button.subheader.btn.btn-primary:active:focus {
   border-radius: 5px;
 }
 
-.explainer > p {
+.asset-info > p {
   font-size: 18px;
 }
 
@@ -75,7 +75,7 @@ input {
   text-align: center;
 }
 
-.provenance {
+.asset-history {
   flex: 1;
   overflow-y: scroll;
   background: #fff;

@@ -63,8 +63,8 @@ export class Dapp extends React.Component {
       isLoadingMetadata: true
     };
 
-    this.loadContractData = this.loadContractData.bind(this)
-    this.loadTokenData = this.loadTokenData.bind(this)
+    this.loadHarbergerContract = this.loadHarbergerContract.bind(this)
+    this.loadHarbergerToken = this.loadHarbergerToken.bind(this)
     this.apiRequest = this.apiRequest.bind(this)
     this.mintToken = this.mintToken.bind(this)
     this.setApproval = this.setApproval.bind(this)
@@ -202,7 +202,7 @@ export class Dapp extends React.Component {
     // Fetching the token data and the user's balance are specific to this
     // sample project, but you can reuse the same initialization pattern.
     this._intializeEthers();
-    this.loadContractData();
+    this.loadHarbergerContract();
   }
 
   async _intializeEthers() {
@@ -222,7 +222,7 @@ export class Dapp extends React.Component {
     )
   }
 
-  async loadContractData() {
+  async loadHarbergerContract() {
     const contractAdmin = await this.HTAXcontract.admin();
     const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
     const network = await this._provider.getNetwork();
@@ -245,10 +245,10 @@ export class Dapp extends React.Component {
 
     console.clear();
     console.log("HTAX Contract State:", this.state);
-    this.loadTokenData();
+    this.loadHarbergerToken();
   }
 
-  async loadTokenData() {
+  async loadHarbergerToken() {
     try {
       const asset = await this.HTAXcontract.assets(HTAX_TOKEN_ID);
       const assetOwner = await this.HTAXcontract.ownerOf(HTAX_TOKEN_ID);
