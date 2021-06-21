@@ -30,25 +30,32 @@ class AssetInfo extends Component {
 
   setSelectedDate = (date) => {
     this.setState({
-      currentUnixTime: Math.floor(Date.now() / 1000),
-      selectedDate: new Date(date),
-      selectedUnixTime: Math.floor(new Date(date) / 1000),
-      estimatedTax: this.setEstimatedTax()
+      selectedDate: new Date(date)
     })
+
+    this.setEstimatedTax()
   }
 
   setEstimatedTax = () => {
-    var timeRemaining = this.state.assetDeadline - this.state.currentUnixTime
+    const currentTime = Math.floor(Date.now() / 1000)
+    console.log("Current Time:", currentTime)
+
+    const selectedTime = Math.floor(this.state.selectedDate / 1000)
+    console.log("Selected Time:", selectedTime)
+
+    var timeRemaining = this.state.assetDeadline - currentTime
     console.log("Time Remaining:", timeRemaining)
     if (timeRemaining < 0) timeRemaining = 0
 
-    const estimatedTime = this.state.selectedUnixTime - this.state.currentUnixTime + timeRemaining
+    const estimatedTime = selectedTime - currentTime + timeRemaining
     console.log("Estimated Time:", estimatedTime)
 
     const estimatedTax = (estimatedTime / this.state.baseInterval) * this.state.baseTaxPrice
     console.log("Estimated Tax:", estimatedTax)
 
-    return estimatedTax.toFixed(2)
+    this.setState({
+      estimatedTax: estimatedTax.toFixed(2)
+    })
   }
 
   formatDate = (unixTime) => {
