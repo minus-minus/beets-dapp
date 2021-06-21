@@ -38,8 +38,6 @@ class AssetInfo extends Component {
   }
 
   setEstimatedTax = () => {
-    if (this.state.selectedUnixTime < this.state.currentUnixTime) return 0
-
     var timeRemaining = this.state.assetDeadline - this.state.currentUnixTime
     console.log("Time Remaining:", timeRemaining)
     if (timeRemaining < 0) timeRemaining = 0
@@ -100,7 +98,7 @@ class AssetInfo extends Component {
             </div>
             <div className="asset-info text-center p-4">
               <h5>Calendar</h5>
-              <DatePicker className="my-2" selected={this.state.selectedDate} onChange={(date) => this.setSelectedDate(date)} />
+              <DatePicker className="my-2" selected={this.state.selectedDate} minDate={moment().toDate()} onChange={(date) => this.setSelectedDate(date)} />
               <p className="mt-4">The tax rate can be calculated by applying a fixed percentage of <b>{this.props.taxRatePercentage}%</b> to the current sales price. For every <b>0.01 Ξ</b> that is deposited in taxes, the timer will extend for an additional 12 hours. You can adjust the calendar to estimate the total amount of taxes that would be due for that specified time period.</p>
             </div>
             <div className="text-center mt-4 mb-3">
