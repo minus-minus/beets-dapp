@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import { ethers } from "ethers";
 import Navigation from "./Navigation";
-import AssetHeading from "./AssetHeading";
+import AssetHeader from "./AssetHeader";
 import AssetToken from "./AssetToken";
 import AssetInfo from "./AssetInfo";
 import AssetHistory from "./AssetHistory";
 import AssetOwner from "./AssetOwner";
 import BigNumber from "bignumber.js";
 import { Container, Row } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
 
 class HarbergerAsset extends Component {
   constructor(props) {
@@ -44,15 +43,11 @@ class HarbergerAsset extends Component {
           minifyAddress={this.minifyAddress}
           selectedAddress={this.props.selectedAddress}
         />
-        <Container className="mt-5">
-          <Row>
-            <AssetHeading
-              mintToken={this.props.mintToken}
-              selectedAddress={this.props.selectedAddress}
-              tokenURI={this.props.tokenURI}
-            />
-          </Row>
-        </Container>
+        <AssetHeader
+          mintToken={this.props.mintToken}
+          selectedAddress={this.props.selectedAddress}
+          tokenURI={this.props.tokenURI}
+        />
         {!this.props.isLoadingToken ? (
           <Container>
             <Row>
@@ -62,15 +57,17 @@ class HarbergerAsset extends Component {
                 assetTaxAmount={this.props.assetTaxAmount}
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
-                minifyAddress={this.minifyAddress}
+                isLoadingMetadata={this.props.isLoadingMetadata}
                 ownerAddress={this.props.ownerAddress}
                 timeExpired={this.props.timeExpired}
                 tokenImage={this.props.tokenImage}
                 tokenURI={this.props.tokenURI}
               />
               <AssetInfo
-                assetPrice={this.props.assetPrice}
+                assetTaxAmount={this.props.assetTaxAmount}
+                baseInterval={this.props.baseInterval}
                 buyAsset={this.props.buyAsset}
+                convertToEth={this.convertToEth}
                 convertToWei={this.convertToWei}
                 depositTax={this.props.depositTax}
                 listAsset={this.props.listAsset}

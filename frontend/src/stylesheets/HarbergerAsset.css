@@ -1,4 +1,4 @@
-.logo {
+.beets-logo {
   width: 90px;
   height: 65px;
 }
@@ -11,20 +11,6 @@
   width: 100%;
   background-color: #e9ecef;
   border-radius: 10px;
-}
-
-.font-bold {
-  font-weight: bold;
-}
-
-.btn-secondary {
-  border-color: #AA00FF !important;
-  background-color: #AA00FF !important;
-  float: left;
-}
-
-.btn-info {
-  float: right;
 }
 
 button.subheader.btn.btn-primary,
@@ -47,16 +33,19 @@ button.subheader.btn.btn-success:active:focus {
   box-shadow: none;
 }
 
-.asset-token {
+.asset-img {
   width: 100%;
   height: auto;
   border: 5px solid #AA00FF;
 }
 
-.placeholder-img {
-  width: 100%;
-  height: auto;
-  border: 5px solid #808080;
+.asset-price {
+  display: flex;
+  justify-content: space-between;
+}
+
+.badge {
+  background-color: #AA00FF;
 }
 
 .asset-info {
@@ -68,7 +57,7 @@ button.subheader.btn.btn-success:active:focus {
 }
 
 .asset-info > p {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 input {
@@ -83,7 +72,7 @@ input {
   border-radius: 5px;
 }
 
-.ether {
+.ether-symbol {
   width: 12px;
   height: auto;
   margin-bottom: 5px;

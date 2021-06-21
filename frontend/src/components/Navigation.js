@@ -8,7 +8,7 @@ class Navigation extends Component {
       <Navbar bg="dark">
         <Container>
           <Navbar.Brand>
-            <img className="logo" src="beets.png" alt="BeetsDAO"/>
+            <img className="beets-logo" src="beets.png" alt="BeetsDAO"/>
           </Navbar.Brand>
           <Navbar.Brand className="connected-account">
             <Button className="py-2 px-4" variant="warning">{this.props.minifyAddress(this.props.selectedAddress)}</Button>
