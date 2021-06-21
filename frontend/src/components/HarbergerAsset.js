@@ -64,6 +64,7 @@ class HarbergerAsset extends Component {
                 tokenURI={this.props.tokenURI}
               />
               <AssetInfo
+                assetDeadline={this.props.assetDeadline}
                 assetTaxAmount={this.props.assetTaxAmount}
                 baseInterval={this.props.baseInterval}
                 buyAsset={this.props.buyAsset}

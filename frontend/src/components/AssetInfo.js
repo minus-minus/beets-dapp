@@ -11,22 +11,52 @@ class AssetInfo extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      assetDeadline: parseFloat(this.props.assetDeadline),
+      baseInterval: parseFloat(this.props.baseInterval),
+      baseTaxPrice: 0.01,
+      selectedDate: Date.now(),
       toggleHeader: true
     }
 
+    this.formatDate = this.formatDate.bind(this)
     this.handleToggle = this.handleToggle.bind(this)
-    this.formatTime = this.formatTime.bind(this)
+    this.setEstimatedTax = this.setEstimatedTax.bind(this)
+    this.setSelectedDate = this.setSelectedDate.bind(this)
   }
 
   handleToggle = () => {
     this.setState({ toggleHeader: !this.state.toggleHeader })
   }
 
-  formatTime = (unixTime) => {
-    if (!unixTime) return
+  setSelectedDate = (date) => {
+    this.setState({
+      currentUnixTime: Math.floor(Date.now() / 1000),
+      selectedDate: new Date(date),
+      selectedUnixTime: Math.floor(new Date(date) / 1000),
+      estimatedTax: this.setEstimatedTax()
+    })
+  }
 
+  setEstimatedTax = () => {
+    if (this.state.selectedUnixTime < this.state.currentUnixTime) return 0
+
+    var timeRemaining = this.state.assetDeadline - this.state.currentUnixTime
+    console.log("Time Remaining:", timeRemaining)
+    if (timeRemaining < 0) timeRemaining = 0
+
+    const estimatedTime = this.state.selectedUnixTime - this.state.currentUnixTime + timeRemaining
+    console.log("Estimated Time:", estimatedTime)
+
+    const estimatedTax = (estimatedTime / this.state.baseInterval) * this.state.baseTaxPrice
+    console.log("Estimated Tax:", estimatedTax)
+
+    return estimatedTax.toFixed(2)
+  }
+
+  formatDate = (unixTime) => {
+    if (!unixTime) return
     const localtz = moment.tz.guess()
-    return moment.unix(unixTime).tz(localtz).format('MMMM Do YYYY, h:mm:ss a z')
+    return moment.unix(unixTime).tz(localtz)
   }
 
   render() {
@@ -70,7 +100,7 @@ class AssetInfo extends Component {
             </div>
             <div className="asset-info text-center p-4">
               <h5>Calendar</h5>
-              <DatePicker className="my-2" />
+              <DatePicker className="my-2" selected={this.state.selectedDate} onChange={(date) => this.setSelectedDate(date)} />
               <p className="mt-4">The tax rate can be calculated by applying a fixed percentage of <b>{this.props.taxRatePercentage}%</b> to the current sales price. For every <b>0.01 Ξ</b> that is deposited in taxes, the timer will extend for an additional 12 hours. You can adjust the calendar to estimate the total amount of taxes that would be due for that specified time period.</p>
             </div>
             <div className="text-center mt-4 mb-3">

@@ -41,7 +41,7 @@ npm install
 npm start
 ```
 
-> Note: There's [an issue in `ganache-core`](https://github.com/trufflesuite/ganache-core/issues/650) that can make the `npm install` step fail. 
+> Note: There's [an issue in `ganache-core`](https://github.com/trufflesuite/ganache-core/issues/650) that can make the `npm install` step fail.
 >
 > If you see `npm ERR! code ENOLOCAL`, try running `npm ci` instead of `npm install`.
 
@@ -87,3 +87,46 @@ this repository or [our Discord server](https://invite.gg/HardhatSupport).
 Also you can [follow us on Twitter](https://twitter.com/HardhatHQ).
 
 **Happy _buidling_!**
+
+
+## Harbeger Taxes Setup
+
+1. `git pull origin harberger-taxes`
+
+2. `cd harberger-taxes`
+
+3. `npm ci`
+
+4. `cd frontend`
+
+5. `npm ci`
+
+6. Create `.env` file in root dir and add the following:
+```
+ALCHEMY_API_KEY=
+HARDHAT_PRIVATE_KEY=
+INFURA_PROJECT_ID=
+INFURA_PROJECT_SECRET=
+IPFS_BASE_URI=
+PINATA_API_KEY=
+PINATA_BASE_URI=
+PINATA_SECRET_KEY=
+```
+
+7. Open new window in root dir and run `npx hardhat node`
+
+8. Open new window once again in root dir and run `npx hardhat run scripts/pinata.js` in order to store generated IPFS hash
+
+9. Then run `npx hardhat run scripts/deploy.js --network localhost` to deploy contract locally
+
+10. Open new window and `cd frontend`
+
+11. `npm start`
+
+12. Import the first 3 Hardhat accounts into MetaMask using the private keys that are logged from the hardhat node server
+
+13. The first account that deploys the contract will be the `Admin` and they will be able to `Collect Funds`
+
+14. The second account is set to be the `Creator` of the NFT and will be able to `Mint`, `Collect Funds` and `Reclaim Asset`
+
+15. The third account is considered to be a random third party to show which actions the normal user will have available

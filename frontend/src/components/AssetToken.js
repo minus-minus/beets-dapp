@@ -17,17 +17,17 @@ class AssetToken extends Component {
     setInterval(() => this.timeRemaining(this.props.assetDeadline), 100)
   }
 
-  timeRemaining = (unixTime) => {
-    if (!unixTime) return
+  timeRemaining = (deadline) => {
+    if (!deadline) return
 
-    var current = Math.round((new Date()).getTime() / 1000)
-    var remaining = unixTime - current
+    var current = Math.floor(Date.now() / 1000)
+    var remaining = deadline - current
     var days = Math.floor(remaining / (3600 * 24))
     var hrs = Math.floor(remaining % (3600 * 24) / 3600)
     var mins = Math.floor(remaining % 3600 / 60)
     var secs = Math.floor(remaining % 60)
 
-    if (current >= unixTime) {
+    if (current >= deadline) {
       this.setState({ timeExpired: true })
     } else {
       this.setState({ days, hrs, mins, secs })
