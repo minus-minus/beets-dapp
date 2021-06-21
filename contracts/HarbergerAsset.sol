@@ -41,7 +41,7 @@ contract HarbergerAsset is ERC721URIStorage {
   event Collect(address indexed _from, uint256 indexed _tokenId, uint256 indexed _taxFund);
   event Reclaim(address indexed _from, address indexed _to,      uint256 indexed _tokenId);
 
-  constructor() ERC721("HarbergerAsset", "HARBERGER") {
+  constructor() ERC721("HarbergerAsset", "ASSET") {
     admin = _msgSender();
   }
 

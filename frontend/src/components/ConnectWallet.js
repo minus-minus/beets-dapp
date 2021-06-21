@@ -5,13 +5,13 @@ import { NetworkErrorMessage } from "./NetworkErrorMessage";
 export function ConnectWallet({ connectWallet, networkError, dismiss }) {
   return (
     <div className="container">
-      <div className="row justify-content-md-center">
+      <div className="row justify-content-center">
         <div className="col-12 text-center">
           {/* Metamask network should be set to Localhost:8545. */}
           {networkError && (
-            <NetworkErrorMessage 
-              message={networkError} 
-              dismiss={dismiss} 
+            <NetworkErrorMessage
+              message={networkError}
+              dismiss={dismiss}
             />
           )}
         </div>

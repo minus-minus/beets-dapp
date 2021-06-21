@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { ethers } from "ethers";
 import Navigation from "./Navigation";
-import Heading from "./Heading";
+import AssetHeading from "./AssetHeading";
 import AssetToken from "./AssetToken";
 import AssetInfo from "./AssetInfo";
 import AssetHistory from "./AssetHistory";
@@ -46,7 +46,7 @@ class HarbergerAsset extends Component {
         />
         <Container className="mt-5">
           <Row>
-            <Heading
+            <AssetHeading
               mintToken={this.props.mintToken}
               selectedAddress={this.props.selectedAddress}
               tokenURI={this.props.tokenURI}

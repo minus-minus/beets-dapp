@@ -244,7 +244,7 @@ export class Dapp extends React.Component {
     })
 
     console.clear();
-    console.log("HTAX Contract State:", this.state);
+    console.log("Harberger Contract State:", this.state);
     this.loadHarbergerToken();
   }
 
@@ -278,7 +278,7 @@ export class Dapp extends React.Component {
         isLoadingToken: false
       })
 
-      console.log("HTAX Token State:", this.state);
+      console.log("Harberger Token State:", this.state);
       this.apiRequest();
     } catch(err) {
       console.log(err);
@@ -298,7 +298,7 @@ export class Dapp extends React.Component {
         isLoadingMetadata: false
       })
 
-      console.log("HTAX Metadata State:", this.state);
+      console.log("Harberger Metadata State:", this.state);
     } catch(err) {
       console.log(err);
     }

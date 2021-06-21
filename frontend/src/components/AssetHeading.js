@@ -4,7 +4,7 @@ import { HTAX_CREATOR_ADDRESS } from "../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
 import "../stylesheets/HarbergerAsset.css";
 
-class Heading extends Component {
+class AssetHeading extends Component {
   render() {
     return (
       <div className="text-center mt-3">
@@ -21,4 +21,4 @@ class Heading extends Component {
   }
 };
 
-export default Heading;
+export default AssetHeading;
