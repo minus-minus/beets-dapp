@@ -18,11 +18,11 @@ contract HarbergerAsset is ERC721URIStorage {
   string public baseURI = "https://ipfs.io/ipfs/";
 
   address public admin;
-  uint256 public taxPercentage = 10;
-  uint256 public royaltyPercentage = 10;
   uint256 public baseInterval = 43200 seconds;
+  uint256 public baseTaxPrice = 1e16;
+  uint256 public royaltyPercentage = 10;
+  uint256 public taxPercentage = 10;
 
-  uint256 private baseTaxPrice = 1e16;
   uint256 private taxDenominator = 100 / taxPercentage;
 
   struct Asset {
@@ -105,7 +105,7 @@ contract HarbergerAsset is ERC721URIStorage {
   function depositTaxInWei(uint256 _tokenId) public payable {
     require(_exists(_tokenId), "Token does not exist");
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
-    require(assets[_tokenId].price > 0, "Must first set a sales price");
+    require(assets[_tokenId].price > 0, "You must first set a sales price");
     require(msg.value >= assets[_tokenId].taxAmount, "Insufficient tax funds deposited");
 
     uint256 multiplier = msg.value.div(baseTaxPrice);
@@ -118,7 +118,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
   function collectFunds(uint256 _tokenId) public {
     require(_exists(_tokenId), "Token does not exist");
-    require(balances[_tokenId][_msgSender()] > 0, "You have no funds available to withdraw");
+    require(balances[_tokenId][_msgSender()] > 0, "You do not have any funds available to withdraw");
 
     uint256 taxAmount = balances[_tokenId][_msgSender()];
     payable(_msgSender()).transfer(taxAmount);

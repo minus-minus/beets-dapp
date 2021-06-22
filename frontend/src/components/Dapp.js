@@ -124,6 +124,7 @@ export class Dapp extends React.Component {
         assetTaxAmount={this.state.assetTaxAmount}
         assetTotalDeposit={this.state.assetTotalDeposit}
         baseInterval={this.state.baseInterval}
+        baseTaxPrice={this.state.baseTaxPrice}
         buyAsset={this.buyAsset}
         collectFunds={this.collectFunds}
         creatorAddress={this.state.creatorAddress}
@@ -257,6 +258,7 @@ export class Dapp extends React.Component {
       const tokenURI = await this.HTAXcontract.tokenURI(HTAX_TOKEN_ID);
       const taxRatePercentage = await this.HTAXcontract.taxPercentage();
       const baseInterval = await this.HTAXcontract.baseInterval();
+      const baseTaxPrice = await this.HTAXcontract.baseTaxPrice();
       const adminBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, this.state.adminAddress);
       const creatorBalance = await this.HTAXcontract.balances(HTAX_TOKEN_ID, asset.creator);
 
@@ -269,6 +271,7 @@ export class Dapp extends React.Component {
         assetTaxAmount: asset.taxAmount.toString(),
         assetTotalDeposit: asset.totalDeposit.toString(),
         baseInterval: baseInterval.toString(),
+        baseTaxPrice: baseTaxPrice.toString(),
         creatorAddress: ethers.utils.getAddress(asset.creator),
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),

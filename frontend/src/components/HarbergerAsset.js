@@ -67,6 +67,7 @@ class HarbergerAsset extends Component {
                 assetDeadline={this.props.assetDeadline}
                 assetTaxAmount={this.props.assetTaxAmount}
                 baseInterval={this.props.baseInterval}
+                baseTaxPrice={this.props.baseTaxPrice}
                 buyAsset={this.props.buyAsset}
                 convertToEth={this.convertToEth}
                 convertToWei={this.convertToWei}
