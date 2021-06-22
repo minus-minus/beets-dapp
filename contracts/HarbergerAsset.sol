@@ -99,6 +99,9 @@ contract HarbergerAsset is ERC721URIStorage {
 
     resetAsset(_tokenId);
 
+    baseTaxPrice += 1e15;
+    /* baseInterval += 4320 seconds; */
+
     emit Sale(_msgSender(), _tokenId, msg.value);
   }
 

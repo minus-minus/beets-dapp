@@ -48,6 +48,10 @@ button.subheader.btn.btn-success:active:focus {
   background-color: #AA00FF;
 }
 
+span.p-2.badge {
+  font-size: 14px;
+}
+
 .asset-info {
   flex: 1;
   overflow-y: scroll;

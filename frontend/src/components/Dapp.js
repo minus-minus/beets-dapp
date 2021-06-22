@@ -113,6 +113,7 @@ export class Dapp extends React.Component {
     // return <PrintList mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
     //                   getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
     //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
+
     return (
       <HarbergerAsset
         adminAddress={this.state.adminAddress}

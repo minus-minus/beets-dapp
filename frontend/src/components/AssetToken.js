@@ -47,8 +47,8 @@ class AssetToken extends Component {
           </div>
           <img className="asset-img mb-3" src={!this.props.isLoadingMetadata ? this.props.tokenImage : "placeholder.jpeg"} alt="asset"/>
           <div className="asset-price">
-            <Badge className="p-2" variant="info">Price: <b>Ξ {this.props.convertToEth(this.props.assetPrice)}</b></Badge>
-            <Badge className="p-2" variant="info">Tax: <b>Ξ {this.props.convertToEth(this.props.assetTaxAmount)}</b></Badge>
+            <Badge className="p-2">Price: <b>Ξ {this.props.convertToEth(this.props.assetPrice)}</b></Badge>
+            <Badge className="p-2">Tax: <b>Ξ {this.props.convertToEth(this.props.assetTaxAmount)}</b></Badge>
           </div>
           <Accordion className="text-center mt-4">
             <Card>
