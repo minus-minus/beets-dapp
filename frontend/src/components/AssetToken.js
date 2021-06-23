@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../stylesheets/HarbergerAsset.css";
 
+const OPEN_SEA_BASE_URI = "https://opensea.io/";
+
 class AssetToken extends Component {
   constructor(props) {
     super(props)
@@ -57,8 +59,9 @@ class AssetToken extends Component {
               </Accordion.Toggle>
               <Accordion.Collapse eventKey="0">
                 <Card.Body>
-                  <a href={"https://opensea.io/" + this.props.creatorAddress} rel="noopener noreferrer" target="_blank">
+                  <a href={OPEN_SEA_BASE_URI + this.props.creatorAddress} rel="noopener noreferrer" target="_blank">
                     {this.props.creatorAddress}
+                    {/* {this.props.minifyAddresss(this.props.creatorAddress)} */}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>
@@ -69,8 +72,9 @@ class AssetToken extends Component {
               </Accordion.Toggle>
               <Accordion.Collapse eventKey="1">
                 <Card.Body>
-                  <a href={"https://opensea.io/" + this.props.ownerAddress} rel="noopener noreferrer" target="_blank">
+                  <a href={OPEN_SEA_BASE_URI + this.props.ownerAddress} rel="noopener noreferrer" target="_blank">
                     {this.props.ownerAddress}
+                    {/* {this.props.minifyAddresss(this.props.ownerAddress)} */}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>

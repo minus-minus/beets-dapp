@@ -13,6 +13,10 @@
   border-radius: 10px;
 }
 
+a {
+  text-decoration: none !important;
+}
+
 button.subheader.btn.btn-primary,
 button.subheader.btn.btn-primary:hover,
 button.subheader.btn.btn-primary:active,
@@ -45,7 +49,7 @@ button.subheader.btn.btn-success:active:focus {
 }
 
 .badge {
-  background-color: #AA00FF;
+  background-color: #808080;
 }
 
 span.p-2.badge {
@@ -76,16 +80,18 @@ input {
   border-radius: 5px;
 }
 
-.ether-symbol {
-  width: 12px;
-  height: auto;
-  margin-bottom: 5px;
-  margin-right: 5px;
+td {
+  font-size: 14px;
 }
-
 
 @media (min-width: 548px) {
   .jumbotron {
     min-width: 500px;
+  }
+}
+
+@media (max-width: 548px) {
+  .span.p-2.badge {
+    font-size: 12px;
   }
 }

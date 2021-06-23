@@ -14,6 +14,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
   mapping(uint256 => Asset) public assets;
   mapping(uint256 => mapping(address => uint256)) public balances;
+  mapping(string => uint256) public hashes;
 
   string public baseURI = "https://ipfs.io/ipfs/";
 
@@ -34,12 +35,12 @@ contract HarbergerAsset is ERC721URIStorage {
     uint256 lastDeposit;
   }
 
-  event Mint   (address indexed _from, address indexed _to,      uint256 indexed _tokenId);
-  event List   (address indexed _from, uint256 indexed _tokenId, uint256 indexed _price);
-  event Deposit(address indexed _from, uint256 indexed _tokenId, uint256 indexed _taxAmount);
-  event Sale   (address indexed _from, uint256 indexed _tokenId, uint256 indexed _amount);
-  event Collect(address indexed _from, uint256 indexed _tokenId, uint256 indexed _taxFund);
-  event Reclaim(address indexed _from, address indexed _to,      uint256 indexed _tokenId);
+  event List   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Deposit(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
+  event Sale   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Refund (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
+  event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Reclaim(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
 
   constructor() ERC721("HarbergerAsset", "ASSET") {
     admin = _msgSender();
@@ -50,7 +51,9 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   function mintToken(string memory _tokenURI) public returns (uint256) {
+    require(hashes[_tokenURI] < 1, "TokenURI already exists");
     _tokenIds.increment();
+    hashes[_tokenURI] += 1;
 
     uint256 newItemId = _tokenIds.current();
     _safeMint(_msgSender(), newItemId);
@@ -60,7 +63,6 @@ contract HarbergerAsset is ERC721URIStorage {
     balances[newItemId][admin] = 0;
     balances[newItemId][_msgSender()] = 0;
 
-    emit Mint(address(0), _msgSender(), newItemId);
     return newItemId;
   }
 
@@ -71,7 +73,7 @@ contract HarbergerAsset is ERC721URIStorage {
     assets[_tokenId].price = _price;
     assets[_tokenId].taxAmount = _price.div(taxDenominator);
 
-    emit List(_msgSender(), _tokenId, _price);
+    emit List(block.timestamp, _tokenId, _msgSender(), _price);
   }
 
   function buyAssetInWei(uint256 _tokenId) public payable {
@@ -86,6 +88,8 @@ contract HarbergerAsset is ERC721URIStorage {
 
     payable(creator).transfer(royalty);
     payable(currentOwner).transfer(payment);
+    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
+
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
     refundTax(_tokenId, currentOwner);
 
@@ -98,11 +102,8 @@ contract HarbergerAsset is ERC721URIStorage {
     balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
 
     resetAsset(_tokenId);
-
-    baseTaxPrice += 1e15;
+    baseTaxPrice += 1e16;
     /* baseInterval += 4320 seconds; */
-
-    emit Sale(_msgSender(), _tokenId, msg.value);
   }
 
   function depositTaxInWei(uint256 _tokenId) public payable {
@@ -116,7 +117,7 @@ contract HarbergerAsset is ERC721URIStorage {
     assets[_tokenId].lastDeposit = block.timestamp;
     assets[_tokenId].totalDeposit += msg.value;
 
-    emit Deposit(_msgSender(), _tokenId, msg.value);
+    emit Deposit(block.timestamp, _tokenId, _msgSender(), address(this), msg.value);
   }
 
   function collectFunds(uint256 _tokenId) public {
@@ -127,7 +128,7 @@ contract HarbergerAsset is ERC721URIStorage {
     payable(_msgSender()).transfer(taxAmount);
     balances[_tokenId][_msgSender()] = 0;
 
-    emit Collect(_msgSender(), _tokenId, taxAmount);
+    emit Collect(block.timestamp, _tokenId, _msgSender(), taxAmount);
   }
 
   function reclaimAsset(uint256 _tokenId) public {
@@ -136,26 +137,31 @@ contract HarbergerAsset is ERC721URIStorage {
     require(timeExpired(_tokenId), "Time has not yet expired for you to reclaim this asset");
 
     address currentOwner = ownerOf(_tokenId);
-    safeTransferFrom(currentOwner, _msgSender(), _tokenId);
+    emit Reclaim(block.timestamp, _tokenId, _msgSender(), currentOwner);
 
-    emit Reclaim(currentOwner, _msgSender(), _tokenId);
+    safeTransferFrom(currentOwner, _msgSender(), _tokenId);
+    resetAsset(_tokenId);
   }
 
   function timeExpired(uint256 _tokenId) public view returns (bool) {
     require(_exists(_tokenId), "Token does not exist");
+
+    console.log("BLOCK TIMESTAMP:", block.timestamp);
+    console.log("ASSET DEADLINE:", assets[_tokenId].deadline);
 
     return block.timestamp >= assets[_tokenId].deadline;
   }
 
   function refundTax(uint256 _tokenId, address _currentOwner) internal {
     uint256 deadline = assets[_tokenId].deadline;
+    uint256 timeRemaining = deadline - block.timestamp;
 
-    if (deadline - block.timestamp > baseInterval) {
-      uint256 timeRemaining = deadline - block.timestamp;
+    if (int256(timeRemaining) > int256(baseInterval)) {
       uint256 taxMultiplier = timeRemaining.div(baseInterval);
       uint256 refundAmount = baseTaxPrice.mul(taxMultiplier);
 
       payable(_currentOwner).transfer(refundAmount);
+      emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
     }
   }
 
@@ -171,7 +177,7 @@ contract HarbergerAsset is ERC721URIStorage {
     require(
       _isApprovedOrOwner(_msgSender(), tokenId) ||
       _msgSender() == assets[tokenId].creator && timeExpired(tokenId),
-      "Transfer caller is not owner, approved nor creator"
+      "Transfer caller is not the owner, approved nor the creator"
     );
 
     _safeTransfer(from, to, tokenId, _data);

@@ -1,8 +1,24 @@
 import React, { Component } from "react";
+import moment from "moment";
+import "moment-timezone";
 import { Col, Jumbotron, Table } from "react-bootstrap";
 import "../stylesheets/HarbergerAsset.css";
 
+const OPEN_SEA_BASE_URI = "https://opensea.io/";
+
 class AssetHistory extends Component {
+  constructor(props) {
+    super(props)
+
+    this.formatTime = this.formatTime.bind(this)
+  }
+
+  formatTime = (unixTime) => {
+    if (!unixTime) return
+    const localtz = moment.tz.guess()
+    return moment.unix(unixTime).tz(localtz).format('M/DD/YY h:mm A')
+  }
+
   render() {
     return (
       <Col className="d-flex justify-center">
@@ -12,24 +28,24 @@ class AssetHistory extends Component {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  {/* <th>Block</th> */}
                   <th>Date</th>
+                  {/* <th>Token ID</th> */}
                   <th>Event</th>
                   <th>From</th>
                   <th>To</th>
-                  <th>Amount</th>
+                  <th>Price</th>
                 </tr>
               </thead>
               <tbody>
-                {this.props.eventLogs.map((event, index) => {
+                {this.props.eventLogs.filter(e => e.name !== "Approval").reverse().map((event, index) => {
                   return (
                     <tr key={index}>
-                      {/* <td>{event.blockNumber}</td> */}
-                      <td>{event.timestamp}</td>
+                      <td>{event.args.timestamp ? this.formatTime(event.args.timestamp.toString()) : ''}</td>
+                      {/* <td>{event.args.tokenId.toString()}</td> */}
                       <td>{event.name}</td>
-                      <td>{event.args[0]}</td>
-                      <td>{event.args[1] || '-'}</td>
-                      <td><img className="ether-symbol" src="ether.png" alt="ether"/> {event.args[2] || '-'}</td>
+                      <td><a href={OPEN_SEA_BASE_URI + event.args.from} rel="noopener noreferrer" target="_blank">{this.props.minifyAddress(event.args.from)}</a></td>
+                      <td><a href={OPEN_SEA_BASE_URI + event.args.to} rel="noopener noreferrer" target="_blank">{this.props.minifyAddress(event.args.to)}</a></td>
+                      <td>{event.args.value ? `Ξ ${this.props.convertToEth(event.args.value.toString())}` : ''}</td>
                     </tr>
                   )
                 })}

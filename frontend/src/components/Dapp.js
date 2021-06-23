@@ -127,11 +127,12 @@ export class Dapp extends React.Component {
         baseInterval={this.state.baseInterval}
         baseTaxPrice={this.state.baseTaxPrice}
         buyAsset={this.buyAsset}
+        contractAddress={this.state.contractAddress}
         collectFunds={this.collectFunds}
         creatorAddress={this.state.creatorAddress}
         creatorBalance={this.state.creatorBalance}
         depositTax={this.depositTax}
-        eventLogs={[]}
+        eventLogs={this.state.eventLogs}
         isLoadingContract={this.state.isLoadingContract}
         isLoadingToken={this.state.isLoadingToken}
         isLoadingMetadata={this.state.isLoadingMetadata}
@@ -230,17 +231,15 @@ export class Dapp extends React.Component {
     const network = await this._provider.getNetwork();
     const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
     const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
-    const eventsLogs = logs.map(async (log, i) => {
-      const block = await this._provider.getBlock(logs[i].blockNumber);
-      if (!block) return;
-      return Object.assign(iface.parseLog(log), {blockNumber: block.number, timestamp: block.timestamp});
+    this.setState({ eventLogs: [] })
+    logs.map(async (log, i) => {
+      this.state.eventLogs.push(iface.parseLog(log));
     })
 
     this.setState({
       adminAddress: ethers.utils.getAddress(contractAdmin),
       contractAddress: ethers.utils.getAddress(contractAddress.HarbergerAsset),
       contractBalance: contractBalance.toString(),
-      eventsLogs: eventsLogs,
       network: network,
       isLoadingContract: false
     })
@@ -325,42 +324,42 @@ export class Dapp extends React.Component {
   }
 
   async listAsset(amount) {
-    if (this.state.approvedAddress === this.state.contractAddress) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-      try {
-        const transaction = await contract.listAssetForSaleInWei(HTAX_TOKEN_ID, amount);
-        const receipt = await transaction.wait();
-
-        console.log("ListAsset Transaction Receipt:", receipt);
-        this._connectWallet();
-      } catch(err) {
-        console.log("ListAsset Error");
-        alert(this._parseErrorMsg(err));
-      }
-    } else {
+    if (this.state.approvedAddress !== this.state.contractAddress) {
       this.setApproval();
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.listAssetForSaleInWei(HTAX_TOKEN_ID, amount);
+      const receipt = await transaction.wait();
+
+      console.log("ListAsset Transaction Receipt:", receipt);
+      this._connectWallet();
+    } catch(err) {
+      console.log("ListAsset Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 
   async depositTax(amount) {
-    if (this.state.approvedAddress === this.state.contractAddress) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-      try {
-        const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
-        const receipt = await transaction.wait();
-
-        console.log("DepositTax Transaction Receipt:", receipt);
-        this._connectWallet();
-      } catch(err) {
-        console.log("DepositTax Error");
-        alert(this._parseErrorMsg(err));
-      }
-    } else {
+    if (this.state.approvedAddress !== this.state.contractAddress) {
       this.setApproval();
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
+      const receipt = await transaction.wait();
+
+      console.log("DepositTax Transaction Receipt:", receipt);
+      this._connectWallet();
+    } catch(err) {
+      console.log("DepositTax Error");
+      alert(this._parseErrorMsg(err));
     }
   }
 

@@ -58,17 +58,21 @@ class HarbergerAsset extends Component {
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 isLoadingMetadata={this.props.isLoadingMetadata}
+                minifyAddress={this.minifyAddress}
                 ownerAddress={this.props.ownerAddress}
                 timeExpired={this.props.timeExpired}
                 tokenImage={this.props.tokenImage}
                 tokenURI={this.props.tokenURI}
               />
               <AssetInfo
+                approvedAddress={this.props.approvedAddress}
                 assetDeadline={this.props.assetDeadline}
+                assetPrice={this.props.assetPrice}
                 assetTaxAmount={this.props.assetTaxAmount}
                 baseInterval={this.props.baseInterval}
                 baseTaxPrice={this.props.baseTaxPrice}
                 buyAsset={this.props.buyAsset}
+                contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}
                 convertToWei={this.convertToWei}
                 depositTax={this.props.depositTax}
@@ -80,7 +84,9 @@ class HarbergerAsset extends Component {
             </Row>
             <Row>
               <AssetHistory
+                convertToEth={this.convertToEth}
                 eventLogs={this.props.eventLogs}
+                minifyAddress={this.minifyAddress}
               />
             </Row>
             <Row>

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import moment from "moment";
-import "moment-timezone";
 import DatePicker from "react-datepicker";
 import CurrencyInput from "react-currency-input-field";
 import { Col, Jumbotron, Button } from "react-bootstrap";
@@ -19,7 +18,6 @@ class AssetInfo extends Component {
     }
 
     this.depositTax = this.depositTax.bind(this)
-    this.formatTime = this.formatTime.bind(this)
     this.handleToggle = this.handleToggle.bind(this)
     this.listAsset = this.listAsset.bind(this)
     this.setEstimatedTax = this.setEstimatedTax.bind(this)
@@ -27,7 +25,10 @@ class AssetInfo extends Component {
   }
 
   handleToggle = () => {
-    this.setState({ toggleHeader: !this.state.toggleHeader })
+    this.setState({
+      estimatedTax: '',
+      toggleHeader: !this.state.toggleHeader
+    })
   }
 
   listAsset = (event) => {
@@ -62,12 +63,6 @@ class AssetInfo extends Component {
     this.props.depositTax(value)
   }
 
-  formatTime = (unixTime) => {
-    if (!unixTime) return
-    const localtz = moment.tz.guess()
-    return moment.unix(unixTime).tz(localtz)
-  }
-
   render() {
     return (
       <Col className="d-flex justify-content-center">
@@ -84,7 +79,7 @@ class AssetInfo extends Component {
             </div>
             <div className="text-center mt-4 mb-3">
               {!this.props.ownerAddress || (this.props.ownerAddress !== this.props.selectedAddress) ? (
-                <Button className="my-2 mx-3 py-2 px-4" variant="danger" disabled={parseFloat(this.props.assetPrice) === 0} onClick={this.props.buyAsset}>
+                <Button className="my-2 mx-3 py-2 px-4" variant="danger" disabled={parseFloat(this.props.assetPrice) === 0 || this.props.approvedAddress !== this.props.contractAddress} onClick={this.props.buyAsset}>
                   Buy
                 </Button>
               ) : (
@@ -112,7 +107,7 @@ class AssetInfo extends Component {
             <div className="text-center mt-4 mb-3">
               <form onSubmit={this.depositTax}>
                 <CurrencyInput prefix="Ξ " decimalsLimit={4} value={this.state.estimatedTax} ref={(input) => {this.deposit = input}} /><br/>
-                <Button className="my-2 mx-2 py-2 px-4" variant="primary" type="submit">
+                <Button className="my-2 mx-2 py-2 px-4" variant="primary" disabled={parseFloat(this.props.assetPrice) === 0 || (this.props.ownerAddress !== this.props.selectedAddress)} type="submit">
                   Deposit
                 </Button>
               </form>
