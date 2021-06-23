@@ -13,15 +13,8 @@ class HarbergerAsset extends Component {
   constructor(props) {
     super(props)
 
-    this.minifyAddress = this.minifyAddress.bind(this)
     this.convertToEth = this.convertToEth.bind(this)
     this.convertToWei = this.convertToWei.bind(this)
-  }
-
-  minifyAddress = (address) => {
-    if (!address) return
-    const length = address.length
-    return `${address.substring(0, 6)}...${address.substring(length-4, length)}`
   }
 
   convertToEth = (value) => {
@@ -39,10 +32,6 @@ class HarbergerAsset extends Component {
   render() {
     return (
       <div>
-        <Navigation
-          minifyAddress={this.minifyAddress}
-          selectedAddress={this.props.selectedAddress}
-        />
         <AssetHeader
           mintToken={this.props.mintToken}
           selectedAddress={this.props.selectedAddress}
@@ -58,7 +47,7 @@ class HarbergerAsset extends Component {
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 isLoadingMetadata={this.props.isLoadingMetadata}
-                minifyAddress={this.minifyAddress}
+                minifyAddress={this.props.minifyAddress}
                 ownerAddress={this.props.ownerAddress}
                 timeExpired={this.props.timeExpired}
                 tokenImage={this.props.tokenImage}
@@ -86,7 +75,7 @@ class HarbergerAsset extends Component {
               <AssetHistory
                 convertToEth={this.convertToEth}
                 eventLogs={this.props.eventLogs}
-                minifyAddress={this.minifyAddress}
+                minifyAddress={this.props.minifyAddress}
               />
             </Row>
             <Row>

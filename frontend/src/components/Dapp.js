@@ -1,6 +1,6 @@
 import React from "react";
 import { ethers } from "ethers";
-
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import contractAddress from "../contracts/contract-address.json";
@@ -16,12 +16,13 @@ import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
+import Navigation from "./Navigation";
 import HarbergerAsset from "./HarbergerAsset";
+import { PrintList } from './PrintList';
 // import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
-// import { PrintList } from './PrintList';
 
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
@@ -110,45 +111,61 @@ export class Dapp extends React.Component {
     }
 
     // If everything is loaded, we render the application.
-    // return <PrintList mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-    //                   getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-    //                   getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)} />
-
     return (
-      <HarbergerAsset
-        adminAddress={this.state.adminAddress}
-        adminBalance={this.state.adminBalance}
-        approvedAddress={this.state.approvedAddress}
-        assetDeadline={this.state.assetDeadline}
-        assetLastDeposit={this.state.lastDeposit}
-        assetPrice={this.state.assetPrice}
-        assetTaxAmount={this.state.assetTaxAmount}
-        assetTotalDeposit={this.state.assetTotalDeposit}
-        baseInterval={this.state.baseInterval}
-        baseTaxPrice={this.state.baseTaxPrice}
-        buyAsset={this.buyAsset}
-        contractAddress={this.state.contractAddress}
-        collectFunds={this.collectFunds}
-        creatorAddress={this.state.creatorAddress}
-        creatorBalance={this.state.creatorBalance}
-        depositTax={this.depositTax}
-        eventLogs={this.state.eventLogs}
-        isLoadingContract={this.state.isLoadingContract}
-        isLoadingToken={this.state.isLoadingToken}
-        isLoadingMetadata={this.state.isLoadingMetadata}
-        listAsset={this.listAsset}
-        mintToken={this.mintToken}
-        ownerAddress={this.state.ownerAddress}
-        reclaimAsset={this.reclaimAsset}
-        selectedAddress={this.state.selectedAddress}
-        taxRatePercentage={this.state.taxRatePercentage}
-        timeExpired={this.state.timeExpired}
-        tokenURI={this.state.tokenURI}
-        tokenArtist={this.state.tokenArtist}
-        tokenDescription={this.state.description}
-        tokenImage={this.state.tokenImage}
-        tokenName={this.state.tokenName}
-      />
+      <div>
+        <Router>
+          <Navigation
+            minifyAddress={this._minifyAddress}
+            selectedAddress={this.state.selectedAddress}
+          />
+          <Switch>
+            <Route path="/harberger-taxes">
+              <HarbergerAsset
+                adminAddress={this.state.adminAddress}
+                adminBalance={this.state.adminBalance}
+                approvedAddress={this.state.approvedAddress}
+                assetDeadline={this.state.assetDeadline}
+                assetLastDeposit={this.state.lastDeposit}
+                assetPrice={this.state.assetPrice}
+                assetTaxAmount={this.state.assetTaxAmount}
+                assetTotalDeposit={this.state.assetTotalDeposit}
+                baseInterval={this.state.baseInterval}
+                baseTaxPrice={this.state.baseTaxPrice}
+                buyAsset={this.buyAsset}
+                contractAddress={this.state.contractAddress}
+                collectFunds={this.collectFunds}
+                creatorAddress={this.state.creatorAddress}
+                creatorBalance={this.state.creatorBalance}
+                depositTax={this.depositTax}
+                eventLogs={this.state.eventLogs}
+                isLoadingContract={this.state.isLoadingContract}
+                isLoadingToken={this.state.isLoadingToken}
+                isLoadingMetadata={this.state.isLoadingMetadata}
+                listAsset={this.listAsset}
+                minifyAddress={this._minifyAddress}
+                mintToken={this.mintToken}
+                ownerAddress={this.state.ownerAddress}
+                reclaimAsset={this.reclaimAsset}
+                selectedAddress={this.state.selectedAddress}
+                taxRatePercentage={this.state.taxRatePercentage}
+                timeExpired={this.state.timeExpired}
+                tokenURI={this.state.tokenURI}
+                tokenArtist={this.state.tokenArtist}
+                tokenDescription={this.state.description}
+                tokenImage={this.state.tokenImage}
+                tokenName={this.state.tokenName}
+              />
+            </Route>
+            <Route path="/enigma-prints">
+              <PrintList
+                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
+              />
+            </Route>
+          </Switch>
+        </Router>
+      </div>
     )
   }
 
@@ -464,6 +481,12 @@ export class Dapp extends React.Component {
       console.error(error);
       this.setState({ transactionError: error });
     }
+  }
+
+  _minifyAddress(address) {
+    if (!address) return
+    const length = address.length
+    return `${address.substring(0, 6)}...${address.substring(length-4, length)}`
   }
 
   // This method just clears part of the state.
