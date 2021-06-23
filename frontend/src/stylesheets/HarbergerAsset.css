@@ -48,8 +48,12 @@ button.subheader.btn.btn-success:active:focus {
   justify-content: space-between;
 }
 
-.badge {
-  background-color: #808080;
+.badge.price {
+  background-color: #198754;
+}
+
+.badge.tax {
+  background-color: #0d6efd;
 }
 
 span.p-2.badge {

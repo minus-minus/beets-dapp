@@ -28,7 +28,7 @@ class AssetHistory extends Component {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Date</th>
+                  <th>Timestamp</th>
                   {/* <th>Token ID</th> */}
                   <th>Event</th>
                   <th>From</th>
