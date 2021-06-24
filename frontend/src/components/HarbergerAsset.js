@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { ethers } from "ethers";
-import Navigation from "./Navigation";
 import AssetHeader from "./AssetHeader";
 import AssetToken from "./AssetToken";
 import AssetInfo from "./AssetInfo";
@@ -37,7 +36,7 @@ class HarbergerAsset extends Component {
           selectedAddress={this.props.selectedAddress}
           tokenURI={this.props.tokenURI}
         />
-        {!this.props.isLoadingToken ? (
+        {!this.props.isLoadingToken && (
           <Container>
             <Row>
               <AssetToken
@@ -88,8 +87,6 @@ class HarbergerAsset extends Component {
               />
             </Row>
           </Container>
-        ) : (
-          null
         )}
       </div>
     )

@@ -1,12 +1,12 @@
 import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
 import contractAddress from "../contracts/contract-address.json";
 import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
 import { HTAX_EVENT_ABI, HTAX_TOKEN_ID } from "../utils/HTAX/constants";
-
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 
@@ -16,13 +16,14 @@ import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-import Navigation from "./Navigation";
-import HarbergerAsset from "./HarbergerAsset";
-import { PrintList } from './PrintList';
+// import { NetworkErrorMessage } from "./NetworkErrorMessage";
 // import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
+import Navigation from "./Navigation";
+import HarbergerAsset from "./HarbergerAsset";
+import { PrintList } from './PrintList';
 
 // This is the Hardhat Network id, you might change it in the hardhat.config.js
 // Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
@@ -104,8 +105,8 @@ export class Dapp extends React.Component {
       );
     }
 
-    // If the token data or the user's balance hasn't loaded yet, we show
-    // a loading component.
+    // // If the token data or the user's balance hasn't loaded yet, we show
+    // // a loading component.
     if (this.state.isLoadingWallet) {
       return <Loading />;
     }
@@ -115,11 +116,12 @@ export class Dapp extends React.Component {
       <div>
         <Router>
           <Navigation
+            connectWallet={() => this._connectWallet()}
             minifyAddress={this._minifyAddress}
             selectedAddress={this.state.selectedAddress}
           />
           <Switch>
-            <Route path="/harberger-taxes">
+            <Route path="/taxes">
               <HarbergerAsset
                 adminAddress={this.state.adminAddress}
                 adminBalance={this.state.adminBalance}
@@ -156,7 +158,7 @@ export class Dapp extends React.Component {
                 tokenName={this.state.tokenName}
               />
             </Route>
-            <Route path="/enigma-prints">
+            <Route path="/prints">
               <PrintList
                 mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
                 getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
@@ -343,6 +345,7 @@ export class Dapp extends React.Component {
   async listAsset(amount) {
     if (this.state.approvedAddress !== this.state.contractAddress) {
       this.setApproval();
+      // await this.setApproval();
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -363,6 +366,7 @@ export class Dapp extends React.Component {
   async depositTax(amount) {
     if (this.state.approvedAddress !== this.state.contractAddress) {
       this.setApproval();
+      // await this.setApproval();
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);

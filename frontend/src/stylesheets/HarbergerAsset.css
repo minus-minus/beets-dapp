@@ -17,6 +17,11 @@ a {
   text-decoration: none !important;
 }
 
+.bt.btn-warning:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 button.subheader.btn.btn-primary,
 button.subheader.btn.btn-primary:hover,
 button.subheader.btn.btn-primary:active,
@@ -56,7 +61,8 @@ button.subheader.btn.btn-success:active:focus {
   background-color: #0d6efd;
 }
 
-span.p-2.badge {
+.badge.price,
+.badge.tax {
   font-size: 14px;
 }
 
@@ -85,7 +91,7 @@ input {
 }
 
 td {
-  font-size: 14px;
+  font-size: 16px;
 }
 
 @media (min-width: 548px) {
@@ -95,7 +101,14 @@ td {
 }
 
 @media (max-width: 548px) {
-  .span.p-2.badge {
+  .badge.price,
+  .badge.tax {
     font-size: 12px;
+  }
+}
+
+@media (max-width: 992px) {
+  td {
+    font-size: 14px;
   }
 }

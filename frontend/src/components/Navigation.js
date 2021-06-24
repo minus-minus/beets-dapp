@@ -11,7 +11,15 @@ class Navigation extends Component {
             <img className="beets-logo" src="beets.png" alt="BeetsDAO"/>
           </Navbar.Brand>
           <Navbar.Brand className="connected-account">
-            <Button className="py-2 px-4" variant="warning">{this.props.minifyAddress(this.props.selectedAddress)}</Button>
+            {this.props.selectedAddress ? (
+              <Button className="py-2 px-4" variant="warning">
+                {this.props.minifyAddress(this.props.selectedAddress)}
+              </Button>
+            ) : (
+              <Button className="py-2 px-4" variant="warning" onClick={this.props.connectWallet}>
+                Connect Wallet
+              </Button>
+            )}
           </Navbar.Brand>
         </Container>
       </Navbar>

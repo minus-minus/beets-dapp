@@ -1,10 +1,6 @@
 import React from "react";
 
 export class Print extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   async componentDidMount() {
     Array.from(window.document.querySelectorAll('video')).map(p => new window.Plyr(p, {
       tooltips: {
@@ -32,17 +28,16 @@ export class Print extends React.Component {
   }
 
   render() {
-    const {contractAddress, printTokenId, originalTokenId, release,
-      trackNumber, price, priceBn, currentSupply, mintPrintLink, videoLink} = this.props;
+    const {originalTokenId, trackNumber, price, priceBn, currentSupply, mintPrintLink, videoLink} = this.props;
 
     return (
       <div className="col-sm-6" style={{paddingTop: '10px'}}>
         <div className="card">
-          <video controls playsinline src={`${videoLink}`}  />
+          <video controls playsInline src={`${videoLink}`}  />
           <div className="card-body">
             <h5 className="card-title">Track {trackNumber}</h5>
-            <p className="card-text">Current supply: {currentSupply}<p>Price: {price} ETH</p></p>
-            <a href="#" className="btn btn-primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</a>
+            <p className="card-text">Current supply: {currentSupply}<br/>Price: {price} ETH</p>
+            <button className="btn btn-primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</button>
           </div>
         </div>
       </div>
