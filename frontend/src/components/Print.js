@@ -31,12 +31,15 @@ export class Print extends React.Component {
     const {originalTokenId, trackNumber, price, priceBn, currentSupply, mintPrintLink, videoLink} = this.props;
 
     return (
-      <div className="col-sm-6" style={{paddingTop: '10px'}}>
+      <div className="col-sm-6 p-4">
         <div className="card">
-          <video controls playsInline src={`${videoLink}`}  />
-          <div className="card-body">
+          <video controls playsInline src={videoLink} />
+          <div className="card-body text-center">
             <h5 className="card-title">Track {trackNumber}</h5>
-            <p className="card-text">Current supply: {currentSupply}<br/>Price: {price} ETH</p>
+            <p className="card-text">
+              Current supply: {currentSupply}<br/>
+              Price: Ξ {price}
+            </p>
             <button className="btn btn-primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</button>
           </div>
         </div>

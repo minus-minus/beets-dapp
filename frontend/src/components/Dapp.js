@@ -88,63 +88,61 @@ export class Dapp extends React.Component {
 
     // If everything is loaded, we render the application.
     return (
-      <div>
-        <Router>
-          <Navigation
-            connectWallet={() => this._connectWallet()}
-            minifyHash={this._minifyHash}
-            selectedAddress={this.state.selectedAddress}
-          />
-          <Switch>
-            <Route path="/euler-beats">
-              <PrintList
-                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
-              />
-            </Route>
-            <Route path="/harberger-taxes">
-              <HarbergerAsset
-                // Contract and Token Data
-                adminAddress={this.state.adminAddress}
-                adminBalance={this.state.adminBalance}
-                approvedAddress={this.state.approvedAddress}
-                assetDeadline={this.state.assetDeadline}
-                assetLastDeposit={this.state.lastDeposit}
-                assetPrice={this.state.assetPrice}
-                assetTaxAmount={this.state.assetTaxAmount}
-                assetTotalDeposit={this.state.assetTotalDeposit}
-                baseInterval={this.state.baseInterval}
-                baseTaxPrice={this.state.baseTaxPrice}
-                contractAddress={this.state.contractAddress}
-                creatorAddress={this.state.creatorAddress}
-                creatorBalance={this.state.creatorBalance}
-                eventLogs={this.state.eventLogs}
-                isLoadingContract={this.state.isLoadingContract}
-                isLoadingToken={this.state.isLoadingToken}
-                isLoadingMetadata={this.state.isLoadingMetadata}
-                ownerAddress={this.state.ownerAddress}
-                selectedAddress={this.state.selectedAddress}
-                taxRatePercentage={this.state.taxRatePercentage}
-                timeExpired={this.state.timeExpired}
-                tokenURI={this.state.tokenURI}
-                tokenArtist={this.state.tokenArtist}
-                tokenDescription={this.state.description}
-                tokenImage={this.state.tokenImage}
-                tokenName={this.state.tokenName}
-                // Functions
-                buyAsset={this.buyAsset}
-                collectFunds={this.collectFunds}
-                depositTax={this.depositTax}
-                listAsset={this.listAsset}
-                minifyHash={this._minifyHash}
-                mintToken={this.mintToken}
-                reclaimAsset={this.reclaimAsset}
-              />
-            </Route>
-          </Switch>
-        </Router>
-      </div>
+      <Router>
+        <Navigation
+          connectWallet={() => this._connectWallet()}
+          minifyHash={this._minifyHash}
+          selectedAddress={this.state.selectedAddress}
+        />
+        <Switch>
+          <Route path="/euler-beats">
+            <PrintList
+              mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+              getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+              getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
+            />
+          </Route>
+          <Route path="/harberger-taxes">
+            <HarbergerAsset
+              // Contract and Token Data
+              adminAddress={this.state.adminAddress}
+              adminBalance={this.state.adminBalance}
+              approvedAddress={this.state.approvedAddress}
+              assetDeadline={this.state.assetDeadline}
+              assetLastDeposit={this.state.lastDeposit}
+              assetPrice={this.state.assetPrice}
+              assetTaxAmount={this.state.assetTaxAmount}
+              assetTotalDeposit={this.state.assetTotalDeposit}
+              baseInterval={this.state.baseInterval}
+              baseTaxPrice={this.state.baseTaxPrice}
+              contractAddress={this.state.contractAddress}
+              creatorAddress={this.state.creatorAddress}
+              creatorBalance={this.state.creatorBalance}
+              eventLogs={this.state.eventLogs}
+              isLoadingContract={this.state.isLoadingContract}
+              isLoadingToken={this.state.isLoadingToken}
+              isLoadingMetadata={this.state.isLoadingMetadata}
+              ownerAddress={this.state.ownerAddress}
+              selectedAddress={this.state.selectedAddress}
+              taxRatePercentage={this.state.taxRatePercentage}
+              timeExpired={this.state.timeExpired}
+              tokenURI={this.state.tokenURI}
+              tokenArtist={this.state.tokenArtist}
+              tokenDescription={this.state.description}
+              tokenImage={this.state.tokenImage}
+              tokenName={this.state.tokenName}
+              // Functions
+              buyAsset={this.buyAsset}
+              collectFunds={this.collectFunds}
+              depositTax={this.depositTax}
+              listAsset={this.listAsset}
+              minifyHash={this._minifyHash}
+              mintToken={this.mintToken}
+              reclaimAsset={this.reclaimAsset}
+            />
+          </Route>
+        </Switch>
+      </Router>
     )
   }
 
