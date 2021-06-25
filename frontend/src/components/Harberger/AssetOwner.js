@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Col, Button } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
+import "../../stylesheets/HarbergerAsset.css";
 
 class AssetOwner extends Component {
   render() {

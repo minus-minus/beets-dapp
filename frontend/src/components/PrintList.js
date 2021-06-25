@@ -44,7 +44,7 @@ export class PrintList extends React.Component {
       const { contractAddress, printTokenId, originalTokenId } = contractAndTokenId(print.release, print.trackNumber);
       const printSupply = await this.props.getTrackSupply(originalTokenId);
       const printPrice = await this.props.getTrackPrice(printSupply.add('1'));
-      console.log("price =" + printPrice.toString())
+      // console.log("price =" + printPrice.toString())
       printInfo.push({
         contractAddress,
         printTokenId,

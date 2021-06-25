@@ -1,65 +1,38 @@
 import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
-// We import the contract's artifacts and address here, as we are going to be
-// using them with ethers
+// CONTRACTS
 import contractAddress from "../contracts/contract-address.json";
 import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
 import { HTAX_EVENT_ABI, HTAX_TOKEN_ID } from "../utils/HTAX/constants";
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
-
-// All the logic of this dapp is contained in the Dapp component.
-// These other components are just presentational ones: they don't have any
-// logic. They just render HTML.
+// COMPONENTS
+import Navigation from "./Navigation";
+import HarbergerAsset from "./HarbergerAsset";
+import { PrintList } from './PrintList';
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-// import { NetworkErrorMessage } from "./NetworkErrorMessage";
 // import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 // import { NoTokensMessage } from "./NoTokensMessage";
-import Navigation from "./Navigation";
-import HarbergerAsset from "./HarbergerAsset";
-import { PrintList } from './PrintList';
 
-// This is the Hardhat Network id, you might change it in the hardhat.config.js
-// Here's a list of network ids https://docs.metamask.io/guide/ethereum-provider.html#properties
-// to use when deploying to other networks.
+// CONSTANTS
 const HARDHAT_NETWORK_ID = '1337';
-
-// This is an error code that indicates that the user canceled a transaction
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
-
-// Library for API request
 const axios = require('axios');
+const originalOwner = "0xf47f5A7F2917800149f638E9f0eD3745D16481C6";
 
-// This component is in charge of doing these things:
-//   1. It connects to the user's wallet
-//   2. Initializes ethers and the Token contract
-//   3. Polls the user balance to keep it updated.
-//   4. Transfers tokens by sending transactions
-//   5. Renders the whole application
-//
-// Note that (3) and (4) are specific of this sample application, but they show
-// you how to keep your Dapp and contract's state in sync,  and how to send a
-// transaction.
 export class Dapp extends React.Component {
   constructor(props) {
     super(props);
 
-    // We store multiple things in Dapp's state.
-    // You don't need to follow this pattern, but it's an useful example.
     this.initialState = {
-      // The user's address and balance
-      selectedAddress: undefined,
-      // The ID about transactions being sent, and any possible error with them
-      txBeingSent: undefined,
-      transactionError: undefined,
       networkError: undefined,
-      // Wait for data to load before continuing
+      selectedAddress: undefined,
+      transactionError: undefined,
       isLoadingContract: true,
       isLoadingToken: true,
       isLoadingMetadata: true
@@ -80,6 +53,8 @@ export class Dapp extends React.Component {
   }
 
   render() {
+    // console.log(this.state)
+
     // Ethereum wallets inject the window.ethereum object. If it hasn't been
     // injected, we instruct the user to install MetaMask.
     if (window.ethereum === undefined) {
@@ -117,12 +92,20 @@ export class Dapp extends React.Component {
         <Router>
           <Navigation
             connectWallet={() => this._connectWallet()}
-            minifyAddress={this._minifyAddress}
+            minifyHash={this._minifyHash}
             selectedAddress={this.state.selectedAddress}
           />
           <Switch>
-            <Route path="/taxes">
+            <Route path="/euler-beats">
+              <PrintList
+                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
+              />
+            </Route>
+            <Route path="/harberger-taxes">
               <HarbergerAsset
+                // Contract and Token Data
                 adminAddress={this.state.adminAddress}
                 adminBalance={this.state.adminBalance}
                 approvedAddress={this.state.approvedAddress}
@@ -133,21 +116,14 @@ export class Dapp extends React.Component {
                 assetTotalDeposit={this.state.assetTotalDeposit}
                 baseInterval={this.state.baseInterval}
                 baseTaxPrice={this.state.baseTaxPrice}
-                buyAsset={this.buyAsset}
                 contractAddress={this.state.contractAddress}
-                collectFunds={this.collectFunds}
                 creatorAddress={this.state.creatorAddress}
                 creatorBalance={this.state.creatorBalance}
-                depositTax={this.depositTax}
                 eventLogs={this.state.eventLogs}
                 isLoadingContract={this.state.isLoadingContract}
                 isLoadingToken={this.state.isLoadingToken}
                 isLoadingMetadata={this.state.isLoadingMetadata}
-                listAsset={this.listAsset}
-                minifyAddress={this._minifyAddress}
-                mintToken={this.mintToken}
                 ownerAddress={this.state.ownerAddress}
-                reclaimAsset={this.reclaimAsset}
                 selectedAddress={this.state.selectedAddress}
                 taxRatePercentage={this.state.taxRatePercentage}
                 timeExpired={this.state.timeExpired}
@@ -156,13 +132,14 @@ export class Dapp extends React.Component {
                 tokenDescription={this.state.description}
                 tokenImage={this.state.tokenImage}
                 tokenName={this.state.tokenName}
-              />
-            </Route>
-            <Route path="/prints">
-              <PrintList
-                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
+                // Functions
+                buyAsset={this.buyAsset}
+                collectFunds={this.collectFunds}
+                depositTax={this.depositTax}
+                listAsset={this.listAsset}
+                minifyHash={this._minifyHash}
+                mintToken={this.mintToken}
+                reclaimAsset={this.reclaimAsset}
               />
             </Route>
           </Switch>
@@ -171,11 +148,10 @@ export class Dapp extends React.Component {
     )
   }
 
+  // This method is run when the user clicks the Connect. It connects the
+  // dapp to the user's wallet, and initializes it.
   async _connectWallet() {
     this.setState({isLoadingWallet: true})
-    // This method is run when the user clicks the Connect. It connects the
-    // dapp to the user's wallet, and initializes it.
-
     // To connect to the user's wallet, we have to run this method.
     // It returns a promise that will resolve to the user's address.
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -207,12 +183,11 @@ export class Dapp extends React.Component {
       this._resetState();
     });
 
-    setTimeout(() => this.setState({isLoadingWallet: false}), 2000)
+    setTimeout(() => this.setState({ isLoadingWallet: false }), 2000)
   }
 
+  // This method initializes the dapp
   _initialize(userAddress) {
-    // This method initializes the dapp
-
     // We first store the user's address in the component's state
     this.setState({
       selectedAddress: ethers.utils.getAddress(userAddress)
@@ -224,6 +199,7 @@ export class Dapp extends React.Component {
     // Fetching the token data and the user's balance are specific to this
     // sample project, but you can reuse the same initialization pattern.
     this._intializeEthers();
+
     this.loadHarbergerContract();
   }
 
@@ -263,7 +239,6 @@ export class Dapp extends React.Component {
       isLoadingContract: false
     })
 
-    console.clear();
     console.log("Harberger Contract State:", this.state);
     this.loadHarbergerToken();
   }
@@ -334,11 +309,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.mintToken(ipfsHash);
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("MintToken Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("MintToken Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -355,11 +331,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.listAssetForSaleInWei(HTAX_TOKEN_ID, amount);
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("ListAsset Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("ListAsset Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -376,11 +353,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.depositTaxInWei(HTAX_TOKEN_ID, { value: amount });
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("DepositTax Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("DepositTax Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -392,11 +370,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.approve(contractAddress.HarbergerAsset, HTAX_TOKEN_ID);
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("SetApproval Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("SetApproval Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -408,11 +387,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.buyAssetInWei(HTAX_TOKEN_ID, { value: this.state.assetPrice });
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("BuyAsset Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("BuyAsset Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -424,11 +404,12 @@ export class Dapp extends React.Component {
       const transaction = await contract.collectFunds(HTAX_TOKEN_ID);
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("CollectFunds Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("CollectFunds Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
@@ -440,27 +421,27 @@ export class Dapp extends React.Component {
       const transaction = await contract.reclaimAsset(HTAX_TOKEN_ID);
       const receipt = await transaction.wait();
 
+      console.clear();
       console.log("Transaction Receipt:", receipt);
       this._connectWallet();
     } catch(err) {
       console.log("ReclaimAsset Error");
-      alert(this._parseErrorMsg(err));
+      alert(this._getRpcErrorMessage(err));
     }
   }
 
   async getTrackSupply(originalTokenId) {
-    console.log("contractInstance", this.EBcontract);
+    // console.log("contractInstance", this.EBcontract);
     return await this.EBcontract.seedToPrintsSupply(originalTokenId);
   }
 
   async getTrackPrice(supplyCount) {
-    console.log("contractInstance", this.EBcontract);
+    // console.log("contractInstance", this.EBcontract);
     return await this.EBcontract.getPrintPrice(supplyCount);
   }
 
   async mintPrint(originalTokenId, price) {
-    console.log("contractInstance", this.EBcontract);
-    const originalOwner = '0xf47f5A7F2917800149f638E9f0eD3745D16481C6';
+    // console.log("contractInstance", this.EBcontract);
     try {
       const tx = await this.EBcontract.mintPrint(originalTokenId, originalOwner, {
         value: price,
@@ -487,10 +468,13 @@ export class Dapp extends React.Component {
     }
   }
 
-  _minifyAddress(address) {
+  _minifyHash(address) {
     if (!address) return
-    const length = address.length
-    return `${address.substring(0, 6)}...${address.substring(length-4, length)}`
+
+    const hashStart = address.substring(0, 6)
+    const hashEnd = address.substring(address.length-4, address.length)
+
+    return `${hashStart}...${hashEnd}`
   }
 
   // This method just clears part of the state.
@@ -503,8 +487,7 @@ export class Dapp extends React.Component {
     this.setState({ networkError: undefined });
   }
 
-  // This is an utility method that turns an RPC error into a human readable
-  // message.
+  // This is an utility method that turns an RPC error into a human readable message.
   _getRpcErrorMessage(error) {
     if (error.data) {
       return error.data.message;
@@ -516,23 +499,20 @@ export class Dapp extends React.Component {
   // This method resets the state
   _resetState() {
     console.clear();
+
     this.setState(this.initialState);
   }
 
-  // This method checks if Metamask selected network is Localhost:8545
+  // This method checks if Metamask selected network is localhost:8545
   _checkNetwork() {
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
     }
 
     this.setState({
-      networkError: 'Please connect Metamask to localhost:3000'
+      networkError: 'Please connect Metamask to localhost:8545'
     });
 
     return false;
-  }
-
-  _parseErrorMsg(err) {
-    return err.data ? err.data.message : err.message;
   }
 }

@@ -13,23 +13,16 @@
   border-radius: 10px;
 }
 
+.nav-link {
+  color: #fff !important;
+}
+
 a {
   text-decoration: none !important;
 }
 
-.bt.btn-warning:focus {
-  outline: none;
-  box-shadow: none;
-}
-
 button.subheader.btn.btn-primary,
-button.subheader.btn.btn-primary:hover,
-button.subheader.btn.btn-primary:active,
-button.subheader.btn.btn-primary:visited,
-button.subheader.btn.btn-success,
-button.subheader.btn.btn-success:hover,
-button.subheader.btn.btn-success:active,
-button.subheader.btn.btn-success:visited {
+button.subheader.btn.btn-success {
   width: 100%;
   font-weight: bold;
 }
@@ -54,16 +47,13 @@ button.subheader.btn.btn-success:active:focus {
 }
 
 .badge.price {
+  font-size: 14px;
   background-color: #198754;
 }
 
 .badge.tax {
-  background-color: #0d6efd;
-}
-
-.badge.price,
-.badge.tax {
   font-size: 14px;
+  background-color: #0d6efd;
 }
 
 .asset-info {

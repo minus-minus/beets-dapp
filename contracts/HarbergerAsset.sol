@@ -102,6 +102,8 @@ contract HarbergerAsset is ERC721URIStorage {
     require(_exists(_tokenId), "Token does not exist");
     // Then check if the user calling this function is the current owner of the Asset
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
+    // Finally check if the price is greater than 0
+    require(_price > 0, "You must set a sales price greater than 0");
 
     // Store the price of the asset
     assets[_tokenId].price = _price;

@@ -3,7 +3,7 @@ import moment from "moment";
 import DatePicker from "react-datepicker";
 import CurrencyInput from "react-currency-input-field";
 import { Col, Jumbotron, Button } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
+import "../../stylesheets/HarbergerAsset.css";
 import "react-datepicker/dist/react-datepicker.css";
 
 class AssetInfo extends Component {

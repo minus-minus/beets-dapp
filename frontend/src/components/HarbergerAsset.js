@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { ethers } from "ethers";
-import AssetHeader from "./AssetHeader";
-import AssetToken from "./AssetToken";
-import AssetInfo from "./AssetInfo";
-import AssetHistory from "./AssetHistory";
-import AssetOwner from "./AssetOwner";
+import AssetHeader from "./Harberger/AssetHeader";
+import AssetToken from "./Harberger/AssetToken";
+import AssetInfo from "./Harberger/AssetInfo";
+import AssetHistory from "./Harberger/AssetHistory";
+import AssetOwner from "./Harberger/AssetOwner";
 import BigNumber from "bignumber.js";
 import { Container, Row } from "react-bootstrap";
 
@@ -46,7 +46,7 @@ class HarbergerAsset extends Component {
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 isLoadingMetadata={this.props.isLoadingMetadata}
-                minifyAddress={this.props.minifyAddress}
+                minifyHash={this.props.minifyHash}
                 ownerAddress={this.props.ownerAddress}
                 timeExpired={this.props.timeExpired}
                 tokenImage={this.props.tokenImage}
@@ -74,7 +74,7 @@ class HarbergerAsset extends Component {
               <AssetHistory
                 convertToEth={this.convertToEth}
                 eventLogs={this.props.eventLogs}
-                minifyAddress={this.props.minifyAddress}
+                minifyHash={this.props.minifyHash}
               />
             </Row>
             <Row>

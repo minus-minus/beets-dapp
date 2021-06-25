@@ -2,9 +2,10 @@ import React, { Component } from "react";
 import moment from "moment";
 import "moment-timezone";
 import { Col, Jumbotron, Table } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
+import "../../stylesheets/HarbergerAsset.css";
 
 const OPEN_SEA_BASE_URI = "https://opensea.io/";
+const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
 
 class AssetHistory extends Component {
   constructor(props) {
@@ -43,8 +44,8 @@ class AssetHistory extends Component {
                       <td>{event.args.timestamp ? this.formatTime(event.args.timestamp.toString()) : ''}</td>
                       {/* <td>{event.args.tokenId.toString()}</td> */}
                       <td>{event.name}</td>
-                      <td><a href={OPEN_SEA_BASE_URI + event.args.from} rel="noopener noreferrer" target="_blank">{this.props.minifyAddress(event.args.from)}</a></td>
-                      <td><a href={OPEN_SEA_BASE_URI + event.args.to} rel="noopener noreferrer" target="_blank">{this.props.minifyAddress(event.args.to)}</a></td>
+                      <td><a href={ETHERSCAN_BASE_URI + event.args.from} rel="noopener noreferrer" target="_blank">{this.props.minifyHash(event.args.from)}</a></td>
+                      <td><a href={ETHERSCAN_BASE_URI + event.args.to} rel="noopener noreferrer" target="_blank">{this.props.minifyHash(event.args.to)}</a></td>
                       <td>{event.args.value ? `Ξ ${this.props.convertToEth(event.args.value.toString())}` : ''}</td>
                     </tr>
                   )

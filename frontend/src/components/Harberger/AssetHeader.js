@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import ipfsHash from "../contracts/ipfs-hash.json";
-import { HTAX_CREATOR_ADDRESS } from "../utils/HTAX/constants";
+import ipfsHash from "../../contracts/ipfs-hash.json";
+import { HTAX_CREATOR_ADDRESS } from "../../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
+import "../../stylesheets/HarbergerAsset.css";
 
 class AssetHeader extends Component {
   render() {
