@@ -14,6 +14,7 @@
 }
 
 .nav-link {
+  font-size: 18px;
   color: #fff !important;
 }
 
@@ -84,6 +85,15 @@ td {
   font-size: 16px;
 }
 
+.footer {
+  height: 200px;
+}
+
+.footer-text {
+  color: #fff;
+  font-size: 18px;
+}
+
 @media (min-width: 548px) {
   .jumbotron {
     min-width: 500px;
@@ -94,6 +104,10 @@ td {
   .badge.price,
   .badge.tax {
     font-size: 12px;
+  }
+
+  .nav-link {
+    font-size: 16px;
   }
 }
 

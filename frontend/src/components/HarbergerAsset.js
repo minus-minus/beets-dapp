@@ -5,6 +5,7 @@ import AssetToken from "./Harberger/AssetToken";
 import AssetInfo from "./Harberger/AssetInfo";
 import AssetHistory from "./Harberger/AssetHistory";
 import AssetOwner from "./Harberger/AssetOwner";
+import Footer from "./Harberger/Footer";
 import BigNumber from "bignumber.js";
 import { Container, Row } from "react-bootstrap";
 
@@ -88,6 +89,7 @@ class HarbergerAsset extends Component {
             </Row>
           </Container>
         )}
+        <Footer/>
       </div>
     )
   }

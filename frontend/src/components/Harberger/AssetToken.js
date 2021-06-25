@@ -3,7 +3,7 @@ import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
 const OPEN_SEA_BASE_URI = "https://opensea.io/";
-const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
+// const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
 
 class AssetToken extends Component {
   constructor(props) {
