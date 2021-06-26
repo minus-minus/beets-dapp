@@ -30,7 +30,6 @@ class AssetHistory extends Component {
               <thead>
                 <tr>
                   <th>Timestamp</th>
-                  {/* <th>Token ID</th> */}
                   <th>Event</th>
                   <th>From</th>
                   <th>To</th>
@@ -41,12 +40,27 @@ class AssetHistory extends Component {
                 {this.props.eventLogs.filter(e => e.name !== "Approval").reverse().map((event, index) => {
                   return (
                     <tr key={index}>
-                      <td>{event.args.timestamp ? this.formatTime(event.args.timestamp.toString()) : ''}</td>
-                      {/* <td>{event.args.tokenId.toString()}</td> */}
+                      <td>
+                        {event.args.timestamp && (
+                          this.formatTime(event.args.timestamp.toString())
+                        )}
+                      </td>
                       <td>{event.name}</td>
-                      <td><a href={ETHERSCAN_BASE_URI + event.args.from} rel="noopener noreferrer" target="_blank">{this.props.minifyHash(event.args.from)}</a></td>
-                      <td><a href={ETHERSCAN_BASE_URI + event.args.to} rel="noopener noreferrer" target="_blank">{this.props.minifyHash(event.args.to)}</a></td>
-                      <td>{event.args.value ? `Ξ ${this.props.convertToEth(event.args.value.toString())}` : ''}</td>
+                      <td>
+                        <a href={ETHERSCAN_BASE_URI + event.args.from} rel="noopener noreferrer" target="_blank">
+                          {this.props.minifyHash(event.args.from)}
+                        </a>
+                      </td>
+                      <td>
+                        <a href={ETHERSCAN_BASE_URI + event.args.to} rel="noopener noreferrer" target="_blank">
+                          {this.props.minifyHash(event.args.to)}
+                        </a>
+                      </td>
+                      <td>
+                        {event.args.value && (
+                          `Ξ ${parseFloat(this.props.convertToEth(event.args.value.toString()))}`
+                        )}
+                      </td>
                     </tr>
                   )
                 })}

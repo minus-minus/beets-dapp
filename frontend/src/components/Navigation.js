@@ -1,18 +1,21 @@
 import React, { Component } from "react";
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { HTAX_TOKEN_ID } from "../utils/HTAX/constants";
 import "../stylesheets/HarbergerAsset.css";
 
 class Navigation extends Component {
   render() {
     return (
-      <Navbar bg="dark">
+      <Navbar>
         <Container>
           <Navbar.Brand>
-            <img className="beets-logo" src="logo.png" alt="BeetsDAO"/>
+            <Nav.Link href="/">
+              <img className="beets-logo" src="/logo.png" alt="BeetsDAO"/>
+            </Nav.Link>
           </Navbar.Brand>
           <Nav className="me-auto mx-4">
             <Nav.Link className="mx-3" href="/euler-beats">Euler Beats</Nav.Link>
-            <Nav.Link className="mx-3" href="/harberger-taxes">Harberger Taxes</Nav.Link>
+            <Nav.Link className="mx-3" href={"/harberger-taxes/token/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
           </Nav>
           <Navbar.Brand className="connected-account justify-content-end">
             {this.props.selectedAddress ? (

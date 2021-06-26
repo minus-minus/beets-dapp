@@ -7,12 +7,20 @@ class AssetOwner extends Component {
     return (
       <Col className="d-flex justify-content-center mb-5">
         {(this.props.selectedAddress === this.props.creatorAddress || this.props.selectedAddress === this.props.adminAddress) && (
-          <Button className="mx-3 py-2 px-3" variant="success" onClick={(e) => {this.props.collectFunds()}}>
+          <Button
+            className="mx-3 py-2 px-3"
+            variant="success"
+            onClick={(e) => {this.props.collectFunds(this.props.tokenId)}}
+          >
             Collect Funds
           </Button>
         )}
         {this.props.selectedAddress === this.props.creatorAddress && (
-          <Button className="mx-3 py-2 px-3" variant="danger" onClick={(e) => {this.props.reclaimAsset()}}>
+          <Button
+            className="mx-3 py-2 px-3"
+            variant="danger"
+            onClick={(e) => {this.props.reclaimAsset(this.props.tokenId)}}
+          >
             Reclaim Asset
           </Button>
         )}

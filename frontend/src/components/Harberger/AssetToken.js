@@ -48,10 +48,18 @@ class AssetToken extends Component {
               <b>TIME EXPIRED</b>
             )}
           </div>
-          <img className="asset-img mb-3" src={!this.props.isLoadingMetadata ? this.props.tokenImage : "placeholder.jpeg"} alt="asset"/>
+          <img
+            className="asset-img mb-3"
+            src={!this.props.isLoadingMetadata ? this.props.tokenImage : "/placeholder.jpeg"}
+            alt="asset"
+          />
           <div className="asset-price">
-            <Badge className="p-2 price">Price: <b>Ξ {this.props.convertToEth(this.props.assetPrice)}</b></Badge>
-            <Badge className="p-2 tax">Tax: <b>Ξ {this.props.convertToEth(this.props.assetTaxAmount)}</b></Badge>
+            <Badge className="p-2 price">
+              Price: <b>Ξ {this.props.convertToEth(this.props.assetPrice)}</b>
+            </Badge>
+            <Badge className="p-2 tax">
+              Tax: <b>Ξ {this.props.convertToEth(this.props.assetTaxAmount)}</b>
+            </Badge>
           </div>
           <Accordion className="text-center mt-4">
             <Card>
@@ -61,8 +69,7 @@ class AssetToken extends Component {
               <Accordion.Collapse eventKey="0">
                 <Card.Body>
                   <a href={OPEN_SEA_BASE_URI + this.props.creatorAddress} rel="noopener noreferrer" target="_blank">
-                    {this.props.creatorAddress}
-                    {/* {this.props.minifyHash(this.props.creatorAddress)} */}
+                    {this.props.tokenArtist}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>
@@ -74,8 +81,7 @@ class AssetToken extends Component {
               <Accordion.Collapse eventKey="1">
                 <Card.Body>
                   <a href={OPEN_SEA_BASE_URI + this.props.ownerAddress} rel="noopener noreferrer" target="_blank">
-                    {this.props.ownerAddress}
-                    {/* {this.props.minifyHash(this.props.ownerAddress)} */}
+                    {this.props.minifyHash(this.props.ownerAddress)}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>

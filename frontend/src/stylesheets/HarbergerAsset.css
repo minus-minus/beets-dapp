@@ -7,19 +7,24 @@
   min-width: 65%;
 }
 
-.jumbotron {
-  width: 100%;
-  background-color: #e9ecef;
-  border-radius: 10px;
+.navbar {
+  background-color: #0f0823;
 }
 
 .nav-link {
-  font-size: 18px;
+  font-size: 16px;
   color: #fff !important;
+  text-transform: uppercase;
 }
 
 a {
   text-decoration: none !important;
+}
+
+.jumbotron {
+  width: 100%;
+  background-color: #e9ecef;
+  border-radius: 10px;
 }
 
 button.subheader.btn.btn-primary,
@@ -66,7 +71,7 @@ button.subheader.btn.btn-success:active:focus {
 }
 
 .asset-info > p {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 input {

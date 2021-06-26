@@ -73,7 +73,7 @@ export class PrintList extends React.Component {
 
     return (
       <div className="container my-5">
-        <h1 className="text-center">Enigma Prints</h1>
+        <h1 className="text-center mb-5">Enigma Prints</h1>
         <div className="row">
           {printsComponent}
         </div>

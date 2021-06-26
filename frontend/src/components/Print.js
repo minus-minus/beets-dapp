@@ -37,7 +37,7 @@ export class Print extends React.Component {
           <div className="card-body text-center">
             <h5 className="card-title">Track {trackNumber}</h5>
             <p className="card-text">
-              Current supply: {currentSupply}<br/>
+              Current Supply: {currentSupply}<br/>
               Price: Ξ {price}
             </p>
             <button className="btn btn-primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</button>

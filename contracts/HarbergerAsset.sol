@@ -27,7 +27,7 @@ contract HarbergerAsset is ERC721URIStorage {
   address public admin;
   // the base amount of time in seconds for calculating taxes (.01 eth for every 12 hours)
   uint256 public baseInterval = 43200 seconds;
-  // the base tax prices in wei for calculating taxes (.01 eth for every 12 hours)
+  // the base tax price in wei for calculating taxes (.01 eth for every 12 hours)
   uint256 public baseTaxPrice = 1e16;
   // the percentage amount to show how royalties for the creator are calculated
   uint256 public royaltyPercentage = 10;
@@ -40,6 +40,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
   // Object that holds current state of the NFT (creator will never change)
   struct Asset {
+    uint256 tokenId;  // token ID of the NFT
     address creator;  // artist that creates the NFT
     uint256 price; // current sales price (in wei) of NFT
     uint256 taxAmount; // calculated tax price (in wei) that is due by deadline
@@ -66,39 +67,41 @@ contract HarbergerAsset is ERC721URIStorage {
     return baseURI;
   }
 
-  // Only the artist/creator of the NFT should call this function
-  function mintToken(string memory _tokenURI) public returns (uint256) {
-    // First check if tokenURI already exists to prevent duplicates from being created
+  // Only the admin can call this function
+  function mintToken(address _creator, string memory _tokenURI) public returns (uint256) {
+    // First check if the user calling the function is the admin
+    require(admin == _msgSender(), "This function is restricted to only admin users");
+    // Then check if tokenURI already exists to prevent duplicates from being created
     require(hashes[_tokenURI] < 1, "TokenURI already exists");
     // Increase the value of the tokenURI key by 1 (this value should never be greater than 1)
     hashes[_tokenURI] += 1;
-    // Increment the _tokenIDs var derived from the Counters library
+    // Increment the _tokenIds var derived from the Counters library
     _tokenIds.increment();
 
-    // Create a new var and set it equal to the current value of _tokenIDs
+    // Create a new var and set it equal to the current value of _tokenIds
     uint256 newItemId = _tokenIds.current();
-    // Mints the NFT and sets the initial owner of it to the function caller (which is the creator)
-    _safeMint(_msgSender(), newItemId);
-    // Call inherited (ERC721URIStorage) function to store the tokenURI based on the tokenID
+    // Mints the NFT and sets the initial owner as the creator of the asset
+    _safeMint(_creator, newItemId);
+    // Call inherited (ERC721URIStorage) function to store the tokenURI based on the tokenId
     _setTokenURI(newItemId, _tokenURI);
 
     // Initialize the Asset struct for the NFT
-    // Set creator equal to user calling function (which is the artist of the NFT)
+    // Set creator equal to the _creator param
     // Set all price values equal to 0
     // set new deadline equal to the current time plus the base time interval of 12 hours (43200 secs)
     // set Deposit equal to the current time
-    assets[newItemId] = Asset(_msgSender(), 0, 0, 0, block.timestamp.add(baseInterval), block.timestamp);
+    assets[newItemId] = Asset(newItemId, _creator, 0, 0, 0, block.timestamp.add(baseInterval), block.timestamp);
     // Initialize balances for the admin and creator once the Asset is created
     balances[newItemId][admin] = 0;
-    balances[newItemId][_msgSender()] = 0;
+    balances[newItemId][_creator] = 0;
 
-    // return the tokenID of the NFT that was just created
+    // return the tokenId of the NFT that was just created
     return newItemId;
   }
 
   // Only the current owner of the Asset can call this function
   function listAssetForSaleInWei(uint256 _tokenId, uint256 _price) public {
-    // First check if the tokenID exists
+    // First check if the tokenId exists
     require(_exists(_tokenId), "Token does not exist");
     // Then check if the user calling this function is the current owner of the Asset
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
@@ -112,64 +115,6 @@ contract HarbergerAsset is ERC721URIStorage {
 
     // Log the list transacation event to the contract
     emit List(block.timestamp, _tokenId, _msgSender(), _price);
-  }
-
-  // Any user (besides the current owner) can call this function
-  function buyAssetInWei(uint256 _tokenId) public payable {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Then check if the user calling this function is NOT the owner of the Asset
-    require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
-    // Finally verify that the amount being paid by the user is equivalent to the actual sales price of the Asset
-    require(assets[_tokenId].price == msg.value, "Incorrect amount paid");
-
-    // When a user sends ETH to a contract through msg.value,
-    // that value is automatically added to the contract's current balance (contractBalance += msg.value)
-
-    // Get the current owner of the Asset
-    address currentOwner = ownerOf(_tokenId);
-    // Ge the creator of the Asset
-    address creator = assets[_tokenId].creator;
-    // calculate the royalty amount (value * royaltyPercentage is equivalent to value / royaltyDenominator)
-    uint256 royalty = msg.value.div(royaltyDenominator);
-    // Subtract the royalty amount from the total price to get remaining payment for the current owner
-    uint256 payment = msg.value.sub(royalty);
-
-    // Contract first transfers the royalty amount to the creator of the Asset
-    payable(creator).transfer(royalty);
-    // Contract then transfers the remaining payment amount to the current owner of the Asset
-    payable(currentOwner).transfer(payment);
-    // Log the sale transaction event to the contract
-    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
-
-    // After payments are sent out, the contract transfers the NFT from the current owner to the new owner (user that called the function)
-    // This inherited (IERC721) function will then emit a Transfer event, which is why we first log the Sale event
-    // The key word 'this' is used to specify that the contract (which has been approved) is calling the transfer function
-    // Otherwise, it will fail since the user calling this function does not have approval to transfer it to themself
-    this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
-    // Next we want to refund the excess amount of taxes paid by the current owner (see function below)
-    refundTax(_tokenId, currentOwner);
-
-    // Get current balance of the contract
-    uint256 contractBalance = address(this).balance;
-    // Get current balance of admin for specified Asset (this is just an integer value, does not represent actual ETH)
-    uint256 adminBalance = balances[_tokenId][admin];
-    // Get current balance of creator for specified Asset (this is just an integer value, does not represent actual ETH)
-    uint256 creatorBalance = balances[_tokenId][creator];
-    // Subtract admin and creator balance from the contract's current balance
-    uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
-
-    // Only once a sale is made and taxes are refunded can we add to the admin and creator's balances
-    // We then add half of the remaining balance to each of the admin and creator's current balances
-    balances[_tokenId][admin] += remainingBalance.div(2).sub(adminBalance);
-    balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
-
-    // Reset the Asset values whenever is sale is made (see function below)
-    resetAsset(_tokenId);
-    // Increase the base tax price by .001 ETH whenever a sale is made (temporary change/experimental)
-    baseTaxPrice += 1e15;
-    // Increase the base time interval by 72 minutes whenever a sale is made (temporary/experimental)
-    /* baseInterval += 4320 seconds; */
   }
 
   // Only the current owner of the Asset can call this function
@@ -194,6 +139,90 @@ contract HarbergerAsset is ERC721URIStorage {
 
     // Log the deposit event to the contract
     emit Deposit(block.timestamp, _tokenId, _msgSender(), address(this), msg.value);
+  }
+
+  // Any user (besides the current owner) can call this function
+  function buyAssetInWei(uint256 _tokenId) public payable {
+    // First check if the NFT exists
+    require(_exists(_tokenId), "Token does not exist");
+    // Then check if the user calling this function is NOT the owner of the Asset
+    require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
+    // Next check if the asset has a sales price greater than 0
+    require(assets[_tokenId].price > 0, "This item is not yet for sale");
+    // Finally verify that the amount being paid by the user is equivalent to the actual sales price of the Asset
+    require(assets[_tokenId].price == msg.value, "Incorrect amount paid");
+
+    // When a user sends ETH to a contract through msg.value,
+    // that value is automatically added to the contract's current balance (contractBalance += msg.value)
+
+    // Get the current owner of the Asset
+    address currentOwner = ownerOf(_tokenId);
+    // Ge the creator of the Asset
+    address creator = assets[_tokenId].creator;
+    // calculate the royalty amount (value * royaltyPercentage is equivalent to value / royaltyDenominator)
+    uint256 royalty = msg.value.div(royaltyDenominator);
+    // Subtract the royalty amount from the total price to get remaining payment for the current owner
+    uint256 payment = msg.value.sub(royalty);
+
+    // Contract first transfers the royalty amount to the creator of the Asset
+    payable(creator).transfer(royalty);
+    // Contract then transfers the remaining payment amount to the current owner of the Asset
+    payable(currentOwner).transfer(payment);
+    // Log the sale transaction event to the contract
+    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
+
+    // Next we want to refund the excess amount of taxes paid by the current owner (see function below)
+    refundTax(_tokenId, currentOwner);
+
+    // After payments are sent out, the contract transfers the NFT from the current owner to the new owner (user that called the function)
+    // This inherited (IERC721) function will then emit a Transfer event, which is why we first log the Sale event
+    // The key word 'this' is used to specify that the contract (which has been approved) is calling the transfer function
+    // Otherwise, it will fail since the user calling this function does not have approval to transfer it to themself
+    this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
+
+    // Get current balance of the contract
+    uint256 contractBalance = address(this).balance;
+    // Get current balance of admin for specified Asset (this is just an integer value, does not represent actual ETH)
+    uint256 adminBalance = balances[_tokenId][admin];
+    // Get current balance of creator for specified Asset (this is just an integer value, does not represent actual ETH)
+    uint256 creatorBalance = balances[_tokenId][creator];
+    // Subtract admin and creator balance from the contract's current balance
+    uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
+
+    // Only once a sale is made and taxes are refunded can we add to the admin and creator's balances
+    // We then add half of the remaining balance to each of the admin and creator's current balances
+    balances[_tokenId][admin] += remainingBalance.div(2).sub(adminBalance);
+    balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
+
+    // Reset the Asset values whenever is sale is made (see function below)
+    resetAsset(_tokenId);
+    // Increase the base tax price by .001 ETH whenever a sale is made (temporary change/experimental)
+    baseTaxPrice += 1e15;
+    // Increase the base time interval by 72 minutes whenever a sale is made (temporary/experimental)
+    /* baseInterval += 4320 seconds; */
+  }
+
+  // Internal function called once a sale is made (called from buyAssetInWei)
+  function refundTax(uint256 _tokenId, address _currentOwner) internal {
+    // Get deadline of the Asset
+    uint256 deadline = assets[_tokenId].deadline;
+    // Calculate the time remaining for the Asset
+    uint256 timeRemaining = deadline - block.timestamp;
+
+    // Time remaining can possibly be negative so we wrap both vars with int256 before executing the conditional
+    // Check if timeRemaining is greater than the base time interval which is 12 hours (43200 secs)
+    // The reason is because 12 hours is the default time added to the deadline whenever an Asset is reset due to a sale or reclaim
+    if (int256(timeRemaining) > int256(baseInterval)) {
+      // Calculate taxMultiplier by dividing timeRemaining from the base time interval (43000 secs)
+      uint256 taxMultiplier = timeRemaining.div(baseInterval);
+      // Calculate amount that needs to be refunded by mulitplying base tax price by tax multiplier
+      uint256 refundAmount = baseTaxPrice.mul(taxMultiplier);
+
+      // Refund the current owner of the Asset
+      payable(_currentOwner).transfer(refundAmount);
+      // Log the refund event to the contract
+      emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
+    }
   }
 
   // Only the admin and creator can call this function
@@ -234,6 +263,18 @@ contract HarbergerAsset is ERC721URIStorage {
     resetAsset(_tokenId);
   }
 
+  // Internal function called when the Asset needs to be reset (called from either buyAssetInWei or reclaimAsset)
+  function resetAsset(uint256 _tokenId) internal {
+    // Set all price values equal to 0
+    // Set new deadline equal to the base time interval of 12 hours (43200 secs)
+    // Set Deposit equal to the current time
+    assets[_tokenId].price = 0;
+    assets[_tokenId].taxAmount = 0;
+    assets[_tokenId].totalDeposit = 0;
+    assets[_tokenId].deadline = block.timestamp.add(baseInterval);
+    assets[_tokenId].lastDeposit = block.timestamp;
+  }
+
   // Anyone can call this function (does not change state of contract)
   function timeExpired(uint256 _tokenId) public view returns (bool) {
     // First check if the NFT exists
@@ -247,39 +288,20 @@ contract HarbergerAsset is ERC721URIStorage {
     return block.timestamp >= assets[_tokenId].deadline;
   }
 
-  // Internal function called once a sale is made (called from buyAssetInWei)
-  function refundTax(uint256 _tokenId, address _currentOwner) internal {
-    // Get deadline of the Asset
-    uint256 deadline = assets[_tokenId].deadline;
-    // Calculate the time remaining for the Asset
-    uint256 timeRemaining = deadline - block.timestamp;
+  // Anyone can call this function (does not change state of contract)
+  function fetchAssets() public view returns(Asset[] memory) {
+    // Get the total count of all the assets
+    uint256 assetCount = _tokenIds.current();
+    // Create a new array to store all the assets
+    Asset[] memory totalAssets = new Asset[](assetCount);
 
-    // Time remaining can possibly be negative so we wrap both vars with int256 before executing the conditional
-    // Check if timeRemaining is greater than the base time interval which is 12 hours (43200 secs)
-    // The reason is because 12 hours is the default time added to the deadline whenever an Asset is reset due to a sale or reclaim
-    if (int256(timeRemaining) > int256(baseInterval)) {
-      // Calculate taxMultiplier by dividing timeRemaining from the base time interval (43000 secs)
-      uint256 taxMultiplier = timeRemaining.div(baseInterval);
-      // Calculate amount that needs to be refunded by mulitplying base tax price by tax multiplier
-      uint256 refundAmount = baseTaxPrice.mul(taxMultiplier);
-
-      // Refund the current owner of the Asset
-      payable(_currentOwner).transfer(refundAmount);
-      // Log the refund event to the contract
-      emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
+    // Loop through the assets mapping and push each one into the new array
+    for (uint i = 0; i < assetCount; i++) {
+      totalAssets[i] = assets[i + 1];
     }
-  }
 
-  // Internal function called when the Asset needs to be reset (called from either buyAssetInWei or reclaimAsset)
-  function resetAsset(uint256 _tokenId) internal {
-    // Set all price values equal to 0
-    // Set new deadline equal to the base time interval of 12 hours (43200 secs)
-    // Set Deposit equal to the current time
-    assets[_tokenId].price = 0;
-    assets[_tokenId].taxAmount = 0;
-    assets[_tokenId].totalDeposit = 0;
-    assets[_tokenId].deadline = block.timestamp.add(baseInterval);
-    assets[_tokenId].lastDeposit = block.timestamp;
+    // Return an array of all the assets
+    return totalAssets;
   }
 
   // Override inherited (IERC721) function to simply update the require conditional

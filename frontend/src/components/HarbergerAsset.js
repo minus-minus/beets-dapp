@@ -1,20 +1,80 @@
 import React, { Component } from "react";
 import { ethers } from "ethers";
-import AssetHeader from "./Harberger/AssetHeader";
 import AssetToken from "./Harberger/AssetToken";
 import AssetInfo from "./Harberger/AssetInfo";
 import AssetHistory from "./Harberger/AssetHistory";
 import AssetOwner from "./Harberger/AssetOwner";
-import Footer from "./Harberger/Footer";
 import BigNumber from "bignumber.js";
 import { Container, Row } from "react-bootstrap";
+
+const axios = require('axios');
 
 class HarbergerAsset extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      isLoadingToken: true,
+      isLoadingMetadata: true
+    }
 
+    this.apiRequest = this.apiRequest.bind(this)
     this.convertToEth = this.convertToEth.bind(this)
     this.convertToWei = this.convertToWei.bind(this)
+    this.loadHarbergerToken = this.loadHarbergerToken.bind(this)
+  }
+
+  componentDidMount() {
+    this.loadHarbergerToken();
+  }
+
+  async loadHarbergerToken() {
+    try {
+      const assetOwner = await this.props.contract.ownerOf(this.props.tokenId);
+      const approvedAccount = await this.props.contract.getApproved(this.props.tokenId);
+      const timeExpired = await this.props.contract.timeExpired(this.props.tokenId);
+      const tokenURI = await this.props.contract.tokenURI(this.props.tokenId);
+      const adminBalance = await this.props.contract.balances(this.props.tokenId, this.props.adminAddress);
+      const creatorBalance = await this.props.contract.balances(this.props.tokenId, this.props.creatorAddress);
+
+      this.setState({
+        adminBalance: adminBalance.toString(),
+        approvedAddress: ethers.utils.getAddress(approvedAccount),
+        assetDeadline: this.props.asset.deadline.toString(),
+        assetLastDeposit: this.props.asset.lastDeposit.toString(),
+        assetPrice: this.props.asset.price.toString(),
+        assetTaxAmount: this.props.asset.taxAmount.toString(),
+        assetTotalDeposit: this.props.asset.totalDeposit.toString(),
+        creatorBalance: creatorBalance.toString(),
+        ownerAddress: ethers.utils.getAddress(assetOwner),
+        timeExpired: timeExpired,
+        tokenURI: tokenURI,
+        isLoadingToken: false
+      })
+
+      console.log("Harberger Token State:", this.state);
+      this.apiRequest();
+    } catch(err) {
+      console.log(err);
+    }
+  }
+
+  async apiRequest() {
+    try {
+      const tokenURI = this.state.tokenURI;
+      const response = await axios.get(tokenURI);
+
+      this.setState({
+        tokenArtist: response.data.artist,
+        tokenDescription: response.data.description,
+        tokenImage: response.data.image,
+        tokenName: response.data.name,
+        isLoadingMetadata: false
+      })
+
+      console.log("Harberger Metadata State:", this.state);
+    } catch(err) {
+      console.log(err);
+    }
   }
 
   convertToEth = (value) => {
@@ -32,32 +92,31 @@ class HarbergerAsset extends Component {
   render() {
     return (
       <div>
-        <AssetHeader
-          mintToken={this.props.mintToken}
-          selectedAddress={this.props.selectedAddress}
-          tokenURI={this.props.tokenURI}
-        />
-        {!this.props.isLoadingToken && (
+        {!this.isLoadingToken && (
           <Container>
+            <h1 className="text-center my-5">Harberger Taxes</h1>
             <Row>
               <AssetToken
-                assetDeadline={this.props.assetDeadline}
-                assetPrice={this.props.assetPrice}
-                assetTaxAmount={this.props.assetTaxAmount}
+                assetDeadline={this.state.assetDeadline}
+                assetPrice={this.state.assetPrice}
+                assetTaxAmount={this.state.assetTaxAmount}
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 isLoadingMetadata={this.props.isLoadingMetadata}
                 minifyHash={this.props.minifyHash}
-                ownerAddress={this.props.ownerAddress}
-                timeExpired={this.props.timeExpired}
-                tokenImage={this.props.tokenImage}
-                tokenURI={this.props.tokenURI}
+                ownerAddress={this.state.ownerAddress}
+                timeExpired={this.state.timeExpired}
+                tokenArtist={this.state.tokenArtist}
+                tokenId={this.props.tokenId}
+                tokenImage={this.state.tokenImage}
+                tokenName={this.state.tokenName}
+                tokenURI={this.state.tokenURI}
               />
               <AssetInfo
-                approvedAddress={this.props.approvedAddress}
-                assetDeadline={this.props.assetDeadline}
-                assetPrice={this.props.assetPrice}
-                assetTaxAmount={this.props.assetTaxAmount}
+                approvedAddress={this.state.approvedAddress}
+                assetDeadline={this.state.assetDeadline}
+                assetPrice={this.state.assetPrice}
+                assetTaxAmount={this.state.assetTaxAmount}
                 baseInterval={this.props.baseInterval}
                 baseTaxPrice={this.props.baseTaxPrice}
                 buyAsset={this.props.buyAsset}
@@ -66,9 +125,11 @@ class HarbergerAsset extends Component {
                 convertToWei={this.convertToWei}
                 depositTax={this.props.depositTax}
                 listAsset={this.props.listAsset}
-                ownerAddress={this.props.ownerAddress}
+                ownerAddress={this.state.ownerAddress}
                 selectedAddress={this.props.selectedAddress}
                 taxRatePercentage={this.props.taxRatePercentage}
+                tokenDescription={this.state.tokenDescription}
+                tokenId={this.props.tokenId}
               />
             </Row>
             <Row>
@@ -76,6 +137,7 @@ class HarbergerAsset extends Component {
                 convertToEth={this.convertToEth}
                 eventLogs={this.props.eventLogs}
                 minifyHash={this.props.minifyHash}
+                tokenId={this.props.tokenId}
               />
             </Row>
             <Row>
@@ -85,11 +147,11 @@ class HarbergerAsset extends Component {
                 creatorAddress={this.props.creatorAddress}
                 reclaimAsset={this.props.reclaimAsset}
                 selectedAddress={this.props.selectedAddress}
+                tokenId={this.props.tokenId}
               />
             </Row>
           </Container>
         )}
-        <Footer/>
       </div>
     )
   }
