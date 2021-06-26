@@ -31,6 +31,7 @@ export class Dapp extends React.Component {
     super(props);
 
     this.initialState = {
+      assets: [],
       networkError: undefined,
       selectedAddress: undefined,
       transactionError: undefined,
@@ -91,52 +92,54 @@ export class Dapp extends React.Component {
           minifyHash={this._minifyHash}
           selectedAddress={this.state.selectedAddress}
         />
-        <Switch>
-          <Route path="/euler-beats">
-            <PrintList
-              mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-              getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-              getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
-            />
-          </Route>
-          {!this.state.assets.length && (
-            <Route path={"/harberger-taxes"}>
-              <MintAsset
-                adminAddress={this.state.adminAddress}
-                mintToken={this.mintToken}
-                selectedAddress={this.state.selectedAddress}
+        <div id="dapp">
+          <Switch>
+            <Route path="/euler-beats">
+              <PrintList
+                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
               />
             </Route>
-          )}
-          {this.state.assets.map((asset, index) => {
-            return (
-              <Route path={"/harberger-taxes/token/" + asset.tokenId} key={index}>
-                <HarbergerAsset
-                  // Contract and Asset Data
+            {(!this.state.assets.length) && (
+              <Route path={"/harberger-taxes"}>
+                <MintAsset
                   adminAddress={this.state.adminAddress}
-                  asset={asset}
-                  baseInterval={this.state.baseInterval}
-                  baseTaxPrice={this.state.baseTaxPrice}
-                  contractAddress={this.state.contractAddress}
-                  creatorAddress={ethers.utils.getAddress(asset.creator)}
-                  contract={this.HTAXcontract}
-                  eventLogs={this.state.eventLogs}
-                  isLoadingContract={this.state.isLoadingContract}
+                  mintToken={this.mintToken}
                   selectedAddress={this.state.selectedAddress}
-                  taxRatePercentage={this.state.taxRatePercentage}
-                  tokenId={asset.tokenId}
-                  // Functions
-                  buyAsset={this.buyAsset}
-                  collectFunds={this.collectFunds}
-                  depositTax={this.depositTax}
-                  listAsset={this.listAsset}
-                  minifyHash={this._minifyHash}
-                  reclaimAsset={this.reclaimAsset}
                 />
               </Route>
-            )
-          })}
-        </Switch>
+            )}
+            {this.state.assets.map((asset, index) => {
+              return (
+                <Route path={"/harberger-taxes/token/" + asset.tokenId} key={index}>
+                  <HarbergerAsset
+                    // Contract and Asset Data
+                    adminAddress={this.state.adminAddress}
+                    asset={asset}
+                    baseInterval={this.state.baseInterval}
+                    baseTaxPrice={this.state.baseTaxPrice}
+                    contractAddress={this.state.contractAddress}
+                    creatorAddress={ethers.utils.getAddress(asset.creator)}
+                    contract={this.HTAXcontract}
+                    eventLogs={this.state.eventLogs}
+                    isLoadingContract={this.state.isLoadingContract}
+                    selectedAddress={this.state.selectedAddress}
+                    taxRatePercentage={this.state.taxRatePercentage}
+                    tokenId={asset.tokenId}
+                    // Functions
+                    buyAsset={this.buyAsset}
+                    collectFunds={this.collectFunds}
+                    depositTax={this.depositTax}
+                    listAsset={this.listAsset}
+                    minifyHash={this._minifyHash}
+                    reclaimAsset={this.reclaimAsset}
+                  />
+                </Route>
+              )
+            })}
+          </Switch>
+        </div>
         <Footer/>
       </Router>
     )
