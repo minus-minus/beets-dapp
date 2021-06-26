@@ -4,7 +4,7 @@ import { HTAX_CREATOR_ADDRESS } from "../../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
-class AssetHeader extends Component {
+class MintAsset extends Component {
   render() {
     return (
       <div className="text-center mt-5">
@@ -22,4 +22,4 @@ class AssetHeader extends Component {
   }
 };
 
-export default AssetHeader;
+export default MintAsset;

@@ -13,7 +13,7 @@ import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
 import { PrintList } from './PrintList';
 import Navigation from "./Navigation";
-import AssetHeader from "./Harberger/AssetHeader";
+import MintAsset from "./Harberger/MintAsset";
 import HarbergerAsset from "./HarbergerAsset";
 import Footer from "./Footer";
 // import { Transfer } from "./Transfer";
@@ -99,9 +99,9 @@ export class Dapp extends React.Component {
               getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
             />
           </Route>
-          {this.state.assets.length === 0 && (
+          {!this.state.assets.length && (
             <Route path={"/harberger-taxes"}>
-              <AssetHeader
+              <MintAsset
                 adminAddress={this.state.adminAddress}
                 mintToken={this.mintToken}
                 selectedAddress={this.state.selectedAddress}
