@@ -15,7 +15,7 @@ class Navigation extends Component {
           </Navbar.Brand>
           <Nav className="me-auto mx-4">
             <Nav.Link className="mx-3" href="/euler-beats">Euler Beats</Nav.Link>
-            <Nav.Link className="mx-3" href={"/harberger-taxes/token/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
+            <Nav.Link className="mx-3" href={"/harberger-taxes/asset/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
           </Nav>
           <Navbar.Brand className="connected-account justify-content-end">
             {this.props.selectedAddress ? (

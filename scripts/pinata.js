@@ -34,14 +34,15 @@ async function pinMetadata(hash) {
   const metadata =
   {
     pinataContent: {
-      "artist": "Jonathan Mann",
-      "creator": "@songadaymann",
-      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend the clock. If either of these conditions is failed to be met once the time expires, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
+      "artist": "@songadaymann",
+      "creator": "Jonathan Mann",
+      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend the clock. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
+      "external_url": "https://www.beetsdao.com/harberger-taxes/asset/1",
       "image": process.env.IPFS_BASE_URI + hash,
       "name": "Harberger Taxes",
       "producer": "BeetsDAO",
       "token_id": 1,
-      "website": "https://www.beetsdao.com/harberger-taxes"
+      "website": "https://www.jonathanmann.net"
     }
   }
 

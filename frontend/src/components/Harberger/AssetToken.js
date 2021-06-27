@@ -3,7 +3,7 @@ import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
 const OPEN_SEA_BASE_URI = "https://opensea.io/";
-// const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
+const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
 
 class AssetToken extends Component {
   constructor(props) {
@@ -64,12 +64,12 @@ class AssetToken extends Component {
           <Accordion className="text-center mt-4">
             <Card>
               <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
-                <b>Creator</b>
+                <b>Artist</b>
               </Accordion.Toggle>
               <Accordion.Collapse eventKey="0">
                 <Card.Body>
-                  <a href={OPEN_SEA_BASE_URI + this.props.creatorAddress} rel="noopener noreferrer" target="_blank">
-                    {this.props.tokenArtist}
+                  <a href={this.props.artistWebsite} rel="noopener noreferrer" target="_blank">
+                    {this.props.creatorName}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>
@@ -82,6 +82,18 @@ class AssetToken extends Component {
                 <Card.Body>
                   <a href={OPEN_SEA_BASE_URI + this.props.ownerAddress} rel="noopener noreferrer" target="_blank">
                     {this.props.minifyHash(this.props.ownerAddress)}
+                  </a>
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+            <Card>
+              <Accordion.Toggle as={Card.Header} variant="link" eventKey="2">
+                <b>Contract</b>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="2">
+                <Card.Body>
+                  <a href={ETHERSCAN_BASE_URI + this.props.contractAddress} rel="noopener noreferrer" target="_blank">
+                    {this.props.minifyHash(this.props.contractAddress)}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>

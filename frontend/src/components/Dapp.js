@@ -112,7 +112,7 @@ export class Dapp extends React.Component {
             )}
             {this.state.assets.map((asset, index) => {
               return (
-                <Route path={"/harberger-taxes/token/" + asset.tokenId} key={index}>
+                <Route path={"/harberger-taxes/asset/" + asset.tokenId} key={index}>
                   <HarbergerAsset
                     // Contract and Asset Data
                     adminAddress={this.state.adminAddress}

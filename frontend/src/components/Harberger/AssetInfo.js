@@ -131,7 +131,7 @@ class AssetInfo extends Component {
                 onChange={(date) => this.setSelectedDate(date)}
               />
               <p className="mt-4">
-                The tax price can be calculated by applying a fixed percentage of <b>{this.props.taxRatePercentage}%</b> to the current sales price. For every <b>Ξ {parseFloat(this.props.convertToEth(this.props.baseTaxPrice))}</b> that is deposited in taxes, the clock will extend for an additional <b>{this.props.baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date based on the current value of this asset.
+                The tax price can be calculated by applying a fixed percentage of <b>{this.props.taxRatePercentage}%</b> to the current sales price. For every <b>Ξ {parseFloat(this.props.convertToEth(this.props.baseTaxPrice))}</b> that is deposited in taxes, the clock will extend for an additional <b>{this.props.baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.
               </p>
               {this.props.assetPrice > 0 && (
                 <p>

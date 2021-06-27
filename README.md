@@ -125,8 +125,8 @@ PINATA_SECRET_KEY=
 
 12. Import the first 3 Hardhat accounts into MetaMask using the private keys that are logged from the hardhat node server
 
-13. The first account that deploys the contract will be the `Admin` and will be able to `Collect Funds`
+13. The first account that deploys the contract will be the `Admin` and will be able to `Mint Token` and `Collect Funds`
 
-14. The second account is set to be the `Creator` of the NFT and will be able to `Mint`, `Collect Funds` and `Reclaim Asset`
+14. The second account is set to be the `Creator` of the NFT and will be able to `Reclaim Asset` and `Collect Funds`
 
 15. The third account is considered to be a normal user and will only have basic actions available

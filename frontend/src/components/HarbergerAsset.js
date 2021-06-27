@@ -64,7 +64,9 @@ class HarbergerAsset extends Component {
       const response = await axios.get(tokenURI);
 
       this.setState({
-        tokenArtist: response.data.artist,
+        artistName: response.data.artist,
+        artistWebsite: response.data.website,
+        creatorName: response.data.creator,
         tokenDescription: response.data.description,
         tokenImage: response.data.image,
         tokenName: response.data.name,
@@ -97,16 +99,19 @@ class HarbergerAsset extends Component {
             <h1 className="text-center my-5">Harberger Taxes</h1>
             <Row>
               <AssetToken
+                artistName={this.state.artistName}
+                artistWebsite={this.state.artistWebsite}
                 assetDeadline={this.state.assetDeadline}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
+                contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
+                creatorName={this.state.creatorName}
                 isLoadingMetadata={this.props.isLoadingMetadata}
                 minifyHash={this.props.minifyHash}
                 ownerAddress={this.state.ownerAddress}
                 timeExpired={this.state.timeExpired}
-                tokenArtist={this.state.tokenArtist}
                 tokenId={this.props.tokenId}
                 tokenImage={this.state.tokenImage}
                 tokenName={this.state.tokenName}
