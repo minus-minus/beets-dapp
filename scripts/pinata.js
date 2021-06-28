@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
-const tokenFileName = "./frontend/public/space.jpg"
+const tokenFileName = "./frontend/public/freestyle.mp4"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
@@ -11,6 +11,7 @@ async function pinFileToIPFS() {
 
   const header = {
     maxContentLength: "Infinity",
+    maxBodyLength: "Infinity",
     headers: {
       "Content-Type": `multipart/form-data; boundary=${data._boundary}`,
       pinata_api_key: process.env.PINATA_API_KEY,
@@ -22,7 +23,7 @@ async function pinFileToIPFS() {
 
   try {
     const ipfsHash = response.data["IpfsHash"]
-    console.log("Image Hash:", ipfsHash);
+    console.log("Media Hash:", ipfsHash);
     pinMetadata(ipfsHash)
   } catch (err) {
     console.log(err)
@@ -37,7 +38,7 @@ async function pinMetadata(hash) {
       "artist": "@songadaymann",
       "creator": "Jonathan Mann",
       "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend the clock. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
-      "external_url": "https://www.beetsdao.com/harberger-taxes/asset/1",
+      "external_url": "https://www.beetsdapps.com/harberger-taxes/asset/1",
       "image": process.env.IPFS_BASE_URI + hash,
       "name": "Harberger Taxes",
       "producer": "BeetsDAO",
@@ -60,13 +61,13 @@ async function pinMetadata(hash) {
   try {
     const ipfsHash = response.data["IpfsHash"]
     console.log("JSON Hash:", ipfsHash)
-    saveFrontendFiles(ipfsHash)
+    saveTokenURI(ipfsHash)
   } catch (err) {
     console.log(err)
   }
 }
 
-function saveFrontendFiles(ipfsHash) {
+function saveTokenURI(ipfsHash) {
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir)
   }

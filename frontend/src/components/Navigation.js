@@ -5,12 +5,14 @@ import "../stylesheets/HarbergerAsset.css";
 
 class Navigation extends Component {
   render() {
+    const selectedAddress = this.props.minifyHash(this.props.selectedAddress)
+
     return (
       <Navbar>
         <Container>
           <Navbar.Brand>
             <Nav.Link href="/">
-              <img className="beets-logo" src="/logo.png" alt="BeetsDAO"/>
+              <img className="logo" src="/logo.png" alt="BeetsDAO"/>
             </Nav.Link>
           </Navbar.Brand>
           <Nav className="me-auto mx-4">
@@ -18,9 +20,9 @@ class Navigation extends Component {
             <Nav.Link className="mx-3" href={"/harberger-taxes/asset/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
           </Nav>
           <Navbar.Brand className="connected-account justify-content-end">
-            {this.props.selectedAddress ? (
+            {selectedAddress ? (
               <Button className="py-2 px-4" variant="warning">
-                {this.props.minifyHash(this.props.selectedAddress)}
+                {selectedAddress}
               </Button>
             ) : (
               <Button className="py-2 px-4" variant="warning" onClick={this.props.connectWallet}>

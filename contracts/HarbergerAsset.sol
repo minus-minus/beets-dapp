@@ -197,7 +197,7 @@ contract HarbergerAsset is ERC721URIStorage {
     // Reset the Asset values whenever is sale is made (see function below)
     resetAsset(_tokenId);
     // Increase the base tax price by .001 ETH whenever a sale is made (temporary change/experimental)
-    baseTaxPrice += 1e15;
+    baseTaxPrice += 5e15;
     // Increase the base time interval by 72 minutes whenever a sale is made (temporary/experimental)
     /* baseInterval += 4320 seconds; */
   }

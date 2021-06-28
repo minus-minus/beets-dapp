@@ -11,10 +11,10 @@ import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-import { PrintList } from './PrintList';
+import { PrintList } from './EulerBeat/PrintList';
 import Navigation from "./Navigation";
-import MintAsset from "./Harberger/MintAsset";
-import HarbergerAsset from "./HarbergerAsset";
+import MintToken from "./Harberger/MintToken";
+import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
 // import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
@@ -103,7 +103,7 @@ export class Dapp extends React.Component {
             </Route>
             {(!this.state.assets.length) && (
               <Route path={"/harberger-taxes"}>
-                <MintAsset
+                <MintToken
                   adminAddress={this.state.adminAddress}
                   mintToken={this.mintToken}
                   selectedAddress={this.state.selectedAddress}
@@ -113,10 +113,10 @@ export class Dapp extends React.Component {
             {this.state.assets.map((asset, index) => {
               return (
                 <Route path={"/harberger-taxes/asset/" + asset.tokenId} key={index}>
-                  <HarbergerAsset
+                  <Asset
                     // Contract and Asset Data
-                    adminAddress={this.state.adminAddress}
                     asset={asset}
+                    adminAddress={this.state.adminAddress}
                     baseInterval={this.state.baseInterval}
                     baseTaxPrice={this.state.baseTaxPrice}
                     contractAddress={this.state.contractAddress}

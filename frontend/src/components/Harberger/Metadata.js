@@ -1,0 +1,128 @@
+import React, { Component } from "react";
+import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
+import "../../stylesheets/HarbergerAsset.css";
+
+const OPEN_SEA_BASE_URI = "https://opensea.io/";
+const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
+
+class Metadata extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      timeExpired: this.props.timeExpired
+    }
+
+    this.timeRemaining = this.timeRemaining.bind(this)
+  }
+
+  componentDidMount() {
+    this.timeRemaining(this.props.assetDeadline)
+    setInterval(() => this.timeRemaining(this.props.assetDeadline), 100)
+  }
+
+  timeRemaining = (deadline) => {
+    if (!deadline) return
+
+    var current = Math.floor(Date.now() / 1000)
+    var remaining = deadline - current
+    var days = Math.floor(remaining / (3600 * 24))
+    var hrs = Math.floor(remaining % (3600 * 24) / 3600)
+    var mins = Math.floor(remaining % 3600 / 60)
+    var secs = Math.floor(remaining % 60)
+
+    if (current >= deadline) {
+      this.setState({ timeExpired: true })
+    } else {
+      this.setState({ days, hrs, mins, secs })
+    }
+  }
+
+  render() {
+    const artistWebsite = this.props.artistWebsite
+    const assetPrice = this.props.convertToEth(this.props.assetPrice)
+    const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount)
+    const contractAddress = this.props.contractAddress
+    const creatorName = this.props.creatorName
+    const isLoadingMetadata = this.props.isLoadingMetadata
+    const ownerAddress = this.props.ownerAddress
+    const timeExpired = this.state.timeExpired
+    const tokenMedia = this.props.tokenMedia
+
+    return (
+      <Col className="d-flex justify-content-center">
+        <Jumbotron className="p-5 mb-5 mx-2">
+          <div className="text-center mb-3">
+            {!timeExpired ? (
+              <b>{this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs</b>
+            ) : (
+              <b>TIME EXPIRED</b>
+            )}
+          </div>
+          {!isLoadingMetadata ? (
+            <video
+              className="asset-media mb-3"
+              style={{border: "5px solid #808080"}}
+              controls
+              playsInline
+              src={tokenMedia}
+            />
+          ) : (
+            <img
+              className="asset-media mb-3"
+              src="/placeholder.jpeg"
+              alt="placeholder"
+            />
+          )}
+          <div className="asset-price">
+            <Badge className="p-2 price">
+              Price <b>Ξ {assetPrice}</b>
+            </Badge>
+            <Badge className="p-2 tax">
+              Tax <b>Ξ {assetTaxAmount}</b>
+            </Badge>
+          </div>
+          <Accordion className="text-center mt-4">
+            <Card>
+              <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
+                <b>Artist</b>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="0">
+                <Card.Body>
+                  <a href={artistWebsite} rel="noopener noreferrer" target="_blank">
+                    {creatorName}
+                  </a>
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+            <Card>
+              <Accordion.Toggle as={Card.Header} variant="link" eventKey="1">
+                <b>Owner</b>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="1">
+                <Card.Body>
+                  <a href={OPEN_SEA_BASE_URI + ownerAddress} rel="noopener noreferrer" target="_blank">
+                    {this.props.minifyHash(ownerAddress)}
+                  </a>
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+            <Card>
+              <Accordion.Toggle as={Card.Header} variant="link" eventKey="2">
+                <b>Contract</b>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="2">
+                <Card.Body>
+                  <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
+                    {this.props.minifyHash(contractAddress)}
+                  </a>
+                </Card.Body>
+              </Accordion.Collapse>
+            </Card>
+          </Accordion>
+        </Jumbotron>
+      </Col>
+    )
+  }
+};
+
+export default Metadata;

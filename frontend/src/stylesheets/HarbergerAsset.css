@@ -2,7 +2,7 @@
   min-height: calc(100vh - 350px);
 }
 
-.beets-logo {
+.logo {
   width: 90px;
   height: 65px;
 }
@@ -45,7 +45,7 @@ button.subheader.btn.btn-success:active:focus {
   box-shadow: none;
 }
 
-.asset-img {
+.asset-media {
   width: 100%;
   height: auto;
   border: 5px solid #808080;
