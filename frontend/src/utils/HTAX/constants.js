@@ -4,9 +4,9 @@ export const HTAX_EVENT_ABI = [
   "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",
   "event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
   "event List(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value)",
-  "event DepositTax(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
+  "event Deposit(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
   "event Sale(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value)",
-  "event TaxRefund(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
+  "event Refund(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
   "event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value)",
   "event Reclaim(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to)"
 ]
