@@ -39,11 +39,11 @@ class Asset extends Component {
       this.setState({
         adminBalance: adminBalance.toString(),
         approvedAddress: ethers.utils.getAddress(approvedAccount),
-        assetDeadline: this.props.asset.deadline.toString(),
-        assetLastDeposit: this.props.asset.lastDeposit.toString(),
-        assetPrice: this.props.asset.price.toString(),
+        assetDeadline: this.props.asset.deadlineTimestamp.toString(),
+        assetLastDeposit: this.props.asset.lastDepositTimestamp.toString(),
+        assetPrice: this.props.asset.priceAmount.toString(),
         assetTaxAmount: this.props.asset.taxAmount.toString(),
-        assetTotalDeposit: this.props.asset.totalDeposit.toString(),
+        assetTotalDeposit: this.props.asset.totalDepositAmount.toString(),
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
         timeExpired: timeExpired,
@@ -103,12 +103,12 @@ class Asset extends Component {
                 assetDeadline={this.state.assetDeadline}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
+                contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 creatorName={this.state.creatorName}
                 isLoadingMetadata={this.props.isLoadingMetadata}
                 minifyHash={this.props.minifyHash}
-                ownerAddress={this.state.ownerAddress}
                 timeExpired={this.state.timeExpired}
                 tokenId={this.props.tokenId}
                 tokenMedia={this.state.tokenMedia}

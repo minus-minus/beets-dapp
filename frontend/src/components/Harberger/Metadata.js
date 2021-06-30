@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
-const OPEN_SEA_BASE_URI = "https://opensea.io/";
 // const ETHERSCAN_BASE_URI = "https://etherscan.io/address/";
+const OPEN_SEA_BASE_URI = "https://opensea.io/";
 
 class Metadata extends Component {
   constructor(props) {
@@ -40,12 +40,13 @@ class Metadata extends Component {
   render() {
     const assetPrice = this.props.convertToEth(this.props.assetPrice)
     const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount)
+    const contractAddress = this.props.contractAddress
     const creatorAddress = this.props.creatorAddress
     const creatorName = this.props.creatorName
     const isLoadingMetadata = this.props.isLoadingMetadata
-    const ownerAddress = this.props.ownerAddress
     const timeExpired = this.state.timeExpired
     const tokenMedia = this.props.tokenMedia
+    const tokenId = this.props.tokenId
 
     return (
       <Col className="d-flex justify-content-center">
@@ -95,12 +96,12 @@ class Metadata extends Component {
             </Card>
             <Card>
               <Accordion.Toggle as={Card.Header} variant="link" eventKey="1">
-                <b>Owner</b>
+                <b>Asset</b>
               </Accordion.Toggle>
               <Accordion.Collapse eventKey="1">
                 <Card.Body>
-                  <a href={OPEN_SEA_BASE_URI + ownerAddress} rel="noopener noreferrer" target="_blank">
-                    {this.props.minifyHash(ownerAddress)}
+                  <a href={OPEN_SEA_BASE_URI + 'assets/' + contractAddress.toLowerCase() + '/' + tokenId} rel="noopener noreferrer" target="_blank">
+                    {this.props.tokenName}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>

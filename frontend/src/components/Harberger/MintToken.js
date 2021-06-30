@@ -16,7 +16,7 @@ class MintToken extends Component {
           <Button
             className="py-2 px-4"
             variant="success"
-            onClick={(e) => {this.props.mintToken(HTAX_CREATOR_ADDRESS, ipfsHash.HarbergerAsset)}}
+            onClick={(e) => {this.props.mintToken(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
           >
             Mint Token
           </Button>

@@ -6,7 +6,8 @@ import { Col, Jumbotron, Button, Accordion, Card } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 import "react-datepicker/dist/react-datepicker.css";
 
-const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
+const ETHERSCAN_BASE_URI = "https://etherscan.io/address/";
+const OPEN_SEA_BASE_URI = "https://opensea.io/";
 
 class Marketplace extends Component {
   constructor(props) {
@@ -173,13 +174,13 @@ class Marketplace extends Component {
             </div>
             <Accordion className="text-center mt-4">
               <Card>
-                <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
-                  <b>Contract</b>
+                <Accordion.Toggle as={Card.Header} variant="link" eventKey="1">
+                  <b>Owner</b>
                 </Accordion.Toggle>
-                <Accordion.Collapse eventKey="0">
+                <Accordion.Collapse eventKey="1">
                   <Card.Body>
-                    <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
-                      {this.props.minifyHash(contractAddress)}
+                    <a href={OPEN_SEA_BASE_URI + ownerAddress} rel="noopener noreferrer" target="_blank">
+                      {this.props.minifyHash(ownerAddress)}
                     </a>
                   </Card.Body>
                 </Accordion.Collapse>

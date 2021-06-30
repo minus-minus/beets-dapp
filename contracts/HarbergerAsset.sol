@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.3;
 
 import "hardhat/console.sol";
@@ -7,50 +7,74 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+// Reference: https://github.com/yosriady/PatronageCollectibles
+
+/**
+ * @author mehtaculous
+ * @title An asset tied to Harberger Taxes
+ * @dev Each token includes it's own custom marketplace
+*/
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
 
-  // Struct mapping for keeping track of the NFT (assets[tokendId] = Asset object)
-  mapping(uint256 => Asset) public assets;
-  // Nested mapping for keeping track of the admin and artist/creator balances (balances[tokenId][userAddress] = amount)
-  // The amount just represents an integer value, it will not actually be storing any ETH)
-  mapping(uint256 => mapping(address => uint256)) public balances;
-  // Mapping for keeping track of tokenURIs to make sure no duplicates are ever created (hashes[tokenURI] = 1)
-  mapping(string => uint256) public hashes;
-
-  // IPFS URI used for appending the tokenURI to
-  string public baseURI = "https://ipfs.io/ipfs/";
-  /* string public baseURI = "ipfs://"; */
-
-  // user that deploys the contract (BeetsDAO)
+  // Owner of contract
   address public admin;
-  // the base amount of time in seconds for calculating taxes (.01 eth for every 12 hours)
-  uint256 public baseInterval = 43200 seconds;
-  // the base tax price in wei for calculating taxes (.01 eth for every 12 hours)
+
+  // Base time interval used to calculate deadline timestamp (24 hours)
+  uint256 public baseInterval = 86400 seconds;
+
+  // Base tax value used to calculate total amount in taxes due by deadline (.01 ETH)
   uint256 public baseTaxPrice = 10000000000000000;
-  // the percentage amount to show how royalties for the creator are calculated
+
+  // Prepend baseURI to IPFS Hash to create tokenURI (alternative: `ipfs://`)
+  string  public baseURI = "https://ipfs.io/ipfs/";
+
+  // Percentage of sales price shows how royalty amount is calculated
   uint256 public royaltyPercentage = 10;
-  // the percentage amount used to show how total taxes due are calculated
+
+  // Percentage of sales price shows how tax amount is calculated
   uint256 public taxPercentage = 10;
-  // denominator (equivalent to royaltyPercentage) used for actually calculating total royalties due (price / royaltyDenominator)
+
+  // Denominator used to calculate royalty amount
   uint256 private royaltyDenominator = 100 / royaltyPercentage;
-  // denominator (equivalent to taxPercentage) used for actually calculating total taxes due (salesPrice / taxDenominator)
+
+  // Denominator used to calculate tax amount
   uint256 private taxDenominator = 100 / taxPercentage;
 
-  // Object that holds current state of the NFT (creator will never change)
+  // Mapping tokenId to Asset struct
+  mapping(uint256 => Asset) public assets;
+
+  // Mapping tokenId to Mapping from tax collector address to balance amount
+  mapping(uint256 => mapping(address => uint256)) public balances;
+
+  // Mapping tokenURI to boolean value
+  mapping(string => bool) public tokenURIs;
+
+  /**
+   * @dev Asset that represents current state of each token
+   * `tokenId` ID of the token
+   * `creator` Address of the artist who created the asset
+   * `priceAmount` Price amount in Wei of the asset
+   * `taxAmount` Tax amount in Wei of the asset
+   * `totalDepositAmount` Total amount deposited in Wei by the current owner of the asset
+   * `lastDepositTimestamp` Timestamp of the last tax deposit performed by the current owner
+   * `deadlineTimestamp` Timestamp of the deadline for which taxes must be paid by the current owner
+   */
   struct Asset {
-    uint256 tokenId;  // token ID of the NFT
-    address creator;  // artist that creates the NFT
-    uint256 price; // current sales price (in wei) of NFT
-    uint256 taxAmount; // calculated tax price (in wei) that is due by deadline
-    uint256 totalDeposit; // total amount (in wei) the current owner has deposited in taxes
-    uint256 deadline; // the timestamp for when taxes are due (this is continuously rolling or reset to the base time interval)
-    uint256 lastDeposit; // the latest timestamp of when the current owner paid their taxes
+    uint256 tokenId;
+    address creator;
+    uint256 priceAmount;
+    uint256 taxAmount;
+    uint256 totalDepositAmount;
+    uint256 lastDepositTimestamp;
+    uint256 deadlineTimestamp;
   }
 
-  // Contract events help us keep track of when a transaction occurs in order to log ownership history/provenance of each NFT
+  /**
+   * @dev List of possible events emitted to represent each and every user transaction
+   */
   event List   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Deposit(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Sale   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
@@ -58,264 +82,331 @@ contract HarbergerAsset is ERC721URIStorage {
   event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Reclaim(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
 
-  // Admin user will be assigned to whomever deploys the contract (BeetsDAO)
+  /**
+   * @dev Initializes contract and sets `admin` to address that deploys contract.
+   */
   constructor() ERC721("HarbergerAsset", "ASSET") {
     admin = _msgSender();
   }
 
-  // Overriding inherited (ERC721URIStorage) function to set the baseURI to the IPFS link (otherwise this function returns an empty string)
+  /**
+   * @dev Modifier that checks if `admin` is equal to `msgSender()`.
+   */
+  modifier onlyAdmin() {
+    require(admin == _msgSender(), "You are not authorized to perform this action");
+    _;
+  }
+
+  /**
+   * @dev Modifier that checks if `tokenId` exists.
+   * @param _tokenId ID of the token
+   */
+  modifier validToken(uint256 _tokenId) {
+    require(_exists(_tokenId), "Token does not exist");
+    _;
+  }
+
+  /**
+   * @dev See {IERC721-baseURI}.
+   */
   function _baseURI() override internal view virtual returns (string memory) {
     return baseURI;
   }
 
-  // Only the admin can call this function
-  function mintToken(address _creator, string memory _tokenURI) public returns (uint256) {
-    // First check if the user calling the function is the admin
-    require(admin == _msgSender(), "This function is restricted to only admin users");
-    // Then check if tokenURI already exists to prevent duplicates from being created
-    require(hashes[_tokenURI] < 1, "TokenURI already exists");
-    // Increase the value of the tokenURI key by 1 (this value should never be greater than 1)
-    hashes[_tokenURI] += 1;
-    // Increment the _tokenIds var derived from the Counters library
+  /**
+   * @dev Mints `tokenId`, sets `tokenURI` and transfers it to `creator`.
+   * @param _tokenURI IPFS hash generated from JSON metadata
+   * @param _creator Address of artist who created the asset
+   * @return the newly created `tokenId`
+   *
+   * Requirements:
+   *
+   * - `tokenId` must not exist.
+   * - `tokenURI` must not exist.
+   * - `to` cannot be the zero address.
+   *
+   * Emits a {Transfer} event.
+   */
+  function mintToken(string memory _tokenURI, address _creator) public onlyAdmin returns (uint256) {
+    require(tokenURIs[_tokenURI] == false, "TokenURI already exists");
+
+    tokenURIs[_tokenURI] = true;
     _tokenIds.increment();
 
-    // Create a new var and set it equal to the current value of _tokenIds
     uint256 newItemId = _tokenIds.current();
-    // Mints the NFT and sets the initial owner as the creator of the asset
     _safeMint(_creator, newItemId);
-    // Call inherited (ERC721URIStorage) function to store the tokenURI based on the tokenId
     _setTokenURI(newItemId, _tokenURI);
 
-    // Initialize the Asset struct for the NFT
-    // Set creator equal to the _creator param
-    // Set all price values equal to 0
-    // set new deadline equal to the current time plus the base time interval of 12 hours (43200 secs)
-    // set Deposit equal to the current time
-    assets[newItemId] = Asset(newItemId, _creator, 0, 0, 0, block.timestamp.add(baseInterval), block.timestamp);
-    // Initialize balances for the admin and creator once the Asset is created
+    initializeAsset(newItemId, _creator);
     balances[newItemId][admin] = 0;
     balances[newItemId][_creator] = 0;
 
-    // return the tokenId of the NFT that was just created
     return newItemId;
   }
 
-  // Only the current owner of the Asset can call this function
-  function listAssetForSaleInWei(uint256 _tokenId, uint256 _price) public {
-    // First check if the tokenId exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Then check if the user calling this function is the current owner of the Asset
+  /**
+   * @dev Lists asset for sale in wei.
+   * @param _tokenId ID of the token
+   * @param _priceAmount Price amount in Wei of the asset
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   * - `owner` of asset must be equal to `msgSender()`.
+   * - 'priceAmount' of asset must be greater than 0.
+   *
+   * Emits a {List} event.
+   */
+  function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) {
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
-    // Finally check if the price is greater than 0
-    require(_price > 0, "You must set a sales price greater than 0");
+    require(_priceAmount > 0, "You must set a sales price greater than 0 ETH");
 
-    // Store the price of the asset
-    assets[_tokenId].price = _price;
-    // Calculate and store the tax price (salesPrice * taxPercentage is equivalent to salesPrice / taxDenominator)
-    assets[_tokenId].taxAmount = _price.div(taxDenominator);
+    assets[_tokenId].priceAmount = _priceAmount;
+    assets[_tokenId].taxAmount = _priceAmount.div(taxDenominator);
 
-    // Log the list transacation event to the contract
-    emit List(block.timestamp, _tokenId, _msgSender(), _price);
+    emit List(block.timestamp, _tokenId, _msgSender(), _priceAmount);
   }
 
-  // Only the current owner of the Asset can call this function
-  function depositTaxInWei(uint256 _tokenId) public payable {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Next check if the user calling the function is the owner of the Asset
+  /**
+   * @dev Deposits taxes into contract.
+   * @param _tokenId ID of the token
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   * - `owner` of asset must be equal to `msgSender()`.
+   * - `priceAmount` of asset must be greater than 0.
+   * - `msg.value` must be greater than or equal to `taxAmount` of asset.
+   *
+   * Emits a {Deposit} event.
+   */
+  function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
-    // Then check if the Asset has a sales price greater than 0 before the current owner can depoist any taxes
-    require(assets[_tokenId].price > 0, "You must first set a sales price");
-    // Finally check if the amount deposited by the current owner is greater than or equal to the current tax price of the Asset
+    require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(msg.value >= assets[_tokenId].taxAmount, "Insufficient tax funds deposited");
 
-    // Calculate the tax multiplier by dividing the base tax price in wei (.01 eth) by the total amount deposited
     uint256 taxMultiplier = msg.value.div(baseTaxPrice);
-    // Calculate the new deadline by multiplying the base time interval (43200 secs) by the tax multiplier
-    assets[_tokenId].deadline += baseInterval.mul(taxMultiplier);
-    // Set the last Deposit equal to the current timestamp of the transaction
-    assets[_tokenId].lastDeposit = block.timestamp;
-    // Add the deposit value to the current owner's total deposit for the Asset
-    assets[_tokenId].totalDeposit += msg.value;
+    assets[_tokenId].deadlineTimestamp += baseInterval.mul(taxMultiplier);
+    assets[_tokenId].lastDepositTimestamp = block.timestamp;
+    assets[_tokenId].totalDepositAmount += msg.value;
 
-    // Log the deposit event to the contract
     emit Deposit(block.timestamp, _tokenId, _msgSender(), address(this), msg.value);
   }
 
-  // Any user (besides the current owner) can call this function
-  function buyAssetInWei(uint256 _tokenId) public payable {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Then check if the user calling this function is NOT the owner of the Asset
+  /**
+   * @dev Purchase of asset triggers payments transfers and transfer of asset to `msgSender()`.
+   * @param _tokenId ID of the token
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   * - `owner` of asset must not be equal to `msgSender()`.
+   * - `priceAmount` of asset must be greater than 0.
+   * - `priceAmount` of asset must be equal to `msg.value`.
+   *
+   * Emits a {Sale} event.
+   */
+  function buyAssetInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
-    // Next check if the asset has a sales price greater than 0
-    require(assets[_tokenId].price > 0, "This item is not yet for sale");
-    // Finally verify that the amount being paid by the user is equivalent to the actual sales price of the Asset
-    require(assets[_tokenId].price == msg.value, "Incorrect amount paid");
+    require(assets[_tokenId].priceAmount > 0, "This item is not yet for sale");
+    require(assets[_tokenId].priceAmount == msg.value, "Incorrect amount paid");
 
-    // When a user sends ETH to a contract through msg.value,
-    // that value is automatically added to the contract's current balance (contractBalance += msg.value)
-
-    // Get the current owner of the Asset
     address currentOwner = ownerOf(_tokenId);
-    // Ge the creator of the Asset
     address creator = assets[_tokenId].creator;
-    // calculate the royalty amount (value * royaltyPercentage is equivalent to value / royaltyDenominator)
-    uint256 royalty = msg.value.div(royaltyDenominator);
-    // Subtract the royalty amount from the total price to get remaining payment for the current owner
-    uint256 payment = msg.value.sub(royalty);
+    uint256 royaltyAmount = msg.value.div(royaltyDenominator);
+    uint256 paymentAmount = msg.value.sub(royaltyAmount);
 
-    // Contract first transfers the royalty amount to the creator of the Asset
-    payable(creator).transfer(royalty);
-    // Contract then transfers the remaining payment amount to the current owner of the Asset
-    payable(currentOwner).transfer(payment);
-    // Log the sale transaction event to the contract
+    payable(admin).transfer(royaltyAmount.div(2));
+    payable(creator).transfer(royaltyAmount.div(2));
+    payable(currentOwner).transfer(paymentAmount);
     emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
 
-    // Next we want to refund the excess amount of taxes paid by the current owner (see function below)
     refundTax(_tokenId, currentOwner);
-
-    // After payments are sent out, the contract transfers the NFT from the current owner to the new owner (user that called the function)
-    // This inherited (IERC721) function will then emit a Transfer event, which is why we first log the Sale event
-    // The key word 'this' is used to specify that the contract (which has been approved) is calling the transfer function
-    // Otherwise, it will fail since the user calling this function does not have approval to transfer it to themself
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
 
-    // Get current balance of the contract
     uint256 contractBalance = address(this).balance;
-    // Get current balance of admin for specified Asset (this is just an integer value, does not represent actual ETH)
     uint256 adminBalance = balances[_tokenId][admin];
-    // Get current balance of creator for specified Asset (this is just an integer value, does not represent actual ETH)
     uint256 creatorBalance = balances[_tokenId][creator];
-    // Subtract admin and creator balance from the contract's current balance
     uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
-
-    // Only once a sale is made and taxes are refunded can we add to the admin and creator's balances
-    // We then add half of the remaining balance to each of the admin and creator's current balances
     balances[_tokenId][admin] += remainingBalance.div(2).sub(adminBalance);
     balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
 
-    // Reset the Asset values whenever is sale is made (see function below)
-    resetAsset(_tokenId);
-    // Increase the base tax price by .001 ETH whenever a sale is made (temporary change/experimental)
-    baseTaxPrice += 1e16;
-    // Increase the base time interval by 72 minutes whenever a sale is made (temporary/experimental)
-    /* baseInterval += 4320 seconds; */
+    initializeAsset(_tokenId, creator);
+    baseTaxPrice += 1000000000000000; // 0.001 ETH
   }
 
-  // Internal function called once a sale is made (called from buyAssetInWei)
+  /**
+   * @dev Refunds remaining tax amount and transfers it to back to the `currentOwner`. When taxes are deposited, the amount is based on a set time interval. If the asset is purchased before that time interval is reached, the `currentOwner` should receive a portion of those taxes back. The calculation is simply the reverse of how the `deadline` of an asset is calculated.
+   * @param _tokenId ID of the token
+   * @param _currentOwner Address of current owner of the asset
+   *
+   * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
+   */
   function refundTax(uint256 _tokenId, address _currentOwner) internal {
-    // Get deadline of the Asset
-    uint256 deadline = assets[_tokenId].deadline;
-    // Calculate the time remaining for the Asset
-    uint256 timeRemaining = deadline - block.timestamp;
+    uint256 deadlineTimestamp = assets[_tokenId].deadlineTimestamp;
+    uint256 timeRemainingTimestamp = deadlineTimestamp - block.timestamp;
 
-    // Time remaining can possibly be negative so we wrap both vars with int256 before executing the conditional
-    // Check if timeRemaining is greater than the base time interval which is 12 hours (43200 secs)
-    // The reason is because 12 hours is the default time added to the deadline whenever an Asset is reset due to a sale or reclaim
-    if (int256(timeRemaining) > int256(baseInterval)) {
-      // Calculate taxMultiplier by dividing timeRemaining from the base time interval (43000 secs)
-      uint256 taxMultiplier = timeRemaining.div(baseInterval);
-      // Calculate amount that needs to be refunded by mulitplying base tax price by tax multiplier
+    if (int256(timeRemainingTimestamp) > int256(baseInterval)) {
+      uint256 taxMultiplier = timeRemainingTimestamp.div(baseInterval);
       uint256 refundAmount = baseTaxPrice.mul(taxMultiplier);
-
-      // Refund the current owner of the Asset
       payable(_currentOwner).transfer(refundAmount);
-      // Log the refund event to the contract
+
       emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
     }
   }
 
-  // Only the admin and creator can call this function
-  function collectFunds(uint256 _tokenId) public {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Then check if the user calling the function has any funds available to withdraw
+  /**
+   * @dev Collects `balance` and transfers it to `msgSender()`.
+   * @param _tokenId ID of the token
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   * - `balance` of `msgSender()` must be greater than 0.
+   *
+   * Emits a {Collect} event.
+   */
+  function collectFunds(uint256 _tokenId) public validToken(_tokenId) {
     require(balances[_tokenId][_msgSender()] > 0, "You do not have any funds available to withdraw");
 
-    // Get the user's current balance for the Asset
     uint256 amount = balances[_tokenId][_msgSender()];
-    // Send the user their current balance
     payable(_msgSender()).transfer(amount);
-    // Reset the user balance
     balances[_tokenId][_msgSender()] = 0;
 
-    // Log the collect event to the contract
     emit Collect(block.timestamp, _tokenId, _msgSender(), amount);
   }
 
-  // Only the creator of the Asset can call this function
-  function reclaimAsset(uint256 _tokenId) public {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-    // Next check if the user calling the function is the owner of the Asset
-    require(_msgSender() == assets[_tokenId].creator, "You are not the creator of this asset");
-    // Finally check if time has expired for the Asset
+  /**
+   * @dev Reclaims asset and transfers it back to `creator`.
+   * @param _tokenId ID of the token
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   * - `creator` must be equal to `msgSender()`.
+   * - `timeExpired()` of `tokenId` must be equal to true.
+   *
+   * Emits a {Reclaim} event.
+   */
+  function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) {
+    require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
     require(timeExpired(_tokenId), "Time has not yet expired for you to reclaim this asset");
 
-    // Get the current owner of Asset
     address currentOwner = ownerOf(_tokenId);
-    // Log the reclaim event to the contract (we do this before transfering the asset)
     emit Reclaim(block.timestamp, _tokenId, _msgSender(), currentOwner);
 
-    // Transfer the asset from the current owner back to the creator (this will also log the Transfer event to the contract)
     safeTransferFrom(currentOwner, _msgSender(), _tokenId);
-    // Reset the Asset values since the asset now has a new owner (see function below)
-    resetAsset(_tokenId);
+    initializeAsset(_tokenId, _msgSender());
   }
 
-  // Internal function called when the Asset needs to be reset (called from either buyAssetInWei or reclaimAsset)
-  function resetAsset(uint256 _tokenId) internal {
-    // Set all price values equal to 0
-    // Set new deadline equal to the base time interval of 12 hours (43200 secs)
-    // Set Deposit equal to the current time
-    assets[_tokenId].price = 0;
+  /**
+   * @dev Checks if current time is greater than `deadline` of asset.
+   * @param _tokenId ID of the token
+   * @return boolean value of whether asset deadline has expired
+   *
+   * Requirements:
+   *
+   * - `tokenId` must exist.
+   */
+  function timeExpired(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
+    console.log("Block Timestamp:", block.timestamp);
+    console.log("Asset Deadline:", assets[_tokenId].deadlineTimestamp);
+
+    return block.timestamp >= assets[_tokenId].deadlineTimestamp;
+  }
+
+  /**
+   * @dev Resets asset to default state.
+   * @param _tokenId ID of the token
+   * @param _creator Address of the creator of the asset
+   */
+  function initializeAsset(uint256 _tokenId, address _creator) internal {
+    assets[_tokenId].tokenId = _tokenId;
+    assets[_tokenId].creator = _creator;
+    assets[_tokenId].priceAmount = 0;
     assets[_tokenId].taxAmount = 0;
-    assets[_tokenId].totalDeposit = 0;
-    assets[_tokenId].deadline = block.timestamp.add(baseInterval);
-    assets[_tokenId].lastDeposit = block.timestamp;
+    assets[_tokenId].totalDepositAmount = 0;
+    assets[_tokenId].lastDepositTimestamp = block.timestamp;
+    assets[_tokenId].deadlineTimestamp = block.timestamp.add(baseInterval);
   }
 
-  // Anyone can call this function (does not change state of contract)
-  function timeExpired(uint256 _tokenId) public view returns (bool) {
-    // First check if the NFT exists
-    require(_exists(_tokenId), "Token does not exist");
-
-    // Some debugging to verify time is precisely the same as frontend UI
-    console.log("BLOCK TIMESTAMP:", block.timestamp);
-    console.log("ASSET DEADLINE:", assets[_tokenId].deadline);
-
-    // Return true if the current time is greater than or equal to the Asset's deadline, otherwise false
-    return block.timestamp >= assets[_tokenId].deadline;
-  }
-
-  // Anyone can call this function (does not change state of contract)
+  /**
+   * @dev Fetches inventory of assets that exist on contract
+   */
   function fetchAssets() public view returns(Asset[] memory) {
-    // Get the total count of all the assets
-    uint256 assetCount = _tokenIds.current();
-    // Create a new array to store all the assets
-    Asset[] memory totalAssets = new Asset[](assetCount);
+    uint256 totalCount = _tokenIds.current();
+    Asset[] memory inventory = new Asset[](totalCount);
 
-    // Loop through the assets mapping and push each one into the new array
-    for (uint i = 0; i < assetCount; i++) {
-      totalAssets[i] = assets[i + 1];
+    for (uint i = 0; i < totalCount; i++) {
+      inventory[i] = assets[i + 1];
     }
 
-    // Return an array of all the assets
-    return totalAssets;
+    return inventory;
   }
 
-  // Override inherited (IERC721) function to simply update the require conditional
-  function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory _data) public virtual override {
+  /**
+   * @dev Updates the state variable `baseInterval`.
+   * @param _interval New base time interval
+   *
+   * Requirements:
+   *
+   * - `admin` must be equal to `_msgSender()`.
+   */
+  function setBaseInterval(uint256 _interval) public onlyAdmin {
+    baseInterval = _interval;
+  }
+
+  /**
+   * @dev Updates the state variable `baseTaxPrice`.
+   * @param _amount New base tax price
+   *
+   * Requirements:
+   *
+   * - `admin` must be equal to `_msgSender()`.
+   */
+  function setBaseTaxPrice(uint256 _amount) public onlyAdmin {
+    baseTaxPrice = _amount;
+  }
+
+  /**
+   * @dev Updates the state variable `royaltyPercentage`.
+   * @param _percentage New royalty percentage
+   *
+   * Requirements:
+   *
+   * - `admin` must be equal to `_msgSender()`.
+   */
+  function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
+    royaltyPercentage = _percentage;
+  }
+
+  /**
+   * @dev Updates the state variable `taxPercentage`.
+   * @param _percentage New tax percentage
+   *
+   * Requirements:
+   *
+   * - `admin` must be equal to `_msgSender()`.
+   */
+  function setTaxPercentage(uint256 _percentage) public onlyAdmin {
+    taxPercentage = _percentage;
+  }
+
+  /**
+   * @dev See {IERC721-safeTransferFrom}.
+   */
+  function safeTransferFrom(
+      address from,
+      address to,
+      uint256 tokenId,
+      bytes memory _data
+    ) public virtual override {
     require(
-      // Default conditional checks if the user calling this function is either the owner or has been approved to transfer by the owner
       _isApprovedOrOwner(_msgSender(), tokenId) ||
-      // OR checks if the user calling this function is the creator of the Asset AND also that time has expired
       _msgSender() == assets[tokenId].creator && timeExpired(tokenId),
       "Transfer caller is not the owner, approved nor the creator"
     );
 
-    // Inherited function call to transfer the NFT
     _safeTransfer(from, to, tokenId, _data);
   }
 }
