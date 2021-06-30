@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
  * @author mehtaculous
  * @title An asset tied to Harberger Taxes
  * @dev Each token includes it's own custom marketplace
-*/
+ */
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
   using Counters for Counters.Counter;
@@ -121,9 +121,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
-   * - `tokenId` must not exist.
    * - `tokenURI` must not exist.
-   * - `to` cannot be the zero address.
    *
    * Emits a {Transfer} event.
    */
