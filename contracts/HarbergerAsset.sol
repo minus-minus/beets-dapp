@@ -36,13 +36,13 @@ contract HarbergerAsset is ERC721URIStorage {
   uint256 public royaltyPercentage = 10;
 
   // Percentage of sales price shows how tax amount is calculated
-  uint256 public taxPercentage = 10;
+  uint256 public taxRatePercentage = 10;
 
   // Denominator used to calculate royalty amount
   uint256 private royaltyDenominator = 100 / royaltyPercentage;
 
   // Denominator used to calculate tax amount
-  uint256 private taxDenominator = 100 / taxPercentage;
+  uint256 private taxDenominator = 100 / taxRatePercentage;
 
   // Mapping tokenId to Asset struct
   mapping(uint256 => Asset) public assets;
@@ -338,25 +338,29 @@ contract HarbergerAsset is ERC721URIStorage {
 
   /**
    * @dev Updates the state variable `baseInterval`.
-   * @param _interval New base time interval
+   * @param _interval New base time interval in seconds
    *
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
    */
-  function setBaseInterval(uint256 _interval) public onlyAdmin {
+  function setBaseIntervalInSeconds(uint256 _interval) public onlyAdmin {
+    require(baseInterval != _interval, "New interval must be different than current value");
+
     baseInterval = _interval;
   }
 
   /**
    * @dev Updates the state variable `baseTaxPrice`.
-   * @param _amount New base tax price
+   * @param _amount New base tax price in Wei
    *
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
    */
-  function setBaseTaxPrice(uint256 _amount) public onlyAdmin {
+  function setBaseTaxPriceInWei(uint256 _amount) public onlyAdmin {
+    require(baseTaxPrice != _amount, "New amount must be different than current value");
+
     baseTaxPrice = _amount;
   }
 
@@ -369,19 +373,23 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `admin` must be equal to `_msgSender()`.
    */
   function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
+    require(royaltyPercentage != _percentage, "New percentage must be different than current value");
+
     royaltyPercentage = _percentage;
   }
 
   /**
-   * @dev Updates the state variable `taxPercentage`.
+   * @dev Updates the state variable `taxRatePercentage`.
    * @param _percentage New tax percentage
    *
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
    */
-  function setTaxPercentage(uint256 _percentage) public onlyAdmin {
-    taxPercentage = _percentage;
+  function setTaxRatePercentage(uint256 _percentage) public onlyAdmin {
+    require(taxRatePercentage != _percentage, "New percentage must be different than current value");
+
+    taxRatePercentage = _percentage;
   }
 
   /**

@@ -221,7 +221,7 @@ export class Dapp extends React.Component {
     const contractAdmin = await this.HTAXcontract.admin();
     const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
     const assets = await this.HTAXcontract.fetchAssets();
-    const taxRatePercentage = await this.HTAXcontract.taxPercentage();
+    const taxRatePercentage = await this.HTAXcontract.taxRatePercentage();
     const baseInterval = await this.HTAXcontract.baseInterval();
     const baseTaxPrice = await this.HTAXcontract.baseTaxPrice();
     const network = await this._provider.getNetwork();
