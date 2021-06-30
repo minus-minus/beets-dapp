@@ -7,12 +7,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-// Reference: https://github.com/yosriady/PatronageCollectibles
+// Powered By: BeetsDAO
+// External Sources: https://github.com/yosriady/PatronageCollectibles
 
 /**
  * @author mehtaculous
  * @title An asset tied to Harberger Taxes
- * @dev Each token includes it's own custom marketplace
+ * @dev Each token is controlled by it's own custom marketplace
  */
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
@@ -104,13 +105,6 @@ contract HarbergerAsset is ERC721URIStorage {
   modifier validToken(uint256 _tokenId) {
     require(_exists(_tokenId), "Token does not exist");
     _;
-  }
-
-  /**
-   * @dev See {IERC721-baseURI}.
-   */
-  function _baseURI() override internal view virtual returns (string memory) {
-    return baseURI;
   }
 
   /**
@@ -234,7 +228,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Refunds remaining tax amount and transfers it to back to the `currentOwner`. When taxes are deposited, the amount is based on a set time interval. If the asset is purchased before that time interval is reached, the `currentOwner` should receive a portion of those taxes back. The calculation is simply the reverse of how the `deadline` of an asset is calculated.
+   * @dev Refunds remaining tax amount and transfers it back to the `currentOwner`. When taxes are deposited, the amount is based on a set time interval. If the asset is purchased before that time interval is reached, the `currentOwner` should receive a portion of those taxes back. The calculation is simply the reverse of how the `deadline` of an asset is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
    *
@@ -388,6 +382,13 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function setTaxPercentage(uint256 _percentage) public onlyAdmin {
     taxPercentage = _percentage;
+  }
+
+  /**
+   * @dev See {IERC721-baseURI}.
+   */
+  function _baseURI() override internal view virtual returns (string memory) {
+    return baseURI;
   }
 
   /**
