@@ -65,7 +65,6 @@ class Asset extends Component {
 
       this.setState({
         artistName: response.data.artist,
-        artistWebsite: response.data.website,
         creatorName: response.data.creator,
         tokenDescription: response.data.description,
         tokenMedia: response.data.image,
@@ -104,7 +103,6 @@ class Asset extends Component {
                 assetDeadline={this.state.assetDeadline}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
-                contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 creatorName={this.state.creatorName}
@@ -130,6 +128,7 @@ class Asset extends Component {
                 convertToWei={this.convertToWei}
                 depositTax={this.props.depositTax}
                 listAsset={this.props.listAsset}
+                minifyHash={this.props.minifyHash}
                 ownerAddress={this.state.ownerAddress}
                 selectedAddress={this.props.selectedAddress}
                 taxRatePercentage={this.props.taxRatePercentage}

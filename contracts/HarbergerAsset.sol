@@ -22,13 +22,14 @@ contract HarbergerAsset is ERC721URIStorage {
 
   // IPFS URI used for appending the tokenURI to
   string public baseURI = "https://ipfs.io/ipfs/";
+  /* string public baseURI = "ipfs://"; */
 
   // user that deploys the contract (BeetsDAO)
   address public admin;
   // the base amount of time in seconds for calculating taxes (.01 eth for every 12 hours)
   uint256 public baseInterval = 43200 seconds;
   // the base tax price in wei for calculating taxes (.01 eth for every 12 hours)
-  uint256 public baseTaxPrice = 1e16;
+  uint256 public baseTaxPrice = 10000000000000000;
   // the percentage amount to show how royalties for the creator are calculated
   uint256 public royaltyPercentage = 10;
   // the percentage amount used to show how total taxes due are calculated
@@ -197,7 +198,7 @@ contract HarbergerAsset is ERC721URIStorage {
     // Reset the Asset values whenever is sale is made (see function below)
     resetAsset(_tokenId);
     // Increase the base tax price by .001 ETH whenever a sale is made (temporary change/experimental)
-    baseTaxPrice += 5e15;
+    baseTaxPrice += 1e16;
     // Increase the base time interval by 72 minutes whenever a sale is made (temporary/experimental)
     /* baseInterval += 4320 seconds; */
   }

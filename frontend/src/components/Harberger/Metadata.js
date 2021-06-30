@@ -3,7 +3,7 @@ import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
 const OPEN_SEA_BASE_URI = "https://opensea.io/";
-const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
+// const ETHERSCAN_BASE_URI = "https://etherscan.io/address/";
 
 class Metadata extends Component {
   constructor(props) {
@@ -38,10 +38,9 @@ class Metadata extends Component {
   }
 
   render() {
-    const artistWebsite = this.props.artistWebsite
     const assetPrice = this.props.convertToEth(this.props.assetPrice)
     const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount)
-    const contractAddress = this.props.contractAddress
+    const creatorAddress = this.props.creatorAddress
     const creatorName = this.props.creatorName
     const isLoadingMetadata = this.props.isLoadingMetadata
     const ownerAddress = this.props.ownerAddress
@@ -88,7 +87,7 @@ class Metadata extends Component {
               </Accordion.Toggle>
               <Accordion.Collapse eventKey="0">
                 <Card.Body>
-                  <a href={artistWebsite} rel="noopener noreferrer" target="_blank">
+                  <a href={OPEN_SEA_BASE_URI + creatorAddress} rel="noopener noreferrer" target="_blank">
                     {creatorName}
                   </a>
                 </Card.Body>
@@ -102,18 +101,6 @@ class Metadata extends Component {
                 <Card.Body>
                   <a href={OPEN_SEA_BASE_URI + ownerAddress} rel="noopener noreferrer" target="_blank">
                     {this.props.minifyHash(ownerAddress)}
-                  </a>
-                </Card.Body>
-              </Accordion.Collapse>
-            </Card>
-            <Card>
-              <Accordion.Toggle as={Card.Header} variant="link" eventKey="2">
-                <b>Contract</b>
-              </Accordion.Toggle>
-              <Accordion.Collapse eventKey="2">
-                <Card.Body>
-                  <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
-                    {this.props.minifyHash(contractAddress)}
                   </a>
                 </Card.Body>
               </Accordion.Collapse>

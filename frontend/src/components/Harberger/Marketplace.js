@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import CurrencyInput from "react-currency-input-field";
-import { Col, Jumbotron, Button } from "react-bootstrap";
+import { Col, Jumbotron, Button, Accordion, Card } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 import "react-datepicker/dist/react-datepicker.css";
+
+const ETHERSCAN_BASE_URI = "https://etherscan.io/address/"
 
 class Marketplace extends Component {
   constructor(props) {
@@ -104,6 +106,20 @@ class Marketplace extends Component {
             <div className="asset-info text-center p-4">
               <p>{tokenDescription}</p>
             </div>
+            <Accordion className="text-center mt-4">
+              <Card>
+                <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
+                  <b>Contract</b>
+                </Accordion.Toggle>
+                <Accordion.Collapse eventKey="0">
+                  <Card.Body>
+                    <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
+                      {this.props.minifyHash(contractAddress)}
+                    </a>
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
+            </Accordion>
             <div className="text-center mt-4 mb-3">
               {!ownerAddress || (ownerAddress !== selectedAddress) ? (
                 <Button
@@ -155,6 +171,20 @@ class Marketplace extends Component {
                 </p>
               )}
             </div>
+            <Accordion className="text-center mt-4">
+              <Card>
+                <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
+                  <b>Contract</b>
+                </Accordion.Toggle>
+                <Accordion.Collapse eventKey="0">
+                  <Card.Body>
+                    <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
+                      {this.props.minifyHash(contractAddress)}
+                    </a>
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
+            </Accordion>
             <div className="text-center mt-4 mb-3">
               <form onSubmit={this.depositTax}>
                 <CurrencyInput

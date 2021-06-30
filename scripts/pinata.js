@@ -23,27 +23,30 @@ async function pinFileToIPFS() {
 
   try {
     const ipfsHash = response.data["IpfsHash"]
-    console.log("Media Hash:", ipfsHash);
-    pinMetadata(ipfsHash)
+    console.log("Media IPFS Hash:", ipfsHash);
+    // const arweave = await pinIPFSToArweave(ipfsHash)
+    pinMetadataToIPFS(ipfsHash)
   } catch (err) {
     console.log(err)
   }
 }
 
-async function pinMetadata(hash) {
+async function pinMetadataToIPFS(ipfsHash) {
   const pinJsonUrl = process.env.PINATA_BASE_URI + "/pinJSONToIPFS"
   const metadata =
   {
+    pinataMetadata: {
+      "name": "harberger-taxes"
+    },
     pinataContent: {
       "artist": "@songadaymann",
       "creator": "Jonathan Mann",
       "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend the clock. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
       "external_url": "https://www.beetsdapps.com/harberger-taxes/asset/1",
-      "image": process.env.IPFS_BASE_URI + hash,
+      "image": process.env.IPFS_BASE_URI + ipfsHash,
       "name": "Harberger Taxes",
       "producer": "BeetsDAO",
       "token_id": 1,
-      "website": "https://www.jonathanmann.net"
     }
   }
 
@@ -60,12 +63,26 @@ async function pinMetadata(hash) {
 
   try {
     const ipfsHash = response.data["IpfsHash"]
-    console.log("JSON Hash:", ipfsHash)
+    console.log("JSON IPFS Hash:", ipfsHash)
+    // const arweave = await pinIPFSToArweave(ipfsHash)
     saveTokenURI(ipfsHash)
   } catch (err) {
     console.log(err)
   }
 }
+
+// async function pinIPFSToArweave(ipfsHash) {
+//   const permapinUrl = process.env.ARWEAVE_PERMAPIN_URI + ipfsHash
+//   const response = await axios.post(permapinUrl)
+//
+//   try {
+//     const arweaveId = response.data.arweaveId
+//     console.log("Arweave ID:", arweaveId)
+//     saveTokenURI(ipfsHash)
+//   } catch (err) {
+//     console.log(err)
+//   }
+// }
 
 function saveTokenURI(ipfsHash) {
   if (!fs.existsSync(contractsDir)) {
@@ -73,9 +90,14 @@ function saveTokenURI(ipfsHash) {
   }
 
   fs.writeFileSync(
-    contractsDir + "/ipfs-hash.json",
+    contractsDir + "/ipfs.json",
     JSON.stringify({ HarbergerAsset: ipfsHash }, undefined, 2)
   )
+
+  // fs.writeFileSync(
+  //   contractsDir + "/arweave.json",
+  //   JSON.stringify({ HarbergerAsset: arweaveId }, undefined, 2)
+  // )
 }
 
 pinFileToIPFS()

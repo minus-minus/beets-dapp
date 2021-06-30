@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import ipfsHash from "../../contracts/ipfs-hash.json";
+import ipfsHash from "../../contracts/ipfs.json";
+// import arweave from "../../contracts/arweave.json";
 import { HTAX_CREATOR_ADDRESS } from "../../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
