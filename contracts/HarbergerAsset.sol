@@ -1,17 +1,14 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.3;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-
-// Powered By: BeetsDAO
-// External Sources: https://github.com/yosriady/PatronageCollectibles
+import "hardhat/console.sol";
 
 /**
- * @author mehtaculous
+ * @author swaHili, funkyengineer
  * @title An asset tied to Harberger Taxes
  * @dev Each asset is controlled by it's own custom marketplace
  */
@@ -74,7 +71,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev List of possible events emitted to represent each and every user transaction
+   * @dev List of possible events emitted to log each and every user transaction
    */
   event List   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Deposit(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
@@ -95,6 +92,14 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   modifier onlyAdmin() {
     require(admin == _msgSender(), "You are not authorized to perform this action");
+    _;
+  }
+
+  /**
+   * @dev Modifier that checks if `owner` of asset is equal to `msgSender()`.
+   */
+  modifier onlyOwner(uint256 _tokenId) {
+    require(owner(_tokenId) == _msgSender(), "You are not the owner of this asset");
     _;
   }
 
@@ -149,8 +154,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {List} event.
    */
-  function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) {
-    require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
+  function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
     require(_priceAmount > 0, "You must set a sales price greater than 0 ETH");
 
     assets[_tokenId].priceAmount = _priceAmount;
@@ -172,8 +176,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Deposit} event.
    */
-  function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) {
-    require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
+  function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
 
@@ -201,7 +204,7 @@ contract HarbergerAsset is ERC721URIStorage {
   function buyAssetInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
     require(assets[_tokenId].priceAmount > 0, "This item is not yet for sale");
-    require(assets[_tokenId].priceAmount == msg.value, "Incorrect amount paid");
+    require(assets[_tokenId].priceAmount == msg.value, "Incorrect payment amount");
 
     address currentOwner = ownerOf(_tokenId);
     address creator = assets[_tokenId].creator;
@@ -417,3 +420,10 @@ contract HarbergerAsset is ERC721URIStorage {
     _safeTransfer(from, to, tokenId, _data);
   }
 }
+
+/*
+ * Powered By: BeetsDAO
+ * External Sources:
+ *    https://github.com/yosriady/PatronageCollectibles
+ *    https://github.com/simondlr/thisartworkisalwaysonsale
+ */
