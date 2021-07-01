@@ -99,7 +99,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Modifier that checks if `owner` of asset is equal to `msgSender()`.
    */
   modifier onlyOwner(uint256 _tokenId) {
-    require(owner(_tokenId) == _msgSender(), "You are not the owner of this asset");
+    require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
     _;
   }
 
