@@ -23,13 +23,13 @@ contract HarbergerAsset is ERC721URIStorage {
   // Owner of contract
   address public admin;
 
-  // Base time interval used to calculate deadline timestamp (24 hours)
+  // Base time interval in seconds used to calculate deadline timestamp (24 hours)
   uint256 public baseInterval = 86400 seconds;
 
-  // Base tax value used to calculate total amount in taxes due by deadline (.01 ETH)
+  // Base tax value in wei used to calculate total amount of taxes due by deadline (.01 ETH)
   uint256 public baseTaxPrice = 10000000000000000;
 
-  // Prepend baseURI to IPFS Hash to create tokenURI (alternative: `ipfs://`)
+  // Prepend baseURI to IPFS Hash to create tokenURI (alternate baseURI: `ipfs://`)
   string  public baseURI = "https://ipfs.io/ipfs/";
 
   // Percentage of sales price shows how royalty amount is calculated
@@ -57,9 +57,9 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Object that represents the current state of each asset
    * `tokenId` ID of the token
    * `creator` Address of the artist who created the asset
-   * `priceAmount` Price amount in Wei of the asset
-   * `taxAmount` Tax amount in Wei of the asset
-   * `totalDepositAmount` Total amount deposited in Wei by the current owner of the asset
+   * `priceAmount` Price amount in wei of the asset
+   * `taxAmount` Tax amount in wei of the asset
+   * `totalDepositAmount` Total amount deposited in wei by the current owner of the asset
    * `lastDepositTimestamp` Timestamp of the last tax deposit performed by the current owner
    * `deadlineTimestamp` Timestamp of the deadline for which taxes must be paid by the current owner
    */
@@ -139,7 +139,7 @@ contract HarbergerAsset is ERC721URIStorage {
   /**
    * @dev Lists asset for sale in wei.
    * @param _tokenId ID of the token
-   * @param _priceAmount Price amount in Wei of the asset
+   * @param _priceAmount Price amount in wei of the asset
    *
    * Requirements:
    *
@@ -352,7 +352,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
   /**
    * @dev Updates the state variable `baseTaxPrice`.
-   * @param _amount New base tax price in Wei
+   * @param _amount New base tax price in wei
    *
    * Requirements:
    *

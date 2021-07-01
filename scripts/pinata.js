@@ -5,7 +5,7 @@ const tokenFileName = "./frontend/public/freestyle.mp4"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
-  const pinFileUrl = process.env.PINATA_BASE_URI + "/pinFileToIPFS"
+  const pinFileUrl = process.env.PINATA_BASE_URI + "pinFileToIPFS"
   let data = new FormData()
   data.append("file", fs.createReadStream(tokenFileName))
 
@@ -32,7 +32,7 @@ async function pinFileToIPFS() {
 }
 
 async function pinMetadataToIPFS(ipfsHash) {
-  const pinJsonUrl = process.env.PINATA_BASE_URI + "/pinJSONToIPFS"
+  const pinJsonUrl = process.env.PINATA_BASE_URI + "pinJSONToIPFS"
   const metadata =
   {
     pinataMetadata: {
@@ -78,7 +78,7 @@ async function pinMetadataToIPFS(ipfsHash) {
 //   try {
 //     const arweaveId = response.data.arweaveId
 //     console.log("Arweave ID:", arweaveId)
-//     saveTokenURI(ipfsHash)
+//     return arweaveId
 //   } catch (err) {
 //     console.log(err)
 //   }

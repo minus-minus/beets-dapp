@@ -21,6 +21,7 @@ class Provenance extends Component {
 
   render() {
     const eventLogs = this.props.eventLogs.filter(e => e.name !== "Approval").reverse()
+    const tokenEvents = eventLogs.filter(e => e.args.tokenId.toNumber() !== this.props.tokenId)
 
     return (
       <Col className="d-flex justify-center">
@@ -31,6 +32,7 @@ class Provenance extends Component {
               <thead>
                 <tr>
                   <th>Timestamp</th>
+                  <th>Token</th>
                   <th>Event</th>
                   <th>From</th>
                   <th>To</th>
@@ -38,8 +40,9 @@ class Provenance extends Component {
                 </tr>
               </thead>
               <tbody>
-                {eventLogs.map((event, index) => {
+                {tokenEvents.map((event, index) => {
                   const timestamp = event.args.timestamp
+                  const tokenId = event.args.tokenId
                   const name = event.name
                   const from = event.args.from
                   const to = event.args.to
@@ -52,6 +55,7 @@ class Provenance extends Component {
                           this.formatTime(timestamp.toString())
                         )}
                       </td>
+                      <td>{tokenId.toNumber()}</td>
                       <td>{name}</td>
                       <td>
                         <a href={OPEN_SEA_BASE_URI + from} rel="noopener noreferrer" target="_blank">
