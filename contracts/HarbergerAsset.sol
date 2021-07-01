@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 /**
  * @author mehtaculous
  * @title An asset tied to Harberger Taxes
- * @dev Each token is controlled by it's own custom marketplace
+ * @dev Each asset is controlled by it's own custom marketplace
  */
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
@@ -54,7 +54,7 @@ contract HarbergerAsset is ERC721URIStorage {
   mapping(string => bool) public tokenURIs;
 
   /**
-   * @dev Asset that represents current state of each token
+   * @dev Object that represents the current state of each asset
    * `tokenId` ID of the token
    * `creator` Address of the artist who created the asset
    * `priceAmount` Price amount in Wei of the asset
@@ -175,7 +175,7 @@ contract HarbergerAsset is ERC721URIStorage {
   function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
-    require(msg.value >= assets[_tokenId].taxAmount, "Insufficient tax funds deposited");
+    require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
 
     uint256 taxMultiplier = msg.value.div(baseTaxPrice);
     assets[_tokenId].deadlineTimestamp += baseInterval.mul(taxMultiplier);
@@ -186,7 +186,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Purchase of asset triggers payments transfers and transfer of asset to `msgSender()`.
+   * @dev Purchase of asset triggers payment transfers and transfer of asset to `msgSender()`.
    * @param _tokenId ID of the token
    *
    * Requirements:
@@ -211,9 +211,9 @@ contract HarbergerAsset is ERC721URIStorage {
     payable(admin).transfer(royaltyAmount.div(2));
     payable(creator).transfer(royaltyAmount.div(2));
     payable(currentOwner).transfer(paymentAmount);
-    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
 
     refundTax(_tokenId, currentOwner);
+    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
 
     uint256 contractBalance = address(this).balance;
@@ -228,7 +228,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Refunds remaining tax amount and transfers it back to the `currentOwner`. When taxes are deposited, the amount is based on a set time interval. If the asset is purchased before that time interval is reached, the `currentOwner` should receive a portion of those taxes back. The calculation is simply the reverse of how the `deadline` of an asset is calculated.
+   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the deadline is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset deadline is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
    *
@@ -294,7 +294,7 @@ contract HarbergerAsset is ERC721URIStorage {
   /**
    * @dev Checks if current time is greater than `deadline` of asset.
    * @param _tokenId ID of the token
-   * @return boolean value of whether asset deadline has expired
+   * @return boolean value of whether asset deadline has expired or not
    *
    * Requirements:
    *
@@ -308,7 +308,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Resets asset to default state.
+   * @dev Resets asset to initial state.
    * @param _tokenId ID of the token
    * @param _creator Address of the creator of the asset
    */

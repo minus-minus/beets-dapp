@@ -16,10 +16,8 @@ import Navigation from "./Navigation";
 import MintToken from "./Harberger/MintToken";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
-// import { Transfer } from "./Transfer";
 // import { TransactionErrorMessage } from "./TransactionErrorMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
-// import { NoTokensMessage } from "./NoTokensMessage";
 
 // CONSTANTS
 const HARDHAT_NETWORK_ID = '1337';
@@ -29,7 +27,6 @@ const originalOwner = "0xf47f5A7F2917800149f638E9f0eD3745D16481C6";
 export class Dapp extends React.Component {
   constructor(props) {
     super(props);
-
     this.initialState = {
       assets: [],
       networkError: undefined,
@@ -48,101 +45,6 @@ export class Dapp extends React.Component {
     this.reclaimAsset = this.reclaimAsset.bind(this)
 
     this.state = this.initialState;
-  }
-
-  render() {
-    // console.log(this.state)
-
-    // Ethereum wallets inject the window.ethereum object. If it hasn't been
-    // injected, we instruct the user to install MetaMask.
-    if (window.ethereum === undefined) {
-      return <NoWalletDetected />;
-    }
-
-    // The next thing we need to do, is to ask the user to connect their wallet.
-    // When the wallet gets connected, we are going to save the users's address
-    // in the component's state. So, if it hasn't been saved yet, we have
-    // to show the ConnectWallet component.
-    //
-    // Note that we pass it a callback that is going to be called when the user
-    // clicks a button. This callback just calls the _connectWallet method.
-    if (!this.state.selectedAddress) {
-      return (
-        <div>
-        <ConnectWallet
-          connectWallet={() => this._connectWallet()}
-          networkError={this.state.networkError}
-          dismiss={() => this._dismissNetworkError()}
-        />
-        </div>
-      );
-    }
-
-    // // If the token data or the user's balance hasn't loaded yet, we show
-    // // a loading component.
-    if (this.state.isLoadingWallet) {
-      return <Loading />;
-    }
-
-    // If everything is loaded, we render the application.
-    return (
-      <Router>
-        <Navigation
-          connectWallet={() => this._connectWallet()}
-          minifyHash={this._minifyHash}
-          selectedAddress={this.state.selectedAddress}
-        />
-        <div id="dapp">
-          <Switch>
-            <Route path="/euler-beats">
-              <PrintList
-                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
-                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
-                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
-              />
-            </Route>
-            {(!this.state.assets.length) && (
-              <Route path={"/harberger-taxes"}>
-                <MintToken
-                  adminAddress={this.state.adminAddress}
-                  mintToken={this.mintToken}
-                  selectedAddress={this.state.selectedAddress}
-                />
-              </Route>
-            )}
-            {this.state.assets.map((asset, index) => {
-              return (
-                <Route path={"/harberger-taxes/asset/" + asset.tokenId} key={index}>
-                  <Asset
-                    // Contract and Asset Data
-                    asset={asset}
-                    adminAddress={this.state.adminAddress}
-                    baseInterval={this.state.baseInterval}
-                    baseTaxPrice={this.state.baseTaxPrice}
-                    contractAddress={this.state.contractAddress}
-                    creatorAddress={ethers.utils.getAddress(asset.creator)}
-                    contract={this.HTAXcontract}
-                    eventLogs={this.state.eventLogs}
-                    isLoadingContract={this.state.isLoadingContract}
-                    selectedAddress={this.state.selectedAddress}
-                    taxRatePercentage={this.state.taxRatePercentage}
-                    tokenId={asset.tokenId}
-                    // Functions
-                    buyAsset={this.buyAsset}
-                    collectFunds={this.collectFunds}
-                    depositTax={this.depositTax}
-                    listAsset={this.listAsset}
-                    minifyHash={this._minifyHash}
-                    reclaimAsset={this.reclaimAsset}
-                  />
-                </Route>
-              )
-            })}
-          </Switch>
-        </div>
-        <Footer/>
-      </Router>
-    )
   }
 
   // This method is run when the user clicks the Connect. It connects the
@@ -456,5 +358,99 @@ export class Dapp extends React.Component {
     });
 
     return false;
+  }
+
+  render() {
+    // console.log(this.state)
+
+    // Ethereum wallets inject the window.ethereum object. If it hasn't been
+    // injected, we instruct the user to install MetaMask.
+    if (window.ethereum === undefined) {
+      return <NoWalletDetected />;
+    }
+
+    // The next thing we need to do, is to ask the user to connect their wallet.
+    // When the wallet gets connected, we are going to save the users's address
+    // in the component's state. So, if it hasn't been saved yet, we have
+    // to show the ConnectWallet component.
+    //
+    // Note that we pass it a callback that is going to be called when the user
+    // clicks a button. This callback just calls the _connectWallet method.
+    if (!this.state.selectedAddress) {
+      return (
+        <div>
+        <ConnectWallet
+          connectWallet={() => this._connectWallet()}
+          networkError={this.state.networkError}
+          dismiss={() => this._dismissNetworkError()}
+        />
+        </div>
+      );
+    }
+
+    // // If the token data or the user's balance hasn't loaded yet, we show
+    // // a loading component.
+    if (this.state.isLoadingWallet) {
+      return <Loading />;
+    }
+
+    return (
+      <Router>
+        <Navigation
+          connectWallet={() => this._connectWallet()}
+          minifyHash={this._minifyHash}
+          selectedAddress={this.state.selectedAddress}
+        />
+        <div id="dapp">
+          <Switch>
+            <Route path="/euler-beats">
+              <PrintList
+                mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
+                getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
+                getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
+              />
+            </Route>
+            {(!this.state.assets.length) && (
+              <Route path={"/harberger-taxes"}>
+                <MintToken
+                  adminAddress={this.state.adminAddress}
+                  mintToken={this.mintToken}
+                  selectedAddress={this.state.selectedAddress}
+                />
+              </Route>
+            )}
+            {this.state.assets.map((asset, index) => {
+              return (
+                <Route path={"/harberger-taxes/asset/" + asset.tokenId} key={index}>
+                  <Asset
+                    // Contract and Asset Data
+                    asset={asset}
+                    adminAddress={this.state.adminAddress}
+                    baseInterval={this.state.baseInterval}
+                    baseTaxPrice={this.state.baseTaxPrice}
+                    contractAddress={this.state.contractAddress}
+                    creatorAddress={ethers.utils.getAddress(asset.creator)}
+                    contract={this.HTAXcontract}
+                    eventLogs={this.state.eventLogs}
+                    isLoadingContract={this.state.isLoadingContract}
+                    selectedAddress={this.state.selectedAddress}
+                    taxRatePercentage={this.state.taxRatePercentage}
+                    tokenId={asset.tokenId}
+                    // Functions
+                    buyAsset={this.buyAsset}
+                    collectFunds={this.collectFunds}
+                    depositTax={this.depositTax}
+                    listAsset={this.listAsset}
+                    minifyHash={this._minifyHash}
+                    reclaimAsset={this.reclaimAsset}
+                  />
+                </Route>
+              )
+            })}
+          </Switch>
+        </div>
+        <Footer/>
+      </Router>
+    )
   }
 }

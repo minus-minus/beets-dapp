@@ -70,7 +70,7 @@ button.subheader.btn.btn-success:active:focus {
   flex: 1;
   overflow-y: scroll;
   background: #fff;
-  max-height: 350px;
+  height: 300px;
   border-radius: 5px;
 }
 

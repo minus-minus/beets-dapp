@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
-// const ETHERSCAN_BASE_URI = "https://etherscan.io/address/";
 const OPEN_SEA_BASE_URI = "https://opensea.io/";
 
 class Metadata extends Component {
