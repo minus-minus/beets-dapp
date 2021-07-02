@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.3;
 
+/*
+ * Powered By: BeetsDAO
+ * External Sources:
+ *    https://github.com/yosriady/PatronageCollectibles
+ *    https://github.com/simondlr/thisartworkisalwaysonsale
+ */
+
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
@@ -97,6 +104,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
   /**
    * @dev Modifier that checks if `owner` of asset is equal to `msgSender()`.
+   * @param _tokenId ID of the token
    */
   modifier onlyOwner(uint256 _tokenId) {
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
@@ -420,10 +428,3 @@ contract HarbergerAsset is ERC721URIStorage {
     _safeTransfer(from, to, tokenId, _data);
   }
 }
-
-/*
- * Powered By: BeetsDAO
- * External Sources:
- *    https://github.com/yosriady/PatronageCollectibles
- *    https://github.com/simondlr/thisartworkisalwaysonsale
- */

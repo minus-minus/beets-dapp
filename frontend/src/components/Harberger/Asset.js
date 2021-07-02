@@ -4,6 +4,7 @@ import Metadata from "./Metadata";
 import Marketplace from "./Marketplace";
 import Provenance from "./Provenance";
 import Ownership from "./Ownership";
+import Reference from "./Reference";
 import BigNumber from "bignumber.js";
 import { Container, Row } from "react-bootstrap";
 
@@ -154,6 +155,7 @@ class Asset extends Component {
                 tokenId={this.props.tokenId}
               />
             </Row>
+            <Reference/>
           </Container>
         )}
       </div>
