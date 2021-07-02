@@ -16,7 +16,8 @@ import Navigation from "./Navigation";
 import MintToken from "./Harberger/MintToken";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
-// import { TransactionErrorMessage } from "./TransactionErrorMessage";
+import { TransactionErrorMessage } from "./TransactionErrorMessage";
+import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 
 // CONSTANTS
@@ -32,6 +33,8 @@ export class Dapp extends React.Component {
       networkError: undefined,
       selectedAddress: undefined,
       transactionError: undefined,
+      transactionReceipt: undefined,
+      transactionSuccess: undefined,
       isLoadingContract: true
     };
 
@@ -119,161 +122,6 @@ export class Dapp extends React.Component {
     )
   }
 
-  async loadHarbergerContract() {
-    const contractAdmin = await this.HTAXcontract.admin();
-    const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
-    const assets = await this.HTAXcontract.fetchAssets();
-    const taxRatePercentage = await this.HTAXcontract.taxRatePercentage();
-    const baseInterval = await this.HTAXcontract.baseInterval();
-    const baseTaxPrice = await this.HTAXcontract.baseTaxPrice();
-    const network = await this._provider.getNetwork();
-    const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
-    const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
-    this.setState({ eventLogs: [] })
-    logs.map(async (log, i) => {
-      this.state.eventLogs.push(iface.parseLog(log));
-    })
-
-    this.setState({
-      adminAddress: ethers.utils.getAddress(contractAdmin),
-      assets: assets,
-      contractAddress: ethers.utils.getAddress(contractAddress.HarbergerAsset),
-      contractBalance: contractBalance.toString(),
-      baseInterval: baseInterval.toString(),
-      baseTaxPrice: baseTaxPrice.toString(),
-      network: network,
-      taxRatePercentage: taxRatePercentage.toString(),
-      isLoadingContract: false
-    })
-
-    console.log("Harberger Contract State:", this.state);
-  }
-
-  async mintToken(creatorAddress, ipfsHash) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.mintToken(creatorAddress, ipfsHash);
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("MintToken Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("MintToken Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async listAsset(tokenId, amount, approvedAddress) {
-    if (approvedAddress !== this.state.contractAddress) {
-      this.setApproval(tokenId);
-      // await this.setApproval();
-    }
-
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("ListAsset Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("ListAsset Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async depositTax(tokenId, amount, approvedAddress) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.depositTaxInWei(tokenId, { value: amount });
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("DepositTax Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("DepositTax Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async setApproval(tokenId) {
-    console.log(tokenId)
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("SetApproval Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("SetApproval Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async buyAsset(tokenId, assetPrice) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.buyAssetInWei(tokenId, { value: assetPrice });
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("BuyAsset Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("BuyAsset Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async collectFunds(tokenId) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.collectFunds(tokenId);
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("CollectFunds Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("CollectFunds Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
-  async reclaimAsset(tokenId) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.reclaimAsset(tokenId);
-      const receipt = await transaction.wait();
-
-      console.clear();
-      console.log("Transaction Receipt:", receipt);
-      this._connectWallet();
-    } catch(err) {
-      console.log("ReclaimAsset Error");
-      alert(this._getRpcErrorMessage(err));
-    }
-  }
-
   async getTrackSupply(originalTokenId) {
     // console.log("contractInstance", this.EBcontract);
     return await this.EBcontract.seedToPrintsSupply(originalTokenId);
@@ -312,42 +160,203 @@ export class Dapp extends React.Component {
     }
   }
 
+  async loadHarbergerContract() {
+    const contractAdmin = await this.HTAXcontract.admin();
+    const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
+    const assets = await this.HTAXcontract.fetchAssets();
+    const taxRatePercentage = await this.HTAXcontract.taxRatePercentage();
+    const baseInterval = await this.HTAXcontract.baseInterval();
+    const baseTaxPrice = await this.HTAXcontract.baseTaxPrice();
+    const network = await this._provider.getNetwork();
+    const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
+    const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
+    this.setState({ eventLogs: [] })
+    logs.map(async (log, i) => {
+      this.state.eventLogs.push(iface.parseLog(log));
+    })
+
+    this.setState({
+      adminAddress: ethers.utils.getAddress(contractAdmin),
+      assets: assets,
+      contractAddress: ethers.utils.getAddress(contractAddress.HarbergerAsset),
+      contractBalance: contractBalance.toString(),
+      baseInterval: baseInterval.toString(),
+      baseTaxPrice: baseTaxPrice.toString(),
+      network: network,
+      taxRatePercentage: taxRatePercentage.toString(),
+      isLoadingContract: false
+    })
+
+    console.log("Harberger Contract State:", this.state);
+  }
+
+  async mintToken(creatorAddress, ipfsHash) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.mintToken(creatorAddress, ipfsHash);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt.events[0],
+        transactionSuccess: "Mint Token"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async listAsset(tokenId, amount, approvedAddress) {
+    if (approvedAddress !== this.state.contractAddress) {
+      this.setApproval(tokenId);
+      // await this.setApproval();
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt.events[0],
+        transactionSuccess: "List Asset"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async depositTax(tokenId, amount, approvedAddress) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.depositTaxInWei(tokenId, { value: amount });
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt.events[0],
+        transactionSuccess: "Deposit Taxes"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async setApproval(tokenId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt.events[0],
+        transactionSuccess: "Approve Contract"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async buyAsset(tokenId, assetPrice) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.buyAssetInWei(tokenId, { value: assetPrice });
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt.events[0],
+        transactionSuccess: "Purchase Asset"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async collectFunds(tokenId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.collectFunds(tokenId);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt,
+        transactionSuccess: "Collect Funds"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
+  async reclaimAsset(tokenId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.reclaimAsset(tokenId);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionReceipt: receipt,
+        transactionSuccess: "Reclaim Asset"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
   _minifyHash(address) {
     if (!address) return
-
     const hashStart = address.substring(0, 6)
     const hashEnd = address.substring(address.length-4, address.length)
 
     return `${hashStart}...${hashEnd}`
   }
 
-  // This method just clears part of the state.
+  _dismissTransactionSuccess() {
+    this.setState({ transactionSuccess: undefined });
+  }
+
   _dismissTransactionError() {
     this.setState({ transactionError: undefined });
   }
 
-  // This method just clears part of the state.
   _dismissNetworkError() {
     this.setState({ networkError: undefined });
   }
 
-  // This is an utility method that turns an RPC error into a human readable message.
   _getRpcErrorMessage(error) {
-    if (error.data) {
-      return error.data.message;
-    }
-
-    return error.message;
+    return error.data ? error.data.message : error.message;
   }
 
-  // This method resets the state
   _resetState() {
     console.clear();
-
     this.setState(this.initialState);
   }
 
-  // This method checks if Metamask selected network is localhost:8545
   _checkNetwork() {
     if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
       return true;
@@ -378,18 +387,16 @@ export class Dapp extends React.Component {
     // clicks a button. This callback just calls the _connectWallet method.
     if (!this.state.selectedAddress) {
       return (
-        <div>
         <ConnectWallet
           connectWallet={() => this._connectWallet()}
           networkError={this.state.networkError}
           dismiss={() => this._dismissNetworkError()}
         />
-        </div>
       );
     }
 
-    // // If the token data or the user's balance hasn't loaded yet, we show
-    // // a loading component.
+    // If the token data or the user's balance hasn't loaded yet, we show
+    // a loading component.
     if (this.state.isLoadingWallet) {
       return <Loading />;
     }
@@ -401,6 +408,18 @@ export class Dapp extends React.Component {
           minifyHash={this._minifyHash}
           selectedAddress={this.state.selectedAddress}
         />
+        {(this.state.transactionError) && (
+          <TransactionErrorMessage
+            dismiss={() => this._dismissTransactionError()}
+            message={this.state.transactionError}
+          />
+        )}
+        {(this.state.transactionSuccess) && (
+          <TransactionSuccessMessage
+            dismiss={() => this._dismissTransactionSuccess()}
+            message={this.state.transactionSuccess}
+          />
+        )}
         <div id="dapp">
           <Switch>
             <Route path="/euler-beats">

@@ -1,10 +1,10 @@
 import React from "react";
 import { Alert, Button } from "react-bootstrap";
 
-export function NetworkErrorMessage({ message, dismiss }) {
+export function TransactionSuccessMessage({ message, dismiss }) {
   return (
-    <Alert variant="danger" className="text-center">
-      Network Error: {message}
+    <Alert variant="success" className="text-center">
+      Transaction Successful: {message}
       <Button
         className="close mx-2"
         variant="light"
@@ -12,7 +12,7 @@ export function NetworkErrorMessage({ message, dismiss }) {
         aria-label="Close"
         onClick={dismiss}
       >
-        <span aria-hidden="true">&times;</span>
+        <span className="justify-content-right" aria-hidden="true">&times;</span>
       </Button>
     </Alert>
   );

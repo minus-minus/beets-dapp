@@ -2,6 +2,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { contractAndTokenId } from "../../utils/EB/tokenInfo";
 import { Print } from "./Print";
+import { Container, Row } from "react-bootstrap";
 import "../../stylesheets/EulerBeat.css";
 
 export class PrintList extends React.Component {
@@ -15,22 +16,26 @@ export class PrintList extends React.Component {
       {
         trackNumber: '02',
         release: 'enigma',
-        videoLink: 'https://storage.opensea.io/files/e2fd729eae666bc6f37eca6db2373629.mp4'
+        videoLink: 'https://storage.opensea.io/files/e2fd729eae666bc6f37eca6db2373629.mp4',
+        url: 'https://eulerbeats.com/enigma/120376721408'
       },
       {
         trackNumber: '04',
         release: 'enigma',
-        videoLink: 'https://storage.opensea.io/files/e982798bee8cedc77dd022f518bf24f7.mp4'
+        videoLink: 'https://storage.opensea.io/files/e982798bee8cedc77dd022f518bf24f7.mp4',
+        url: 'https://eulerbeats.com/enigma/1228495585536'
       },
       {
         trackNumber: '17',
         release: 'enigma',
-        videoLink: 'https://storage.opensea.io/files/71b704f856cbf830e81a5c8048de5519.mp4'
+        videoLink: 'https://storage.opensea.io/files/71b704f856cbf830e81a5c8048de5519.mp4',
+        url: 'https://eulerbeats.com/enigma/1125432951552'
       },
       {
         trackNumber: '20',
         release: 'enigma',
-        videoLink: 'https://storage.opensea.io/files/5e27b5c359d46017faddd40a72edea4d.mp4'
+        videoLink: 'https://storage.opensea.io/files/5e27b5c359d46017faddd40a72edea4d.mp4',
+        url: 'https://eulerbeats.com/enigma/1348636967680'
       }
     ];
 
@@ -73,12 +78,12 @@ export class PrintList extends React.Component {
     })
 
     return (
-      <div className="container my-5">
-        <h1 className="text-center mb-5">Euler Beats</h1>
-        <div className="row">
+      <Container className="my-5">
+        <h1 className="text-center mb-4">Euler Beats</h1>
+        <Row>
           {printsComponent}
-        </div>
-      </div>
+        </Row>
+      </Container>
     )
   }
 }

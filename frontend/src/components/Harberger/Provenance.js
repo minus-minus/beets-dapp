@@ -31,7 +31,7 @@ class Provenance extends Component {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Timestamp</th>
+                  <th>Date</th>
                   <th>Token</th>
                   <th>Event</th>
                   <th>From</th>

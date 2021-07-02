@@ -1,18 +1,19 @@
 import React from "react";
+import { Alert, Button } from "react-bootstrap";
 
 export function TransactionErrorMessage({ message, dismiss }) {
   return (
-    <div className="alert alert-danger" role="alert">
-      Error sending transaction: {message.substring(0, 100)}
-      <button
-        type="button"
-        className="close"
+    <Alert variant="danger" className="text-center">
+      Transaction Failed: {message.split('\'')[1]}
+      <Button
+        className="close mx-2"
+        variant="light"
         data-dismiss="alert"
         aria-label="Close"
         onClick={dismiss}
       >
         <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
+      </Button>
+    </Alert>
   );
 }

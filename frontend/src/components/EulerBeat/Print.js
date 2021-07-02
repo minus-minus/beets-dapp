@@ -1,4 +1,5 @@
 import React from "react";
+import { Col, Card, Button } from "react-bootstrap";
 import "../../stylesheets/EulerBeat.css";
 
 export class Print extends React.Component {
@@ -29,22 +30,26 @@ export class Print extends React.Component {
   }
 
   render() {
-    const {originalTokenId, trackNumber, price, priceBn, currentSupply, mintPrintLink, videoLink} = this.props;
+    const {originalTokenId, trackNumber, price, priceBn, currentSupply, mintPrintLink, videoLink, url} = this.props;
 
     return (
-      <div className="col-sm-6 p-4">
-        <div className="card">
+      <Col md={6} className="d-flex justify-content-center p-4">
+        <Card className="mb-5" style={{ width: "28rem" }}>
           <video controls playsInline src={videoLink} />
-          <div className="card-body text-center">
-            <h5 className="card-title">Track {trackNumber}</h5>
-            <p className="card-text">
+          <Card.Body className="text-center">
+            <Card.Title>
+              <a href={url} rel="noopener noreferrer" target="_blank">
+                Track {trackNumber}
+              </a>
+            </Card.Title>
+            <Card.Text>
               Current Supply: {currentSupply}<br/>
               Price Ξ {price}
-            </p>
-            <button className="btn btn-primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</button>
-          </div>
-        </div>
-      </div>
+            </Card.Text>
+            <Button variant="primary" onClick={() => mintPrintLink(originalTokenId, priceBn)}>Mint</Button>
+          </Card.Body>
+        </Card>
+      </Col>
     );
   }
 }

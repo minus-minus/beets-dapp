@@ -163,7 +163,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * Emits a {List} event.
    */
   function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
-    require(_priceAmount > 0, "You must set a sales price greater than 0 ETH");
+    require(_priceAmount > 0, "You must set a sales price greater than 0");
 
     assets[_tokenId].priceAmount = _priceAmount;
     assets[_tokenId].taxAmount = _priceAmount.div(taxDenominator);

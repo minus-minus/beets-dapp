@@ -34,7 +34,8 @@ class Marketplace extends Component {
 
   listAsset = (event) => {
     event.preventDefault()
-    const value = this.props.convertToWei(this.listing.value)
+    var value = this.props.convertToWei(this.listing.value)
+    value = (value === undefined) ? 0 : value
     this.props.listAsset(this.props.tokenId, value, this.props.approvedAddress)
   }
 
@@ -135,6 +136,7 @@ class Marketplace extends Component {
                   <CurrencyInput prefix="Ξ " decimalsLimit={4} ref={(input) => {this.listing = input}}/><br/>
                   <Button
                     className="my-3 mx-3 py-2 px-4"
+                    required={true}
                     variant="success"
                     type="submit"
                   >
