@@ -11,14 +11,14 @@ import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
+import { TransactionErrorMessage } from "./TransactionErrorMessage";
+import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
+// import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { PrintList } from './EulerBeat/PrintList';
 import Navigation from "./Navigation";
 import MintToken from "./Harberger/MintToken";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
-import { TransactionErrorMessage } from "./TransactionErrorMessage";
-import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
-// import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 
 // CONSTANTS
 const HARDHAT_NETWORK_ID = '1337';
@@ -33,7 +33,7 @@ export class Dapp extends React.Component {
       networkError: undefined,
       selectedAddress: undefined,
       transactionError: undefined,
-      transactionReceipt: undefined,
+      transactionHash: undefined,
       transactionSuccess: undefined,
       isLoadingContract: true
     };
@@ -139,6 +139,7 @@ export class Dapp extends React.Component {
         value: price,
         gasLimit: 220000,
       });
+
       const receipt = await tx.wait();
 
       // The receipt, contains a status flag, which is 0 to indicate an error.
@@ -148,6 +149,8 @@ export class Dapp extends React.Component {
         throw new Error("Transaction failed");
       }
 
+      this.setState({ transactionSuccess: "Mint Print" });
+
     } catch (error) {
       // We check the error code to see if this error was produced because the
       // user rejected a tx. If that's the case, we do nothing.
@@ -155,8 +158,7 @@ export class Dapp extends React.Component {
         return;
       }
 
-      console.error(error);
-      this.setState({ transactionError: error });
+      this.setState({ transactionError: this._getRpcErrorMessage(error) });
     }
   }
 
@@ -200,7 +202,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt.events[0],
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Mint Token"
       })
     } catch(err) {
@@ -224,7 +226,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt.events[0],
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "List Asset"
       })
     } catch(err) {
@@ -243,7 +245,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt.events[0],
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Deposit Taxes"
       })
     } catch(err) {
@@ -262,7 +264,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt.events[0],
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Approve Contract"
       })
     } catch(err) {
@@ -281,7 +283,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt.events[0],
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Purchase Asset"
       })
     } catch(err) {
@@ -300,7 +302,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt,
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Collect Funds"
       })
     } catch(err) {
@@ -319,7 +321,7 @@ export class Dapp extends React.Component {
 
       this._connectWallet();
       this.setState({
-        transactionReceipt: receipt,
+        transactionHash: receipt.transactionHash,
         transactionSuccess: "Reclaim Asset"
       })
     } catch(err) {
@@ -408,16 +410,16 @@ export class Dapp extends React.Component {
           minifyHash={this._minifyHash}
           selectedAddress={this.state.selectedAddress}
         />
-        {(this.state.transactionError) && (
-          <TransactionErrorMessage
-            dismiss={() => this._dismissTransactionError()}
-            message={this.state.transactionError}
-          />
-        )}
         {(this.state.transactionSuccess) && (
           <TransactionSuccessMessage
             dismiss={() => this._dismissTransactionSuccess()}
             message={this.state.transactionSuccess}
+          />
+        )}
+        {(this.state.transactionError) && (
+          <TransactionErrorMessage
+            dismiss={() => this._dismissTransactionError()}
+            message={this.state.transactionError}
           />
         )}
         <div id="dapp">

@@ -7,7 +7,8 @@ export function NetworkErrorMessage({ message, dismiss }) {
       Network Error: {message}
       <Button
         className="close mx-2"
-        variant="light"
+        style={{ float: "right" }}
+        variant="transparent"
         data-dismiss="alert"
         aria-label="Close"
         onClick={dismiss}

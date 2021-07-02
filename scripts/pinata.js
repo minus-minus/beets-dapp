@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
-const tokenFileName = "./frontend/public/freestyle.mp4"
+const tokenFileName = "./frontend/public/assets/freestyle.mp4"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
@@ -41,7 +41,7 @@ async function pinMetadataToIPFS(ipfsHash) {
     pinataContent: {
       "artist": "@songadaymann",
       "creator": "Jonathan Mann",
-      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend the clock. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
+      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics. The Harberger Taxes song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend a foreclosure on the asset. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
       "external_url": "https://www.beetsdapps.com/harberger-taxes/asset/1",
       "image": process.env.IPFS_BASE_URI + ipfsHash,
       "name": "Harberger Taxes",

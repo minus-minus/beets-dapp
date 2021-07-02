@@ -15,21 +15,21 @@ class Metadata extends Component {
   }
 
   componentDidMount() {
-    this.timeRemaining(this.props.assetDeadline)
-    setInterval(() => this.timeRemaining(this.props.assetDeadline), 100)
+    this.timeRemaining(this.props.assetForeclosure)
+    setInterval(() => this.timeRemaining(this.props.assetForeclosure), 100)
   }
 
-  timeRemaining = (deadline) => {
-    if (!deadline) return
+  timeRemaining = (foreclosure) => {
+    if (!foreclosure) return
 
     var current = Math.floor(Date.now() / 1000)
-    var remaining = deadline - current
+    var remaining = foreclosure - current
     var days = Math.floor(remaining / (3600 * 24))
     var hrs = Math.floor(remaining % (3600 * 24) / 3600)
     var mins = Math.floor(remaining % 3600 / 60)
     var secs = Math.floor(remaining % 60)
 
-    if (current >= deadline) {
+    if (current >= foreclosure) {
       this.setState({ timeExpired: true })
     } else {
       this.setState({ days, hrs, mins, secs })

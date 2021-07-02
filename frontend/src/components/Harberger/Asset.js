@@ -40,7 +40,7 @@ class Asset extends Component {
       this.setState({
         adminBalance: adminBalance.toString(),
         approvedAddress: ethers.utils.getAddress(approvedAccount),
-        assetDeadline: this.props.asset.deadlineTimestamp.toString(),
+        assetForeclosure: this.props.asset.foreclosureTimestamp.toString(),
         assetLastDeposit: this.props.asset.lastDepositTimestamp.toString(),
         assetPrice: this.props.asset.priceAmount.toString(),
         assetTaxAmount: this.props.asset.taxAmount.toString(),
@@ -101,7 +101,7 @@ class Asset extends Component {
               <Metadata
                 artistName={this.state.artistName}
                 artistWebsite={this.state.artistWebsite}
-                assetDeadline={this.state.assetDeadline}
+                assetForeclosure={this.state.assetForeclosure}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
                 contractAddress={this.props.contractAddress}
@@ -118,7 +118,7 @@ class Asset extends Component {
               />
               <Marketplace
                 approvedAddress={this.state.approvedAddress}
-                assetDeadline={this.state.assetDeadline}
+                assetForeclosure={this.state.assetForeclosure}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
                 baseInterval={this.props.baseInterval}

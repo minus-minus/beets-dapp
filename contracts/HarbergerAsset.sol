@@ -27,10 +27,10 @@ contract HarbergerAsset is ERC721URIStorage {
   // Owner of contract
   address public admin;
 
-  // Base time interval in seconds used to calculate deadline timestamp (24 hours)
+  // Base time interval in seconds used to calculate foreclosure timestamp (24 hours)
   uint256 public baseInterval = 86400 seconds;
 
-  // Base tax value in wei used to calculate total amount of taxes due by deadline (.01 ETH)
+  // Base tax value in wei used to calculate total amount of taxes due by the foreclosure date (.01 ETH)
   uint256 public baseTaxPrice = 10000000000000000;
 
   // Prepend baseURI to IPFS Hash to create tokenURI (alternate baseURI: `ipfs://`)
@@ -65,7 +65,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * `taxAmount` Tax amount in wei of the asset
    * `totalDepositAmount` Total amount deposited in wei by the current owner of the asset
    * `lastDepositTimestamp` Timestamp of the last tax deposit performed by the current owner
-   * `deadlineTimestamp` Timestamp of the deadline for which taxes must be paid by the current owner
+   * `foreclosureTimestamp` Timestamp of the foreclosure for which taxes must be paid by the current owner
    */
   struct Asset {
     uint256 tokenId;
@@ -74,18 +74,18 @@ contract HarbergerAsset is ERC721URIStorage {
     uint256 taxAmount;
     uint256 totalDepositAmount;
     uint256 lastDepositTimestamp;
-    uint256 deadlineTimestamp;
+    uint256 foreclosureTimestamp;
   }
 
   /**
    * @dev List of possible events emitted to log each and every user transaction
    */
-  event List   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
-  event Deposit(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Sale   (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
-  event Refund (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
-  event Reclaim(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
+  event List       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Deposit    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
+  event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Refund     (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
+  event Collect    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Foreclosure(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
 
   /**
    * @dev Initializes contract and sets `admin` to address that deploys contract.
@@ -189,7 +189,7 @@ contract HarbergerAsset is ERC721URIStorage {
     require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
 
     uint256 taxMultiplier = msg.value.div(baseTaxPrice);
-    assets[_tokenId].deadlineTimestamp += baseInterval.mul(taxMultiplier);
+    assets[_tokenId].foreclosureTimestamp += baseInterval.mul(taxMultiplier);
     assets[_tokenId].lastDepositTimestamp = block.timestamp;
     assets[_tokenId].totalDepositAmount += msg.value;
 
@@ -211,7 +211,7 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function buyAssetInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
-    require(assets[_tokenId].priceAmount > 0, "This item is not yet for sale");
+    require(assets[_tokenId].priceAmount > 0, "This asset is currently not up for sale");
     require(assets[_tokenId].priceAmount == msg.value, "Incorrect payment amount");
 
     address currentOwner = ownerOf(_tokenId);
@@ -239,15 +239,15 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the deadline is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset deadline is calculated.
+   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
    *
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
   function refundTax(uint256 _tokenId, address _currentOwner) internal {
-    uint256 deadlineTimestamp = assets[_tokenId].deadlineTimestamp;
-    uint256 timeRemainingTimestamp = deadlineTimestamp - block.timestamp;
+    uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
+    uint256 timeRemainingTimestamp = foreclosureTimestamp - block.timestamp;
 
     if (int256(timeRemainingTimestamp) > int256(baseInterval)) {
       uint256 taxMultiplier = timeRemainingTimestamp.div(baseInterval);
@@ -289,23 +289,23 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `creator` must be equal to `msgSender()`.
    * - `timeExpired()` of `tokenId` must be equal to true.
    *
-   * Emits a {Reclaim} event.
+   * Emits a {Foreclosure} event.
    */
   function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) {
     require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
     require(timeExpired(_tokenId), "Time has not yet expired for you to reclaim this asset");
 
     address currentOwner = ownerOf(_tokenId);
-    emit Reclaim(block.timestamp, _tokenId, _msgSender(), currentOwner);
+    emit Foreclosure(block.timestamp, _tokenId, _msgSender(), currentOwner);
 
     safeTransferFrom(currentOwner, _msgSender(), _tokenId);
     initializeAsset(_tokenId, _msgSender());
   }
 
   /**
-   * @dev Checks if current time is greater than `deadline` of asset.
+   * @dev Checks if current time is greater than `foreclosure` timestamp of asset.
    * @param _tokenId ID of the token
-   * @return boolean value of whether asset deadline has expired or not
+   * @return boolean value to determine status of asset foreclosure
    *
    * Requirements:
    *
@@ -313,9 +313,9 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function timeExpired(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
     console.log("Block Timestamp:", block.timestamp);
-    console.log("Asset Deadline:", assets[_tokenId].deadlineTimestamp);
+    console.log("Asset Foreclosure:", assets[_tokenId].foreclosureTimestamp);
 
-    return block.timestamp >= assets[_tokenId].deadlineTimestamp;
+    return block.timestamp >= assets[_tokenId].foreclosureTimestamp;
   }
 
   /**
@@ -330,11 +330,11 @@ contract HarbergerAsset is ERC721URIStorage {
     assets[_tokenId].taxAmount = 0;
     assets[_tokenId].totalDepositAmount = 0;
     assets[_tokenId].lastDepositTimestamp = block.timestamp;
-    assets[_tokenId].deadlineTimestamp = block.timestamp.add(baseInterval);
+    assets[_tokenId].foreclosureTimestamp = block.timestamp.add(baseInterval);
   }
 
   /**
-   * @dev Fetches inventory of assets that exist on contract
+   * @dev Fetches inventory of assets that currently exist on this contract
    */
   function fetchAssets() public view returns(Asset[] memory) {
     uint256 totalCount = _tokenIds.current();
@@ -422,7 +422,7 @@ contract HarbergerAsset is ERC721URIStorage {
     require(
       _isApprovedOrOwner(_msgSender(), tokenId) ||
       _msgSender() == assets[tokenId].creator && timeExpired(tokenId),
-      "Transfer caller is not the owner, approved nor the creator"
+      "Transfer caller is not the owner, approved nor the creator of the asset"
     );
 
     _safeTransfer(from, to, tokenId, _data);

@@ -7,7 +7,8 @@ export function TransactionErrorMessage({ message, dismiss }) {
       Transaction Failed: {message.split('\'')[1]}
       <Button
         className="close mx-2"
-        variant="light"
+        style={{ float: "right" }}
+        variant="transparent"
         data-dismiss="alert"
         aria-label="Close"
         onClick={dismiss}

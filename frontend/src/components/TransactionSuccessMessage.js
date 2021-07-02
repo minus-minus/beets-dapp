@@ -7,7 +7,8 @@ export function TransactionSuccessMessage({ message, dismiss }) {
       Transaction Successful: {message}
       <Button
         className="close mx-2"
-        variant="light"
+        style={{ float: "right" }}
+        variant="transparent"
         data-dismiss="alert"
         aria-label="Close"
         onClick={dismiss}

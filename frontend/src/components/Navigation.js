@@ -12,7 +12,7 @@ class Navigation extends Component {
         <Container>
           <Navbar.Brand>
             <Nav.Link href="/">
-              <img className="logo" src="/logo.png" alt="BeetsDAO"/>
+              <img className="beets" src="/logos/beets.png" alt="BeetsDAO"/>
             </Nav.Link>
           </Navbar.Brand>
           <Nav className="me-auto mx-4">

@@ -46,14 +46,14 @@ class Marketplace extends Component {
   }
 
   setEstimatedTax = (date) => {
-    const deadline = parseFloat(this.props.assetDeadline)
+    const foreclosure = parseFloat(this.props.assetForeclosure)
     const baseInterval = parseFloat(this.props.baseInterval)
     const baseTaxPrice = this.props.convertToEth(this.props.baseTaxPrice)
 
     const currentTime = Math.floor(new Date() / 1000)
     const selectedTime = Math.floor(new Date(date) / 1000)
 
-    var timeRemaining = deadline - currentTime
+    var timeRemaining = foreclosure - currentTime
     if (timeRemaining < 0) timeRemaining = 0.00
 
     const estimatedTime = selectedTime - currentTime - timeRemaining
@@ -77,7 +77,7 @@ class Marketplace extends Component {
 
   render() {
     const approvedAddress = this.props.approvedAddress
-    const assetDeadline = this.props.assetDeadline
+    const assetForeclosure = this.props.assetForeclosure
     const assetPrice = this.props.assetPrice
     const assetTaxAmount = parseFloat(this.props.convertToEth(this.props.assetTaxAmount))
     const baseTaxPrice = parseFloat(this.props.convertToEth(this.props.baseTaxPrice))
@@ -170,7 +170,7 @@ class Marketplace extends Component {
               </p>
               {assetPrice > 0 && (
                 <p>
-                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must deposit a minimum amount of <b>{assetTaxAmount} Ξ</b> in taxes before the time expires on <b>{this.formatTime(assetDeadline)}</b>
+                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must deposit a minimum amount of <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure occurs on <b>{this.formatTime(assetForeclosure)}</b>
                 </p>
               )}
             </div>
@@ -199,7 +199,7 @@ class Marketplace extends Component {
                 <Button
                   className="my-3 mx-2 py-2 px-4"
                   variant="primary"
-                  disabled={parseFloat(assetPrice) === 0 || (ownerAddress !== selectedAddress)} type="submit"
+                  disabled={ownerAddress !== selectedAddress} type="submit"
                 >
                   Deposit
                 </Button>

@@ -6,24 +6,24 @@ class Reference extends Component {
   render() {
     return (
       <Row>
-        <h1 className="text-center my-5">References</h1>
+        <h1 className="text-center my-5">External Sources</h1>
         <Col className="d-flex justify-content-center mb-5">
           <Card style={{ width: '24rem' }}>
             <a href="https://yos.io/2018/11/18/harberger-taxes/" rel="noopener noreferrer" target="_blank">
-              <Card.Img variant="top" src="/harberger.jpeg" />
+              <Card.Img variant="top" src="/references/harberger.jpeg" />
             </a>
             <Card.Body>
               <Card.Title>Harberger Taxes on Ethereum</Card.Title>
               <Card.Text>
-                Harberger Taxes is an economic abstraction that aims to democratize the control of assets between private and common ownership. In this taxation system, asset owners self-assess...
+                Harberger Taxes is an economic abstraction that aims to democratize the control of assets between private and commons ownership. In this taxation system, asset owners self-assess...
               </Card.Text>
             </Card.Body>
           </Card>
         </Col>
         <Col className="d-flex justify-content-center mb-5">
           <Card style={{ width: '24rem' }}>
-            <a href="https://podcasts.apple.com/gb/podcast/ep-22-nft-bonding-curves-harberger-taxes-w-simon-la/id1492490959?i=1000489290198" rel="noopener noreferrer" target="_blank">
-              <Card.Img variant="top" src="/podcast.jpeg" />
+            <a href="https://medium.com/@simondlr/what-is-harberger-tax-where-does-the-blockchain-fit-in-1329046922c6" rel="noopener noreferrer" target="_blank">
+              <Card.Img variant="top" src="/references/taxes.jpeg" />
             </a>
             <Card.Body>
               <Card.Text>
@@ -44,7 +44,7 @@ class Reference extends Component {
         <Col className="d-flex justify-content-center mb-5">
           <Card style={{ width: '24rem' }}>
             <a href="https://thisartworkisalwaysonsale.com/" rel="noopener noreferrer" target="_blank">
-              <Card.Img variant="top" src="/artwork.png" />
+              <Card.Img variant="top" src="/references/artwork.png" />
             </a>
             <Card.Body>
               <Card.Title>This Artwork Is Always On Sale</Card.Title>
