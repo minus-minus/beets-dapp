@@ -16,7 +16,7 @@ import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
 // import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
 import { PrintList } from './EulerBeat/PrintList';
 import Navigation from "./Navigation";
-import MintToken from "./Harberger/MintToken";
+import MintAsset from "./Harberger/MintAsset";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
 
@@ -39,7 +39,7 @@ export class Dapp extends React.Component {
     };
 
     this.loadHarbergerContract = this.loadHarbergerContract.bind(this)
-    this.mintToken = this.mintToken.bind(this)
+    this.mintAsset = this.mintAsset.bind(this)
     this.setApproval = this.setApproval.bind(this)
     this.listAsset = this.listAsset.bind(this)
     this.depositTax = this.depositTax.bind(this)
@@ -192,18 +192,18 @@ export class Dapp extends React.Component {
     console.log("Harberger Contract State:", this.state);
   }
 
-  async mintToken(creatorAddress, ipfsHash) {
+  async mintAsset(creatorAddress, ipfsHash) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
     try {
-      const transaction = await contract.mintToken(creatorAddress, ipfsHash);
+      const transaction = await contract.mintAsset(creatorAddress, ipfsHash);
       const receipt = await transaction.wait();
 
       this._connectWallet();
       this.setState({
         transactionHash: receipt.transactionHash,
-        transactionSuccess: "Mint Token"
+        transactionSuccess: "Mint Asset"
       })
     } catch(err) {
       this._connectWallet();
@@ -433,9 +433,9 @@ export class Dapp extends React.Component {
             </Route>
             {(!this.state.assets.length) && (
               <Route path={"/harberger-taxes"}>
-                <MintToken
+                <MintAsset
                   adminAddress={this.state.adminAddress}
-                  mintToken={this.mintToken}
+                  mintAsset={this.mintAsset}
                   selectedAddress={this.state.selectedAddress}
                 />
               </Route>

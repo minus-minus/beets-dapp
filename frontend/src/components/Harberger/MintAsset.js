@@ -5,7 +5,7 @@ import { HTAX_CREATOR_ADDRESS } from "../../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
-class MintToken extends Component {
+class MintAsset extends Component {
   render() {
     const adminAddress = this.props.adminAddress
     const selectedAddress = this.props.selectedAddress
@@ -16,7 +16,7 @@ class MintToken extends Component {
           <Button
             className="py-2 px-4"
             variant="success"
-            onClick={(e) => {this.props.mintToken(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
+            onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
           >
             Mint Token
           </Button>
@@ -26,4 +26,4 @@ class MintToken extends Component {
   }
 };
 
-export default MintToken;
+export default MintAsset;

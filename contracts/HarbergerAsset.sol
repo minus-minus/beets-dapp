@@ -121,7 +121,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Mints `tokenId`, sets `tokenURI` and transfers it to `creator`.
+   * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI` 
    * @param _tokenURI IPFS hash generated from JSON metadata
    * @param _creator Address of artist who created the asset
    * @return the newly created `tokenId`
@@ -132,7 +132,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Transfer} event.
    */
-  function mintToken(string memory _tokenURI, address _creator) public onlyAdmin returns (uint256) {
+  function mintAsset(string memory _tokenURI, address _creator) public onlyAdmin returns (uint256) {
     require(tokenURIs[_tokenURI] == false, "TokenURI already exists");
 
     tokenURIs[_tokenURI] = true;
