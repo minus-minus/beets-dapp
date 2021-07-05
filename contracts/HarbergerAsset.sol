@@ -197,16 +197,14 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - `priceAmount` of asset must be greater than 0.
-   * - `taxAmount` deposited must be greater than 0.
-   * - `msg.value` must be greater than or equal to `taxAmount` of asset.
+   * - `msg.value` must be greater than 0.
    * - `msg.value` must be greater than or equal to `taxAmount` of asset OR `totalDepositAmount` must be greater than 0.
    *
    * Emits a {Deposit} event.
    */
   function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
-    require(assets[_tokenId].taxAmount > 0, "You must deposit a tax amount greater than 0");
-    /* require(assets[_tokenId].taxAmount <= msg.value, "Your deposit must not be less than the current tax price"); */
+    require(msg.value > 0, "You must deposit a tax amount greater than 0");
     require(
       assets[_tokenId].taxAmount <= msg.value ||
       assets[_tokenId].totalDepositAmount > 0,
@@ -374,6 +372,22 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
+   * @dev Updates the mapping value of `baseTaxValues`.
+   * @param _tokenId ID of the token
+   * @param _amount New base tax value in wei
+   *
+   * Requirements:
+   *
+   * - `creator` must be equal to `_msgSender()`.
+   * - `amount` must be different than the current value.
+   */
+  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public onlyCreator(_tokenId) {
+    require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
+
+    baseTaxValues[_tokenId] = _amount;
+  }
+
+  /**
    * @dev Updates the state variable `baseInterval`.
    * @param _interval New base time interval in seconds
    *
@@ -416,22 +430,6 @@ contract HarbergerAsset is ERC721URIStorage {
     require(taxRatePercentage != _percentage, "New value must be different than the current value");
 
     taxRatePercentage = _percentage;
-  }
-
-  /**
-   * @dev Updates the mapping value of `baseTaxValues`.
-   * @param _tokenId ID of the token
-   * @param _amount New base tax value in wei
-   *
-   * Requirements:
-   *
-   * - `creator` must be equal to `_msgSender()`.
-   * - `amount` must be different than the current value.
-   */
-  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public onlyCreator(_tokenId) {
-    require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
-
-    baseTaxValues[_tokenId] = _amount;
   }
 
   /**
