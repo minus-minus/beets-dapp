@@ -48,7 +48,7 @@ class Marketplace extends Component {
   setEstimatedTax = (date) => {
     const foreclosure = parseFloat(this.props.assetForeclosure)
     const baseInterval = parseFloat(this.props.baseInterval)
-    const baseTaxPrice = this.props.convertToEth(this.props.baseTaxPrice)
+    const baseTaxValue = this.props.convertToEth(this.props.baseTaxValue)
 
     const currentTime = Math.floor(new Date() / 1000)
     const selectedTime = Math.floor(new Date(date) / 1000)
@@ -57,7 +57,7 @@ class Marketplace extends Component {
     if (timeRemaining < 0) timeRemaining = 0.00
 
     const estimatedTime = selectedTime - currentTime - timeRemaining
-    var estimatedTax = (estimatedTime / baseInterval) * baseTaxPrice
+    var estimatedTax = (estimatedTime / baseInterval) * baseTaxValue
     if (estimatedTax < 0) estimatedTax = 0.00
 
     this.setState({ estimatedTax: estimatedTax.toFixed(2) })
@@ -80,7 +80,7 @@ class Marketplace extends Component {
     const assetForeclosure = this.props.assetForeclosure
     const assetPrice = this.props.assetPrice
     const assetTaxAmount = parseFloat(this.props.convertToEth(this.props.assetTaxAmount))
-    const baseTaxPrice = parseFloat(this.props.convertToEth(this.props.baseTaxPrice))
+    const baseTaxValue = parseFloat(this.props.convertToEth(this.props.baseTaxValue))
     const baseInterval = this.props.baseInterval
     const contractAddress = this.props.contractAddress
     const estimatedTax = this.state.estimatedTax
@@ -166,11 +166,11 @@ class Marketplace extends Component {
                 onChange={(date) => this.setSelectedDate(date)}
               />
               <p className="mt-4">
-                The tax price can be calculated by applying a fixed percentage of <b>{taxRatePercentage}%</b> to the current sales price. For every <b>{baseTaxPrice} Ξ</b> that is deposited in taxes, the clock will extend for an additional <b>{baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.
+                The tax price can be calculated by applying a fixed percentage of <b>{taxRatePercentage}%</b> to the current sales price. For every <b>{baseTaxValue} Ξ</b> that is deposited in taxes, the clock will extend for an additional <b>{baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.
               </p>
               {assetPrice > 0 && (
                 <p>
-                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must deposit a minimum amount of <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure occurs on <b>{this.formatTime(assetForeclosure)}</b>
+                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must deposit a minimum amount of <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure begins on <b>{this.formatTime(assetForeclosure)}</b>
                 </p>
               )}
             </div>

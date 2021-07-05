@@ -30,12 +30,14 @@ class Asset extends Component {
 
   async loadHarbergerToken() {
     try {
-      const assetOwner = await this.props.contract.ownerOf(this.props.tokenId);
-      const approvedAccount = await this.props.contract.getApproved(this.props.tokenId);
-      const timeExpired = await this.props.contract.timeExpired(this.props.tokenId);
-      const tokenURI = await this.props.contract.tokenURI(this.props.tokenId);
-      const adminBalance = await this.props.contract.balances(this.props.tokenId, this.props.adminAddress);
-      const creatorBalance = await this.props.contract.balances(this.props.tokenId, this.props.creatorAddress);
+      const tokenId = this.props.tokenId
+      const assetOwner = await this.props.contract.ownerOf(tokenId);
+      const approvedAccount = await this.props.contract.getApproved(tokenId);
+      const baseTaxValue = await this.props.contract.baseTaxValues(tokenId)
+      const timeExpired = await this.props.contract.timeExpired(tokenId);
+      const tokenURI = await this.props.contract.tokenURI(tokenId);
+      const adminBalance = await this.props.contract.balances(tokenId, this.props.adminAddress);
+      const creatorBalance = await this.props.contract.balances(tokenId, this.props.creatorAddress);
 
       this.setState({
         adminBalance: adminBalance.toString(),
@@ -45,6 +47,7 @@ class Asset extends Component {
         assetPrice: this.props.asset.priceAmount.toString(),
         assetTaxAmount: this.props.asset.taxAmount.toString(),
         assetTotalDeposit: this.props.asset.totalDepositAmount.toString(),
+        baseTaxValue: baseTaxValue.toString(),
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
         timeExpired: timeExpired,
@@ -122,7 +125,7 @@ class Asset extends Component {
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
                 baseInterval={this.props.baseInterval}
-                baseTaxPrice={this.props.baseTaxPrice}
+                baseTaxValue={this.state.baseTaxValue}
                 buyAsset={this.props.buyAsset}
                 contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}

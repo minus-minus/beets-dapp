@@ -168,7 +168,6 @@ export class Dapp extends React.Component {
     const assets = await this.HTAXcontract.fetchAssets();
     const taxRatePercentage = await this.HTAXcontract.taxRatePercentage();
     const baseInterval = await this.HTAXcontract.baseInterval();
-    const baseTaxPrice = await this.HTAXcontract.baseTaxPrice();
     const network = await this._provider.getNetwork();
     const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
     const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
@@ -183,7 +182,6 @@ export class Dapp extends React.Component {
       contractAddress: ethers.utils.getAddress(contractAddress.HarbergerAsset),
       contractBalance: contractBalance.toString(),
       baseInterval: baseInterval.toString(),
-      baseTaxPrice: baseTaxPrice.toString(),
       network: network,
       taxRatePercentage: taxRatePercentage.toString(),
       isLoadingContract: false
@@ -192,12 +190,12 @@ export class Dapp extends React.Component {
     console.log("Harberger Contract State:", this.state);
   }
 
-  async mintAsset(creatorAddress, ipfsHash) {
+  async mintAsset(ipfsHash, creatorAddress) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
     try {
-      const transaction = await contract.mintAsset(creatorAddress, ipfsHash);
+      const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
       const receipt = await transaction.wait();
 
       this._connectWallet();
@@ -448,7 +446,6 @@ export class Dapp extends React.Component {
                     asset={asset}
                     adminAddress={this.state.adminAddress}
                     baseInterval={this.state.baseInterval}
-                    baseTaxPrice={this.state.baseTaxPrice}
                     contractAddress={this.state.contractAddress}
                     creatorAddress={ethers.utils.getAddress(asset.creator)}
                     contract={this.HTAXcontract}

@@ -4,7 +4,7 @@ import { Alert, Button } from "react-bootstrap";
 export function TransactionErrorMessage({ message, dismiss }) {
   return (
     <Alert variant="danger" className="text-center">
-      Transaction Failed: {message.split('\'')[1]}
+      Transaction Failed: {message.split("'")[1]}
       <Button
         className="close mx-2"
         style={{ float: "right" }}

@@ -32,7 +32,7 @@ class Provenance extends Component {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Token</th>
+                  <th>Asset</th>
                   <th>Event</th>
                   <th>From</th>
                   <th>To</th>

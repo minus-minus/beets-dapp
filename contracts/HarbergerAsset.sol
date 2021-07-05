@@ -27,11 +27,8 @@ contract HarbergerAsset is ERC721URIStorage {
   // Owner of contract
   address public admin;
 
-  // Base time interval in seconds used to calculate foreclosure timestamp (24 hours)
+  // Base time interval in seconds used to calculate foreclosure date (24 hours)
   uint256 public baseInterval = 86400 seconds;
-
-  // Base tax value in wei used to calculate total amount of taxes due by the foreclosure date (.01 ETH)
-  uint256 public baseTaxPrice = 10000000000000000;
 
   // Prepend baseURI to IPFS Hash to create tokenURI (alternate baseURI: `ipfs://`)
   string  public baseURI = "https://ipfs.io/ipfs/";
@@ -53,6 +50,9 @@ contract HarbergerAsset is ERC721URIStorage {
 
   // Mapping tokenId to Mapping from tax collector address to balance amount
   mapping(uint256 => mapping(address => uint256)) public balances;
+
+  // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
+  mapping(uint256 => uint256) public baseTaxValues;
 
   // Mapping tokenURI to boolean value
   mapping(string => bool) public tokenURIs;
@@ -103,6 +103,15 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
+   * @dev Modifier that checks if `creator` of asset is equal to `msgSender()`.
+   * @param _tokenId ID of the token
+   */
+  modifier onlyCreator(uint256 _tokenId) {
+    require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
+    _;
+  }
+
+  /**
    * @dev Modifier that checks if `owner` of asset is equal to `msgSender()`.
    * @param _tokenId ID of the token
    */
@@ -121,7 +130,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI` 
+   * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI`
    * @param _tokenURI IPFS hash generated from JSON metadata
    * @param _creator Address of artist who created the asset
    * @return the newly created `tokenId`
@@ -145,8 +154,16 @@ contract HarbergerAsset is ERC721URIStorage {
     initializeAsset(newItemId, _creator);
     balances[newItemId][admin] = 0;
     balances[newItemId][_creator] = 0;
+    baseTaxValues[newItemId] = 10000000000000000; // .01 ETH
 
     return newItemId;
+  }
+
+  /**
+   * @dev See {IERC721-baseURI}.
+   */
+  function _baseURI() override internal view virtual returns (string memory) {
+    return baseURI;
   }
 
   /**
@@ -188,7 +205,8 @@ contract HarbergerAsset is ERC721URIStorage {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
 
-    uint256 taxMultiplier = msg.value.div(baseTaxPrice);
+    uint256 baseTaxValue = baseTaxValues[_tokenId];
+    uint256 taxMultiplier = msg.value.div(baseTaxValue);
     assets[_tokenId].foreclosureTimestamp += baseInterval.mul(taxMultiplier);
     assets[_tokenId].lastDepositTimestamp = block.timestamp;
     assets[_tokenId].totalDepositAmount += msg.value;
@@ -235,11 +253,11 @@ contract HarbergerAsset is ERC721URIStorage {
     balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
 
     initializeAsset(_tokenId, creator);
-    baseTaxPrice += 1000000000000000; // 0.001 ETH
+    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
   }
 
   /**
-   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure is calculated.
+   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure date is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
    *
@@ -251,7 +269,8 @@ contract HarbergerAsset is ERC721URIStorage {
 
     if (int256(timeRemainingTimestamp) > int256(baseInterval)) {
       uint256 taxMultiplier = timeRemainingTimestamp.div(baseInterval);
-      uint256 refundAmount = baseTaxPrice.mul(taxMultiplier);
+      uint256 baseTaxValue = baseTaxValues[_tokenId];
+      uint256 refundAmount = baseTaxValue.mul(taxMultiplier);
       payable(_currentOwner).transfer(refundAmount);
 
       emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
@@ -291,8 +310,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Foreclosure} event.
    */
-  function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) {
-    require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
+  function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(timeExpired(_tokenId), "Time has not yet expired for you to reclaim this asset");
 
     address currentOwner = ownerOf(_tokenId);
@@ -354,25 +372,12 @@ contract HarbergerAsset is ERC721URIStorage {
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
+   * - `interval` must be different than the current value.
    */
   function setBaseIntervalInSeconds(uint256 _interval) public onlyAdmin {
-    require(baseInterval != _interval, "New interval must be different than current value");
+    require(baseInterval != _interval, "New interval must be different than the current value");
 
     baseInterval = _interval;
-  }
-
-  /**
-   * @dev Updates the state variable `baseTaxPrice`.
-   * @param _amount New base tax price in wei
-   *
-   * Requirements:
-   *
-   * - `admin` must be equal to `_msgSender()`.
-   */
-  function setBaseTaxPriceInWei(uint256 _amount) public onlyAdmin {
-    require(baseTaxPrice != _amount, "New amount must be different than current value");
-
-    baseTaxPrice = _amount;
   }
 
   /**
@@ -382,9 +387,10 @@ contract HarbergerAsset is ERC721URIStorage {
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
+   * - `percentage` must be different than the current value.
    */
   function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
-    require(royaltyPercentage != _percentage, "New percentage must be different than current value");
+    require(royaltyPercentage != _percentage, "New percentage must be different than the current value");
 
     royaltyPercentage = _percentage;
   }
@@ -396,18 +402,28 @@ contract HarbergerAsset is ERC721URIStorage {
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
+   * - `percentage` must be different than the current value.
    */
   function setTaxRatePercentage(uint256 _percentage) public onlyAdmin {
-    require(taxRatePercentage != _percentage, "New percentage must be different than current value");
+    require(taxRatePercentage != _percentage, "New percentage must be different than the current value");
 
     taxRatePercentage = _percentage;
   }
 
   /**
-   * @dev See {IERC721-baseURI}.
+   * @dev Updates the mapping of `baseTaxValues`.
+   * @param _tokenId ID of the token
+   * @param _amount New base tax value in wei
+   *
+   * Requirements:
+   *
+   * - `creator` must be equal to `_msgSender()`.
+   * - `amount` must be different than the current value.
    */
-  function _baseURI() override internal view virtual returns (string memory) {
-    return baseURI;
+  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public onlyCreator(_tokenId) {
+    require(baseTaxValues[_tokenId] != _amount, "New amount must be different than the current value");
+
+    baseTaxValues[_tokenId] = _amount;
   }
 
   /**
