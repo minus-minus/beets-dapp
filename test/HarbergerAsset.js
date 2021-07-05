@@ -95,4 +95,48 @@ describe("HarbergerAsset contract", function () {
       expect(baseTaxValue).to.equal('10000000000000000');
     });
   });
+
+  describe("listAssetInWei", function () {
+
+  });
+
+  describe("depositTaxInWei", function () {
+
+  });
+
+  describe("buyAssetInWei", function () {
+
+  });
+
+  describe("collectFunds", function () {
+
+  });
+
+  describe("reclaimAsset", function () {
+
+  });
+
+  describe("timeExpired", function () {
+
+  });
+
+  describe("fetchAssets", function () {
+    
+  });
+
+  describe("setBaseIntervalInSeconds", function () {
+
+  });
+
+  describe("setBaseTaxValueInWei", function () {
+
+  });
+
+  describe("setRoyaltyPercentage", function () {
+
+  });
+
+  describe("setTaxRatePercentage", function () {
+
+  });
 });

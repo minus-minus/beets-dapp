@@ -207,7 +207,11 @@ contract HarbergerAsset is ERC721URIStorage {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(assets[_tokenId].taxAmount > 0, "You must deposit a tax amount greater than 0");
     /* require(assets[_tokenId].taxAmount <= msg.value, "Your deposit must not be less than the current tax price"); */
-    require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
+    require(
+      assets[_tokenId].taxAmount <= msg.value ||
+      assets[_tokenId].totalDepositAmount > 0,
+      "Your initial deposit must not be less than the current tax price"
+    );
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
     uint256 taxMultiplier = msg.value.div(baseTaxValue);
@@ -379,7 +383,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `interval` must be different than the current value.
    */
   function setBaseIntervalInSeconds(uint256 _interval) public onlyAdmin {
-    require(baseInterval != _interval, "New interval must be different than the current value");
+    require(baseInterval != _interval, "New value must be different than the current value");
 
     baseInterval = _interval;
   }
@@ -394,7 +398,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `percentage` must be different than the current value.
    */
   function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
-    require(royaltyPercentage != _percentage, "New percentage must be different than the current value");
+    require(royaltyPercentage != _percentage, "New value must be different than the current value");
 
     royaltyPercentage = _percentage;
   }
@@ -409,13 +413,13 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `percentage` must be different than the current value.
    */
   function setTaxRatePercentage(uint256 _percentage) public onlyAdmin {
-    require(taxRatePercentage != _percentage, "New percentage must be different than the current value");
+    require(taxRatePercentage != _percentage, "New value must be different than the current value");
 
     taxRatePercentage = _percentage;
   }
 
   /**
-   * @dev Updates the mapping of `baseTaxValues`.
+   * @dev Updates the mapping value of `baseTaxValues`.
    * @param _tokenId ID of the token
    * @param _amount New base tax value in wei
    *
@@ -425,7 +429,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `amount` must be different than the current value.
    */
   function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public onlyCreator(_tokenId) {
-    require(baseTaxValues[_tokenId] != _amount, "New amount must be different than the current value");
+    require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
 
     baseTaxValues[_tokenId] = _amount;
   }
@@ -441,7 +445,7 @@ contract HarbergerAsset is ERC721URIStorage {
     ) public virtual override {
     require(
       _isApprovedOrOwner(_msgSender(), tokenId) ||
-      _msgSender() == assets[tokenId].creator && timeExpired(tokenId),
+      (assets[tokenId].creator == _msgSender() && timeExpired(tokenId)),
       "Transfer caller is not the owner, approved nor the creator of the asset"
     );
 
