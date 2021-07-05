@@ -378,10 +378,11 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
+   * - `tokenId` must exist.
    * - `creator` must be equal to `_msgSender()`.
    * - `amount` must be different than the current value.
    */
-  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public onlyCreator(_tokenId) {
+  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
 
     baseTaxValues[_tokenId] = _amount;
