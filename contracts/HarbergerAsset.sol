@@ -197,13 +197,17 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - `priceAmount` of asset must be greater than 0.
+   * - `taxAmount` deposited must be greater than 0.
    * - `msg.value` must be greater than or equal to `taxAmount` of asset.
+   * - `msg.value` must be greater than or equal to `taxAmount` of asset OR `totalDepositAmount` must be greater than 0.
    *
    * Emits a {Deposit} event.
    */
   function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
-    require(assets[_tokenId].taxAmount <= msg.value, "Insufficient tax funds deposited");
+    require(assets[_tokenId].taxAmount > 0, "You must deposit a tax amount greater than 0");
+    /* require(assets[_tokenId].taxAmount <= msg.value, "Your deposit must not be less than the current tax price"); */
+    require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
     uint256 taxMultiplier = msg.value.div(baseTaxValue);

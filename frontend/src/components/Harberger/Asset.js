@@ -124,6 +124,7 @@ class Asset extends Component {
                 assetForeclosure={this.state.assetForeclosure}
                 assetPrice={this.state.assetPrice}
                 assetTaxAmount={this.state.assetTaxAmount}
+                assetTotalDeposit={this.state.assetTotalDeposit}
                 baseInterval={this.props.baseInterval}
                 baseTaxValue={this.state.baseTaxValue}
                 buyAsset={this.props.buyAsset}

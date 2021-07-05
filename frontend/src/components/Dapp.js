@@ -209,11 +209,31 @@ export class Dapp extends React.Component {
     }
   }
 
+  async setApproval(tokenId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+
+    try {
+      const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
+      const receipt = await transaction.wait();
+
+      this._connectWallet();
+      this.setState({
+        transactionHash: receipt.transactionHash,
+        transactionSuccess: "Approve Contract"
+      })
+    } catch(err) {
+      this._connectWallet();
+      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+    }
+  }
+
   async listAsset(tokenId, amount, approvedAddress) {
     if (approvedAddress !== this.state.contractAddress) {
-      this.setApproval(tokenId);
-      // await this.setApproval();
+      await this.setApproval(tokenId);
     }
+
+    if (this.state.transactionError) return
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
@@ -245,25 +265,6 @@ export class Dapp extends React.Component {
       this.setState({
         transactionHash: receipt.transactionHash,
         transactionSuccess: "Deposit Taxes"
-      })
-    } catch(err) {
-      this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
-    }
-  }
-
-  async setApproval(tokenId) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
-      const receipt = await transaction.wait();
-
-      this._connectWallet();
-      this.setState({
-        transactionHash: receipt.transactionHash,
-        transactionSuccess: "Approve Contract"
       })
     } catch(err) {
       this._connectWallet();
@@ -349,7 +350,7 @@ export class Dapp extends React.Component {
   }
 
   _getRpcErrorMessage(error) {
-    return error.data ? error.data.message : error.message;
+    return error.data ? error.data.message.split("'")[1] : error.message;
   }
 
   _resetState() {

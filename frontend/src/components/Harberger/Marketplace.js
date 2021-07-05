@@ -80,6 +80,7 @@ class Marketplace extends Component {
     const assetForeclosure = this.props.assetForeclosure
     const assetPrice = this.props.assetPrice
     const assetTaxAmount = parseFloat(this.props.convertToEth(this.props.assetTaxAmount))
+    const assetTotalDeposit = this.props.assetTotalDeposit
     const baseTaxValue = parseFloat(this.props.convertToEth(this.props.baseTaxValue))
     const baseInterval = this.props.baseInterval
     const contractAddress = this.props.contractAddress
@@ -168,9 +169,19 @@ class Marketplace extends Component {
               <p className="mt-4">
                 The tax price can be calculated by applying a fixed percentage of <b>{taxRatePercentage}%</b> to the current sales price. For every <b>{baseTaxValue} Ξ</b> that is deposited in taxes, the clock will extend for an additional <b>{baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.
               </p>
-              {assetPrice > 0 && (
+              {(assetPrice <= 0 && assetTotalDeposit <= 0) && (
                 <p>
-                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must deposit a minimum amount of <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure begins on <b>{this.formatTime(assetForeclosure)}</b>
+                  The current owner of this asset must first set a sales price before a foreclosure begins on:<br/> <b>{this.formatTime(assetForeclosure)}</b>
+                </p>
+              )}
+              {(assetPrice > 0 && assetTotalDeposit <= 0) && (
+                <p>
+                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must make an initial deposit of at least <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure begins on:<br/> <b>{this.formatTime(assetForeclosure)}</b>
+                </p>
+              )}
+              {(assetPrice > 0 && assetTotalDeposit > 0) && (
+                <p>
+                  A foreclosure on this asset is set to begin on:<br/><b>{this.formatTime(assetForeclosure)}</b>
                 </p>
               )}
             </div>
