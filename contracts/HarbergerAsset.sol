@@ -190,6 +190,7 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
     require(_priceAmount > 0, "You must set a sales price greater than 0");
+    require(timeExpired(_tokenId) == false, "A foreclosure on this asset has already begun");
 
     assets[_tokenId].priceAmount = _priceAmount;
     assets[_tokenId].taxAmount = _priceAmount.div(taxDenominator);
@@ -214,11 +215,8 @@ contract HarbergerAsset is ERC721URIStorage {
   function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(msg.value > 0, "You must deposit a tax amount greater than 0");
-    require(
-      assets[_tokenId].taxAmount <= msg.value ||
-      assets[_tokenId].totalDepositAmount > 0,
-      "Your initial deposit must not be less than the current tax price"
-    );
+    require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
+    require(timeExpired(_tokenId) == false, "A foreclosure on this asset has already begun");
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
     uint256 taxMultiplier = msg.value.div(baseTaxValue);
@@ -370,9 +368,6 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    */
   function timeExpired(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
-    console.log("Block Timestamp:", block.timestamp);
-    console.log("Asset Foreclosure:", assets[_tokenId].foreclosureTimestamp);
-
     return block.timestamp >= assets[_tokenId].foreclosureTimestamp;
   }
 
