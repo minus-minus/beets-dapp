@@ -9,7 +9,6 @@ describe("HarbergerAsset contract", function () {
   let addresses;
   let transaction;
   let error;
-
   let tokenId = 1;
   let ipfsBaseURI = process.env.IPFS_BASE_URI;
   let ipfsHash = "QmWthViHXmEHUkweUp6u5NTrFX6MsdXcQEUXZop75vUafZ";

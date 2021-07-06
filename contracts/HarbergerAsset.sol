@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 
 /**
- * @author swaHili, funkyengineer
+ * @author swaHili
  * @title An asset tied to Harberger Taxes
  * @dev Each asset is controlled by it's own custom marketplace
  */
@@ -108,6 +108,15 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   modifier onlyCreator(uint256 _tokenId) {
     require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
+    _;
+  }
+
+  /**
+   * @dev Modifier that checks if `admin` or `creator` of asset is equal to `msgSender()`.
+   * @param _tokenId ID of the token
+   */
+  modifier onlyAdminOrCreator(uint256 _tokenId) {
+    require(admin == _msgSender() || assets[_tokenId].creator == _msgSender(), "You are not the admin nor creator of this asset");
     _;
   }
 
@@ -213,6 +222,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
     uint256 taxMultiplier = msg.value.div(baseTaxValue);
+
     assets[_tokenId].foreclosureTimestamp += baseInterval.mul(taxMultiplier);
     assets[_tokenId].lastDepositTimestamp = block.timestamp;
     assets[_tokenId].totalDepositAmount += msg.value;
@@ -221,7 +231,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Purchase of asset triggers payment transfers and transfer of asset to `msgSender()`.
+   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer and balance updates.
    * @param _tokenId ID of the token
    *
    * Requirements:
@@ -240,26 +250,32 @@ contract HarbergerAsset is ERC721URIStorage {
 
     address currentOwner = ownerOf(_tokenId);
     address creator = assets[_tokenId].creator;
-    uint256 royaltyAmount = msg.value.div(royaltyDenominator);
-    uint256 paymentAmount = msg.value.sub(royaltyAmount);
 
-    payable(admin).transfer(royaltyAmount.div(2));
-    payable(creator).transfer(royaltyAmount.div(2));
-    payable(currentOwner).transfer(paymentAmount);
-
+    transferPayment(msg.value, currentOwner, creator);
     refundTax(_tokenId, currentOwner);
+
     emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
 
-    uint256 contractBalance = address(this).balance;
-    uint256 adminBalance = balances[_tokenId][admin];
-    uint256 creatorBalance = balances[_tokenId][creator];
-    uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
-    balances[_tokenId][admin] += remainingBalance.div(2).sub(adminBalance);
-    balances[_tokenId][creator] += remainingBalance.div(2).sub(creatorBalance);
-
+    updateBalance(_tokenId, creator);
     initializeAsset(_tokenId, creator);
-    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
+
+    /* baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH */
+  }
+
+  /**
+   * @dev Transfers royalties to `admin` and `creator` of asset and transfers remaining payment to `currentOwner`.
+   * @param _payment Value in wei paid by the new owner
+   * @param _currentOwner Address of current owner of the asset
+   * @param _creator Address of artist who created the asset
+   */
+  function transferPayment(uint256 _payment, address _currentOwner, address _creator) internal {
+    uint256 royaltyAmount = _payment.div(royaltyDenominator);
+    uint256 paymentAmount = _payment.sub(royaltyAmount);
+
+    payable(admin).transfer(royaltyAmount.div(2));
+    payable(_creator).transfer(royaltyAmount.div(2));
+    payable(_currentOwner).transfer(paymentAmount);
   }
 
   /**
@@ -277,10 +293,27 @@ contract HarbergerAsset is ERC721URIStorage {
       uint256 taxMultiplier = timeRemainingTimestamp.div(baseInterval);
       uint256 baseTaxValue = baseTaxValues[_tokenId];
       uint256 refundAmount = baseTaxValue.mul(taxMultiplier);
+
       payable(_currentOwner).transfer(refundAmount);
 
       emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
     }
+  }
+
+  /**
+   * @dev Updates the `admin` and `creator` balances.
+   * @param _tokenId ID of the token
+   * @param _creator Address of artist who created the asset
+   */
+  function updateBalance(uint256 _tokenId, address _creator) internal {
+    uint256 contractBalance = address(this).balance;
+    uint256 adminBalance = balances[_tokenId][admin];
+    uint256 creatorBalance = balances[_tokenId][_creator];
+    uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
+    uint256 splitBalance = remainingBalance.div(2);
+
+    balances[_tokenId][admin] += splitBalance.sub(adminBalance);
+    balances[_tokenId][_creator] += splitBalance.sub(creatorBalance);
   }
 
   /**
@@ -290,11 +323,12 @@ contract HarbergerAsset is ERC721URIStorage {
    * Requirements:
    *
    * - `tokenId` must exist.
+   * - `admin` or `creator` of the asset must be equal to `msgSender()`.
    * - `balance` of `msgSender()` must be greater than 0.
    *
    * Emits a {Collect} event.
    */
-  function collectFunds(uint256 _tokenId) public validToken(_tokenId) {
+  function collectFunds(uint256 _tokenId) public validToken(_tokenId) onlyAdminOrCreator(_tokenId) {
     require(balances[_tokenId][_msgSender()] > 0, "You do not have any funds available to withdraw");
 
     uint256 amount = balances[_tokenId][_msgSender()];
