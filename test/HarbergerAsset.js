@@ -5,12 +5,12 @@ describe("HarbergerAsset contract", function () {
   let contract;
   let admin;
   let creator;
+  let owner;
   let collector;
   let addresses;
   let transaction;
   let error;
   let tokenId = 1;
-  let ipfsBaseURI = process.env.IPFS_BASE_URI;
   let ipfsHash = "QmWthViHXmEHUkweUp6u5NTrFX6MsdXcQEUXZop75vUafZ";
   let priceAmount = '1000000000000000000';
   let taxAmount = '100000000000000000';
@@ -18,7 +18,7 @@ describe("HarbergerAsset contract", function () {
 
   beforeEach(async function () {
     HarbergerAsset = await ethers.getContractFactory("HarbergerAsset");
-    [admin, creator, collector, ...addresses] = await ethers.getSigners();
+    [admin, creator, owner, collector, ...addresses] = await ethers.getSigners();
 
     contract = await HarbergerAsset.deploy();
     await contract.deployed();
@@ -57,7 +57,7 @@ describe("HarbergerAsset contract", function () {
     });
 
     it("Should set tokenURI", async function () {
-      expect(await contract.tokenURI(tokenId)).to.equal(ipfsBaseURI + ipfsHash);
+      expect(await contract.tokenURI(tokenId)).to.equal(process.env.IPFS_BASE_URI + ipfsHash);
     });
 
     it("Should set owner of token", async function () {
@@ -98,6 +98,9 @@ describe("HarbergerAsset contract", function () {
     beforeEach(async function () {
       transaction = await contract.mintAsset(ipfsHash, creator.address);
       await transaction.wait();
+
+      transaction = await contract.connect(creator).transferFrom(creator.address, owner.address, tokenId);
+      await transaction.wait();
     });
 
     it("Should require tokenId to exist", async function () {
@@ -122,7 +125,7 @@ describe("HarbergerAsset contract", function () {
 
     it("Should require price amount to be greater than 0", async function () {
       try {
-        transaction = await contract.connect(creator).listAssetForSaleInWei(tokenId, 0);
+        transaction = await contract.connect(owner).listAssetForSaleInWei(tokenId, 0);
       } catch (err) {
         error = err.message.split("'")[1];
       }
@@ -131,7 +134,7 @@ describe("HarbergerAsset contract", function () {
     });
 
     it("Should set asset price and tax amounts", async function () {
-      transaction = await contract.connect(creator).listAssetForSaleInWei(tokenId, priceAmount);
+      transaction = await contract.connect(owner).listAssetForSaleInWei(tokenId, priceAmount);
       await transaction.wait();
 
       let asset = await contract.assets(tokenId);
@@ -146,10 +149,13 @@ describe("HarbergerAsset contract", function () {
       transaction = await contract.mintAsset(ipfsHash, creator.address);
       await transaction.wait();
 
-      transaction = await contract.connect(creator).approve(contract.address, tokenId);
+      transaction = await contract.connect(creator).transferFrom(creator.address, owner.address, tokenId);
       await transaction.wait();
 
-      transaction = await contract.connect(creator).listAssetForSaleInWei(tokenId, priceAmount);
+      transaction = await contract.connect(owner).approve(contract.address, tokenId);
+      await transaction.wait();
+
+      transaction = await contract.connect(owner).listAssetForSaleInWei(tokenId, priceAmount);
       await transaction.wait();
     });
 
@@ -187,7 +193,7 @@ describe("HarbergerAsset contract", function () {
 
     it("Should require tax amount to be greater than 0", async function () {
       try {
-        transaction = await contract.connect(creator).depositTaxInWei(tokenId, { value: 0 });
+        transaction = await contract.connect(owner).depositTaxInWei(tokenId, { value: 0 });
       } catch (err) {
         error = err.message.split("'")[1];
       }
@@ -197,7 +203,7 @@ describe("HarbergerAsset contract", function () {
 
     it("Should require initial deposit to not be less than current tax price", async function () {
       try {
-        transaction = await contract.connect(creator).depositTaxInWei(tokenId, { value: '90000000000000000' });
+        transaction = await contract.connect(owner).depositTaxInWei(tokenId, { value: '90000000000000000' });
       } catch (err) {
         error = err.message.split("'")[1];
       }
@@ -209,7 +215,7 @@ describe("HarbergerAsset contract", function () {
       let asset = await contract.assets(tokenId);
       let currentForeclosure = asset.foreclosureTimestamp.toNumber();
 
-      transaction = await contract.connect(creator).depositTaxInWei(tokenId, { value: taxAmount });
+      transaction = await contract.connect(owner).depositTaxInWei(tokenId, { value: taxAmount });
       await transaction.wait();
 
       asset = await contract.assets(tokenId);
@@ -229,20 +235,22 @@ describe("HarbergerAsset contract", function () {
       transaction = await contract.mintAsset(ipfsHash, creator.address);
       await transaction.wait();
 
-      // creator is also the owner of the asset
-      transaction = await contract.connect(creator).approve(contract.address, tokenId);
+      transaction = await contract.connect(creator).transferFrom(creator.address, owner.address, tokenId);
       await transaction.wait();
 
-      transaction = await contract.connect(creator).listAssetForSaleInWei(tokenId, priceAmount);
+      transaction = await contract.connect(owner).approve(contract.address, tokenId);
       await transaction.wait();
 
-      transaction = await contract.connect(creator).depositTaxInWei(tokenId, { value: taxAmount });
+      transaction = await contract.connect(owner).listAssetForSaleInWei(tokenId, priceAmount);
+      await transaction.wait();
+
+      transaction = await contract.connect(owner).depositTaxInWei(tokenId, { value: taxAmount });
       await transaction.wait();
     });
 
     it("Should require tokenId to exist", async function () {
       try {
-        transaction = await contract.connect(collector).buyAssetInWei(2, { value: priceAmount });
+        transaction = await contract.connect(owner).buyAssetInWei(2, { value: priceAmount });
       } catch (err) {
         error = err.message.split("'")[1];
       }
@@ -252,7 +260,7 @@ describe("HarbergerAsset contract", function () {
 
     it("Should require msgSender to NOT be owner", async function () {
       try {
-        transaction = await contract.connect(creator).buyAssetInWei(tokenId, { value: priceAmount });
+        transaction = await contract.connect(owner).buyAssetInWei(tokenId, { value: priceAmount });
       } catch (err) {
         error = err.message.split("'")[1];
       }
@@ -286,23 +294,22 @@ describe("HarbergerAsset contract", function () {
     it("Should transfer payment and royalty amounts", async function () {
       let currentAdminBalance = await admin.getBalance();
       let currentCreatorBalance = await creator.getBalance();
-      let currrentCollectorBalance = await collector.getBalance();
+      let currrentOwnerBalance = await owner.getBalance();
 
       transaction = await contract.connect(collector).buyAssetInWei(tokenId, { value: priceAmount });
       await transaction.wait();
 
       let updatedAdminBalance = await admin.getBalance();
       let updatedCreatorBalance = await creator.getBalance();
-      let updatedCollectorBalance = await collector.getBalance();
+      let updatedOwnerBalance = await owner.getBalance();
 
       let adminRoyalty = (updatedAdminBalance - currentAdminBalance) / 1e18;
-      // creator receives payment and royalty
       let creatorRoyalty = (updatedCreatorBalance - currentCreatorBalance) / 1e18;
-      let collectorPayment = (currrentCollectorBalance - updatedCollectorBalance) / 1e18;
+      let ownerPayment = (updatedOwnerBalance - currrentOwnerBalance) / 1e18;
 
       expect(adminRoyalty.toFixed(2)).to.equal('0.05');
-      expect(creatorRoyalty.toFixed(2)).to.equal('1.05');
-      expect(collectorPayment.toFixed(2)).to.equal('1.00');
+      expect(creatorRoyalty.toFixed(2)).to.equal('0.05');
+      expect(ownerPayment.toFixed(2)).to.equal('1.00');
     });
 
     it("Should transfer asset to new owner", async function () {
