@@ -1,4 +1,4 @@
-export const HTAX_CREATOR_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+export const HTAX_CREATOR_ADDRESS = "0xED29CfC3Bd78019e57b3b2BbFf62258a7e674eE5"
 export const HTAX_TOKEN_ID = 1
 export const HTAX_EVENT_ABI = [
   "event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)",

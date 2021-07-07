@@ -21,7 +21,9 @@ import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
 
 // CONSTANTS
-const HARDHAT_NETWORK_ID = '1337';
+// const MAINNET_NETWORK_ID = '1';
+const RINKEBY_NETWORK_ID = '4';
+// const HARDHAT_NETWORK_ID = '1337';
 const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
 const originalOwner = "0xf47f5A7F2917800149f638E9f0eD3745D16481C6";
 
@@ -359,12 +361,12 @@ export class Dapp extends React.Component {
   }
 
   _checkNetwork() {
-    if (window.ethereum.networkVersion === HARDHAT_NETWORK_ID) {
+    if (window.ethereum.networkVersion === RINKEBY_NETWORK_ID) {
       return true;
     }
 
     this.setState({
-      networkError: 'Please connect Metamask to localhost:8545'
+      networkError: 'Please connect Metamask to Rinkeby Testnet'
     });
 
     return false;
