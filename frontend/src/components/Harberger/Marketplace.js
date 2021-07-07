@@ -6,8 +6,8 @@ import { Col, Jumbotron, Button, Accordion, Card } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 import "react-datepicker/dist/react-datepicker.css";
 
-const ETHERSCAN_BASE_URI = "https://etherscan.io/address/";
-const OPEN_SEA_BASE_URI = "https://opensea.io/";
+const ETHERSCAN_BASE_URI = "https://rinkeby.etherscan.io/address/";
+const OPEN_SEA_BASE_URI = "https://testnets.opensea.io/";
 
 class Marketplace extends Component {
   constructor(props) {

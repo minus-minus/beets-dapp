@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Col, Jumbotron, Accordion, Card, Badge } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
 
-const OPEN_SEA_BASE_URI = "https://opensea.io/";
+const OPEN_SEA_BASE_URI = "https://testnets.opensea.io/";
 
 class Metadata extends Component {
   constructor(props) {

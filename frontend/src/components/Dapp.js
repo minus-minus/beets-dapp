@@ -232,26 +232,24 @@ export class Dapp extends React.Component {
 
   async listAsset(tokenId, amount, approvedAddress) {
     if (approvedAddress !== this.state.contractAddress) {
-      await this.setApproval(tokenId);
-    }
+      this.setApproval(tokenId);
+    } else {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
-    if (this.state.transactionError) return
+      try {
+        const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
+        const receipt = await transaction.wait();
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
-
-    try {
-      const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
-      const receipt = await transaction.wait();
-
-      this._connectWallet();
-      this.setState({
-        transactionHash: receipt.transactionHash,
-        transactionSuccess: "List Asset"
-      })
-    } catch(err) {
-      this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+        this._connectWallet();
+        this.setState({
+          transactionHash: receipt.transactionHash,
+          transactionSuccess: "List Asset"
+        })
+      } catch(err) {
+        this._connectWallet();
+        this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      }
     }
   }
 
@@ -352,7 +350,15 @@ export class Dapp extends React.Component {
   }
 
   _getRpcErrorMessage(error) {
-    return error.data ? error.data.message.split("'")[1] : error.message;
+    if (error.data) {
+      return error.data.message.split("'")[1]
+    }
+
+    if (error.message.includes("reverted")) {
+      return error.message.split(',"data"')[0].split("reverted:")[1]
+    }
+
+    return error.message
   }
 
   _resetState() {
