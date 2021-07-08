@@ -123,6 +123,11 @@ td {
   .connected-account {
     display: none;
   }
+
+  .asset-info > p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 }
 
 @media (max-width: 992px) {
