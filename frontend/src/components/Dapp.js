@@ -148,7 +148,7 @@ export class Dapp extends React.Component {
       if (receipt.status === 0) {
         // We can't know the exact error that make the transaction fail once it
         // was mined, so we throw this generic one.
-        throw new Error("Transaction failed");
+        throw new Error("Transaction Failed");
       }
 
       this.setState({ transactionSuccess: "Mint Print" });
@@ -198,6 +198,7 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
+      this.setState({ waitingForTransaction: true })
       const receipt = await transaction.wait();
 
       this._connectWallet();
@@ -355,7 +356,7 @@ export class Dapp extends React.Component {
     }
 
     if (error.message.includes("reverted")) {
-      return error.message.split(',"data"')[0].split("reverted:")[1]
+      return error.message.split(',"data"')[0].split("reverted:")[1].slice(0, -1)
     }
 
     return error.message

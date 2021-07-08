@@ -18,7 +18,7 @@ describe("HarbergerAsset", function () {
     await contract.deployed();
   });
 
-  describe("MintAsset", function () {
+  describe("mintAsset", function () {
     beforeEach(async function () {
       transaction = await contract.mintAsset(ipfsHash, creator.address);
       await transaction.wait();

@@ -2,10 +2,12 @@
 pragma solidity ^0.8.3;
 
 /*
- * Powered By: BeetsDAO
- * External Sources:
- *    https://github.com/yosriady/PatronageCollectibles
- *    https://github.com/simondlr/thisartworkisalwaysonsale
+ *  ██████╗░███████╗███████╗████████╗░██████╗██████╗░░█████╗░░█████╗░
+ *  ██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔══██╗
+ *  ██████╦╝█████╗░░█████╗░░░░░██║░░░╚█████╗░██║░░██║███████║██║░░██║
+ *  ██╔══██╗██╔══╝░░██╔══╝░░░░░██║░░░░╚═══██╗██║░░██║██╔══██║██║░░██║
+ *  ██████╦╝███████╗███████╗░░░██║░░░██████╔╝██████╔╝██║░░██║╚█████╔╝
+ *  ╚═════╝░╚══════╝╚══════╝░░░╚═╝░░░╚═════╝░╚═════╝░╚═╝░░╚═╝░╚════╝░
  */
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -13,6 +15,12 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
+
+/*
+ * External Sources:
+ * https://github.com/yosriady/PatronageCollectibles
+ * https://github.com/simondlr/thisartworkisalwaysonsale
+ */
 
 /**
  * @author swaHili
@@ -80,6 +88,7 @@ contract HarbergerAsset is ERC721URIStorage {
   /**
    * @dev List of possible events emitted to log each and every user transaction
    */
+  event Mint       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
   event List       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Deposit    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
@@ -148,7 +157,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenURI` must not exist.
    *
-   * Emits a {Transfer} event.
+   * Emits a {Mint & Transfer} event.
    */
   function mintAsset(string memory _tokenURI, address _creator) public onlyAdmin returns (uint256) {
     require(tokenURIs[_tokenURI] == false, "TokenURI already exists");
@@ -157,6 +166,8 @@ contract HarbergerAsset is ERC721URIStorage {
     _tokenIds.increment();
 
     uint256 newItemId = _tokenIds.current();
+    emit Mint(block.timestamp, newItemId, address(0), _creator);
+
     _safeMint(_creator, newItemId);
     _setTokenURI(newItemId, _tokenURI);
 
