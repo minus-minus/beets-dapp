@@ -15,9 +15,9 @@ class Navigation extends Component {
               <img className="beets" src="/logos/beets.png" alt="BeetsDAO"/>
             </Nav.Link>
           </Navbar.Brand>
-          <Nav className="me-auto mx-4">
-            <Nav.Link className="mx-3" href="/euler-beats">Euler Beats</Nav.Link>
-            <Nav.Link className="mx-3" href={"/harberger-taxes/asset/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
+          <Nav className="me-auto">
+            <Nav.Link className="mx-2" href="/euler-beats">Euler Beats</Nav.Link>
+            <Nav.Link className="mx-2" href={"/harberger-taxes/asset/" + HTAX_TOKEN_ID}>Harberger Taxes</Nav.Link>
           </Nav>
           <Navbar.Brand className="connected-account justify-content-end">
             {selectedAddress ? (
