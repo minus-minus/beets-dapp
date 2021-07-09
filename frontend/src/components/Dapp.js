@@ -55,6 +55,7 @@ export class Dapp extends React.Component {
   // This method is run when the user clicks the Connect. It connects the
   // dapp to the user's wallet, and initializes it.
   async _connectWallet() {
+    console.clear();
     this.setState({isLoadingWallet: true})
     // To connect to the user's wallet, we have to run this method.
     // It returns a promise that will resolve to the user's address.
@@ -173,6 +174,7 @@ export class Dapp extends React.Component {
     const network = await this._provider.getNetwork();
     const logs = await this._provider.getLogs({ address: contractAddress.HarbergerAsset, fromBlock: 0 });
     const iface = new ethers.utils.Interface(HTAX_EVENT_ABI);
+
     this.setState({ eventLogs: [] })
     logs.map(async (log, i) => {
       this.state.eventLogs.push(iface.parseLog(log));
@@ -198,7 +200,6 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
-      this.setState({ waitingForTransaction: true })
       const receipt = await transaction.wait();
 
       this._connectWallet();
@@ -232,9 +233,7 @@ export class Dapp extends React.Component {
   }
 
   async listAsset(tokenId, amount, approvedAddress) {
-    if (approvedAddress !== this.state.contractAddress) {
-      this.setApproval(tokenId);
-    } else {
+    if (approvedAddress === this.state.contractAddress) {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
@@ -418,13 +417,13 @@ export class Dapp extends React.Component {
           minifyHash={this._minifyHash}
           selectedAddress={this.state.selectedAddress}
         />
-        {(this.state.transactionSuccess) && (
+        {this.state.transactionSuccess && (
           <TransactionSuccessMessage
             dismiss={() => this._dismissTransactionSuccess()}
             message={this.state.transactionSuccess}
           />
         )}
-        {(this.state.transactionError) && (
+        {this.state.transactionError && (
           <TransactionErrorMessage
             dismiss={() => this._dismissTransactionError()}
             message={this.state.transactionError}
@@ -439,7 +438,7 @@ export class Dapp extends React.Component {
                 getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
               />
             </Route>
-            {(!this.state.assets.length) && (
+            {!this.state.assets.length && (
               <Route path={"/harberger-taxes"}>
                 <MintAsset
                   adminAddress={this.state.adminAddress}
@@ -471,6 +470,7 @@ export class Dapp extends React.Component {
                     listAsset={this.listAsset}
                     minifyHash={this._minifyHash}
                     reclaimAsset={this.reclaimAsset}
+                    setApproval={this.setApproval}
                   />
                 </Route>
               )

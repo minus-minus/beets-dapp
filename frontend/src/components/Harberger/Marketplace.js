@@ -60,7 +60,7 @@ class Marketplace extends Component {
     var estimatedTax = (estimatedTime / baseInterval) * baseTaxValue
     if (estimatedTax < 0) estimatedTax = 0.00
 
-    this.setState({ estimatedTax: estimatedTax.toFixed(2) })
+    this.setState({ estimatedTax: estimatedTax.toFixed(4) })
   }
 
   depositTax = (event) => {
@@ -116,7 +116,11 @@ class Marketplace extends Component {
                 </Accordion.Toggle>
                 <Accordion.Collapse eventKey="0">
                   <Card.Body>
-                    <a href={ETHERSCAN_BASE_URI + contractAddress} rel="noopener noreferrer" target="_blank">
+                    <a
+                      href={ETHERSCAN_BASE_URI + contractAddress}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
                       {this.props.minifyHash(contractAddress)}
                     </a>
                   </Card.Body>
@@ -124,17 +128,24 @@ class Marketplace extends Component {
               </Card>
             </Accordion>
             <div className="text-center mt-4 mb-3">
-              {!ownerAddress || (ownerAddress !== selectedAddress) ? (
+              {ownerAddress !== selectedAddress && (
                 <Button
                   className="my-2 mx-3 py-2 px-4"
                   variant="danger"
-                  disabled={parseFloat(assetPrice) === 0 || approvedAddress !== contractAddress} onClick={(e) => this.props.buyAsset(tokenId, assetPrice)}
+                  disabled={parseFloat(assetPrice) === 0 || approvedAddress !== contractAddress}
+                  onClick={(e) => this.props.buyAsset(tokenId, assetPrice)}
                 >
                   Buy
                 </Button>
-              ) : (
+              )}
+              {(ownerAddress === selectedAddress && approvedAddress === contractAddress) && (
                 <form onSubmit={this.listAsset}>
-                  <CurrencyInput prefix="Ξ " decimalsLimit={4} ref={(input) => {this.listing = input}}/><br/>
+                  <CurrencyInput
+                    prefix="Ξ "
+                    decimalsLimit={4}
+                    ref={(input) => {this.listing = input}}
+                  />
+                  <br/>
                   <Button
                     className="my-3 mx-3 py-2 px-4"
                     required={true}
@@ -144,6 +155,16 @@ class Marketplace extends Component {
                     List
                   </Button>
                 </form>
+              )}
+              {(ownerAddress === selectedAddress && approvedAddress !== contractAddress) && (
+                <Button
+                  className="my-2 mx-3 py-2 px-4"
+                  variant="danger"
+                  title="You must first set approval for this contract before listing the asset"
+                  onClick={(e) => this.props.setApproval(tokenId)}
+                >
+                  Approve
+                </Button>
               )}
             </div>
           </Jumbotron>
@@ -176,12 +197,14 @@ class Marketplace extends Component {
               )}
               {(assetPrice > 0 && assetTotalDeposit <= 0) && (
                 <p>
-                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must make an initial deposit of at least <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure begins on:<br/> <b>{this.formatTime(assetForeclosure)}</b>
+                  With a current sales price of <b>{parseFloat(this.props.convertToEth(assetPrice))} Ξ</b>, the owner of this asset must make an initial deposit of at least <b>{assetTaxAmount} Ξ</b> in taxes before a foreclosure begins on:<br/>
+                  <b>{this.formatTime(assetForeclosure)}</b>
                 </p>
               )}
               {(assetPrice > 0 && assetTotalDeposit > 0) && (
                 <p>
-                  A foreclosure on this asset is set to begin on:<br/><b>{this.formatTime(assetForeclosure)}</b>
+                  A foreclosure on this asset is set to begin on:<br/>
+                  <b>{this.formatTime(assetForeclosure)}</b>
                 </p>
               )}
             </div>
@@ -192,7 +215,11 @@ class Marketplace extends Component {
                 </Accordion.Toggle>
                 <Accordion.Collapse eventKey="1">
                   <Card.Body>
-                    <a href={OPEN_SEA_BASE_URI + ownerAddress} rel="noopener noreferrer" target="_blank">
+                    <a
+                      href={OPEN_SEA_BASE_URI + ownerAddress}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                    >
                       {this.props.minifyHash(ownerAddress)}
                     </a>
                   </Card.Body>
@@ -204,13 +231,15 @@ class Marketplace extends Component {
                 <CurrencyInput
                   prefix="Ξ "
                   decimalsLimit={4}
-                  value={estimatedTax} ref={(input) => {this.deposit = input}}
+                  value={estimatedTax}
+                  ref={(input) => {this.deposit = input}}
                 />
                 <br/>
                 <Button
                   className="my-3 mx-2 py-2 px-4"
                   variant="primary"
-                  disabled={ownerAddress !== selectedAddress} type="submit"
+                  disabled={ownerAddress !== selectedAddress}
+                  type="submit"
                 >
                   Deposit
                 </Button>

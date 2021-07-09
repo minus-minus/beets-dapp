@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.3;
 
-/*
- *  ██████╗░███████╗███████╗████████╗░██████╗██████╗░░█████╗░░█████╗░
- *  ██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔══██╗
- *  ██████╦╝█████╗░░█████╗░░░░░██║░░░╚█████╗░██║░░██║███████║██║░░██║
- *  ██╔══██╗██╔══╝░░██╔══╝░░░░░██║░░░░╚═══██╗██║░░██║██╔══██║██║░░██║
- *  ██████╦╝███████╗███████╗░░░██║░░░██████╔╝██████╔╝██║░░██║╚█████╔╝
- *  ╚═════╝░╚══════╝╚══════╝░░░╚═╝░░░╚═════╝░╚═════╝░╚═╝░░╚═╝░╚════╝░
- */
+/////////////////////////////////////////////////////////////////////////////////
+//                                                                             //
+//                                                                             //
+//      ██████╗░███████╗███████╗████████╗░██████╗██████╗░░█████╗░░█████╗░      //
+//      ██╔══██╗██╔════╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔══██╗      //
+//      ██████╦╝█████╗░░█████╗░░░░░██║░░░╚█████╗░██║░░██║███████║██║░░██║      //
+//      ██╔══██╗██╔══╝░░██╔══╝░░░░░██║░░░░╚═══██╗██║░░██║██╔══██║██║░░██║      //
+//      ██████╦╝███████╗███████╗░░░██║░░░██████╔╝██████╔╝██║░░██║╚█████╔╝      //
+//      ╚═════╝░╚══════╝╚══════╝░░░╚═╝░░░╚═════╝░╚═════╝░╚═╝░░╚═╝░╚════╝░      //
+//                                                                             //
+//                                                                             //
+/////////////////////////////////////////////////////////////////////////////////
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
@@ -24,13 +28,14 @@ import "hardhat/console.sol";
 
 /**
  * @author swaHili
- * @title An asset tied to Harberger Taxes
- * @dev Each asset is controlled by it's own custom marketplace
+ * @title HarbergerAsset
+ * @dev Assets are controlled through the property rights enforced by harberger taxation
  */
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
+  Counters.Counter private _previousOwners;
 
   // Owner of contract
   address public admin;
@@ -56,11 +61,14 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to Asset struct
   mapping(uint256 => Asset) public assets;
 
-  // Mapping tokenId to Mapping from tax collector address to balance amount
+  // Mapping tokenId to Mapping of tax collector address to balance amount
   mapping(uint256 => mapping(address => uint256)) public balances;
 
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint256 => uint256) public baseTaxValues;
+
+  // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
+  mapping(uint256 => mapping(address => uint256)) public depositHistory;
 
   // Mapping tokenURI to boolean value
   mapping(string => bool) public tokenURIs;
@@ -91,7 +99,7 @@ contract HarbergerAsset is ERC721URIStorage {
   event Mint       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
   event List       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Deposit    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Refund     (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Collect    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
   event Foreclosure(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
@@ -148,6 +156,13 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
+   * @dev See {IERC721-baseURI}.
+   */
+  function _baseURI() override internal view virtual returns (string memory) {
+    return baseURI;
+  }
+
+  /**
    * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI`
    * @param _tokenURI IPFS hash generated from JSON metadata
    * @param _creator Address of artist who created the asset
@@ -177,13 +192,6 @@ contract HarbergerAsset is ERC721URIStorage {
     baseTaxValues[newItemId] = 10000000000000000; // .01 ETH
 
     return newItemId;
-  }
-
-  /**
-   * @dev See {IERC721-baseURI}.
-   */
-  function _baseURI() override internal view virtual returns (string memory) {
-    return baseURI;
   }
 
   /**
@@ -261,15 +269,16 @@ contract HarbergerAsset is ERC721URIStorage {
     address creator = assets[_tokenId].creator;
 
     transferPayment(msg.value, currentOwner, creator);
-    refundTax(_tokenId, currentOwner);
+    uint256 refundAmount = refundTax(_tokenId, currentOwner);
+    updateDepositHistory(_tokenId, currentOwner, refundAmount);
 
-    emit Sale(block.timestamp, _tokenId, _msgSender(), msg.value);
+    emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
 
     updateBalance(_tokenId, creator);
     initializeAsset(_tokenId, creator);
 
-    /* baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH */
+    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
   }
 
   /**
@@ -291,10 +300,11 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure date is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
+   * @return refund amount from excess of taxes deposited
    *
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
-  function refundTax(uint256 _tokenId, address _currentOwner) internal {
+  function refundTax(uint256 _tokenId, address _currentOwner) internal returns(uint256) {
     uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
     uint256 timeRemainingTimestamp = foreclosureTimestamp - block.timestamp;
 
@@ -304,9 +314,25 @@ contract HarbergerAsset is ERC721URIStorage {
       uint256 refundAmount = baseTaxValue.mul(taxMultiplier);
 
       payable(_currentOwner).transfer(refundAmount);
-
       emit Refund(block.timestamp, _tokenId, address(this), _currentOwner, refundAmount);
+
+      return refundAmount;
     }
+
+    return 0;
+  }
+
+  /**
+   * @dev Updates the `depositHistory` mapping with the most recent owner's total deposit.
+   * @param _tokenId ID of the token
+   * @param _currentOwner Address of the previous owner
+   * @param _refundAmount Amount used to calculate `totalDepositAmount` of the previous owner
+   */
+  function updateDepositHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
+    _previousOwners.increment();
+
+    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
+    depositHistory[_tokenId][_currentOwner] = totalDepositAmount - _refundAmount;
   }
 
   /**
