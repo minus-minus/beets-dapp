@@ -35,7 +35,6 @@ contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
-  Counters.Counter private _previousOwners;
 
   // Owner of contract
   address public admin;
@@ -70,6 +69,9 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
   mapping(uint256 => mapping(address => uint256)) public depositHistory;
 
+  // Mapping tokenId to total count of previous owners
+  mapping(uint256 => uint256) public ownerHistory;
+
   // Mapping tokenURI to boolean value
   mapping(string => bool) public tokenURIs;
 
@@ -101,7 +103,7 @@ contract HarbergerAsset is ERC721URIStorage {
   event Deposit    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Refund     (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Collect    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
+  event Collect    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
   event Foreclosure(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
 
   /**
@@ -204,12 +206,13 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - 'priceAmount' of asset must be greater than 0.
+   * - 'foreclosure()' of asset must not be in process.
    *
    * Emits a {List} event.
    */
   function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
     require(_priceAmount > 0, "You must set a sales price greater than 0");
-    require(timeExpired(_tokenId) == false, "A foreclosure on this asset has already begun");
+    require(foreclosure(_tokenId) == false, "A foreclosure on this asset has already begun");
 
     assets[_tokenId].priceAmount = _priceAmount;
     assets[_tokenId].taxAmount = _priceAmount.div(taxDenominator);
@@ -228,6 +231,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `priceAmount` of asset must be greater than 0.
    * - `msg.value` must be greater than 0.
    * - `msg.value` must be greater than or equal to `taxAmount` of asset OR `totalDepositAmount` must be greater than 0.
+   * - 'foreclosure()' of asset must not be in process.
    *
    * Emits a {Deposit} event.
    */
@@ -235,7 +239,7 @@ contract HarbergerAsset is ERC721URIStorage {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(msg.value > 0, "You must deposit a tax amount greater than 0");
     require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
-    require(timeExpired(_tokenId) == false, "A foreclosure on this asset has already begun");
+    require(foreclosure(_tokenId) == false, "A foreclosure on this asset has already begun");
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
     uint256 taxMultiplier = msg.value.div(baseTaxValue);
@@ -248,7 +252,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer and balance updates.
+   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer, asset history and balance updates.
    * @param _tokenId ID of the token
    *
    * Requirements:
@@ -270,7 +274,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
     transferPayment(msg.value, currentOwner, creator);
     uint256 refundAmount = refundTax(_tokenId, currentOwner);
-    updateDepositHistory(_tokenId, currentOwner, refundAmount);
+    updateAssetHistory(_tokenId, currentOwner, refundAmount);
 
     emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
@@ -328,11 +332,13 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _currentOwner Address of the previous owner
    * @param _refundAmount Amount used to calculate `totalDepositAmount` of the previous owner
    */
-  function updateDepositHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
-    _previousOwners.increment();
+  function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
+    if (depositHistory[_tokenId][_currentOwner] == 0) {
+      ownerHistory[_tokenId] += 1;
+    }
 
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
-    depositHistory[_tokenId][_currentOwner] = totalDepositAmount - _refundAmount;
+    depositHistory[_tokenId][_currentOwner] += totalDepositAmount - _refundAmount;
   }
 
   /**
@@ -370,7 +376,7 @@ contract HarbergerAsset is ERC721URIStorage {
     payable(_msgSender()).transfer(amount);
     balances[_tokenId][_msgSender()] = 0;
 
-    emit Collect(block.timestamp, _tokenId, _msgSender(), amount);
+    emit Collect(block.timestamp, _tokenId, address(this), _msgSender(), amount);
   }
 
   /**
@@ -381,12 +387,12 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenId` must exist.
    * - `creator` must be equal to `msgSender()`.
-   * - `timeExpired()` of `tokenId` must be equal to true.
+   * - `foreclosure()` of `tokenId` must be equal to true.
    *
    * Emits a {Foreclosure} event.
    */
   function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
-    require(timeExpired(_tokenId), "Time has not yet expired for you to reclaim this asset");
+    require(foreclosure(_tokenId), "Time has not yet expired for you to reclaim this asset");
 
     address currentOwner = ownerOf(_tokenId);
     emit Foreclosure(block.timestamp, _tokenId, _msgSender(), currentOwner);
@@ -404,7 +410,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenId` must exist.
    */
-  function timeExpired(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
+  function foreclosure(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
     return block.timestamp >= assets[_tokenId].foreclosureTimestamp;
   }
 
@@ -510,7 +516,7 @@ contract HarbergerAsset is ERC721URIStorage {
     ) public virtual override {
     require(
       _isApprovedOrOwner(_msgSender(), tokenId) ||
-      (assets[tokenId].creator == _msgSender() && timeExpired(tokenId)),
+      (assets[tokenId].creator == _msgSender() && foreclosure(tokenId)),
       "Transfer caller is not the owner, approved nor the creator of the asset"
     );
 

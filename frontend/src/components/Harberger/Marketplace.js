@@ -17,35 +17,22 @@ class Marketplace extends Component {
       toggleHeader: true
     }
 
+    this.calculateTax = this.calculateTax.bind(this)
     this.depositTax = this.depositTax.bind(this)
     this.formatTime = this.formatTime.bind(this)
     this.handleToggle = this.handleToggle.bind(this)
     this.listAsset = this.listAsset.bind(this)
-    this.setEstimatedTax = this.setEstimatedTax.bind(this)
-    this.setSelectedDate = this.setSelectedDate.bind(this)
   }
 
   handleToggle = () => {
     this.setState({
-      estimatedTax: undefined,
       toggleHeader: !this.state.toggleHeader
     })
   }
 
-  listAsset = (event) => {
-    event.preventDefault()
-    var value = this.props.convertToWei(this.listing.value)
-    value = (value === undefined) ? 0 : value
-    this.props.listAsset(this.props.tokenId, value, this.props.approvedAddress)
-  }
-
-  setSelectedDate = (date) => {
+  calculateTax = (date) => {
     this.setState({ selectedDate: new Date(date) })
 
-    this.setEstimatedTax(date)
-  }
-
-  setEstimatedTax = (date) => {
     const foreclosure = parseFloat(this.props.assetForeclosure)
     const baseInterval = parseFloat(this.props.baseInterval)
     const baseTaxValue = this.props.convertToEth(this.props.baseTaxValue)
@@ -54,13 +41,20 @@ class Marketplace extends Component {
     const selectedTime = Math.floor(new Date(date) / 1000)
 
     var timeRemaining = foreclosure - currentTime
-    if (timeRemaining < 0) timeRemaining = 0.00
+    if (timeRemaining < 0) timeRemaining = 0
 
     const estimatedTime = selectedTime - currentTime - timeRemaining
     var estimatedTax = (estimatedTime / baseInterval) * baseTaxValue
-    if (estimatedTax < 0) estimatedTax = 0.00
+    if (estimatedTax < 0) estimatedTax = 0
 
     this.setState({ estimatedTax: estimatedTax.toFixed(4) })
+  }
+
+  listAsset = (event) => {
+    event.preventDefault()
+    var value = this.props.convertToWei(this.listing.value)
+    value = (value === undefined) ? 0 : value
+    this.props.listAsset(this.props.tokenId, value, this.props.approvedAddress)
   }
 
   depositTax = (event) => {
@@ -191,7 +185,7 @@ class Marketplace extends Component {
                 className="my-2"
                 selected={selectedDate}
                 minDate={moment().toDate()}
-                onChange={(date) => this.setSelectedDate(date)}
+                onChange={(date) => this.calculateTax(date)}
               />
               <p className="mt-4">
                 The tax price can be calculated by applying a fixed percentage of <b>{taxRatePercentage}%</b> to the current sales price. For every <b>{baseTaxValue} Ξ</b> that is deposited in taxes, the clock will extend for an additional <b>{baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.

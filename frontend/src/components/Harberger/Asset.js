@@ -82,9 +82,9 @@ class Asset extends Component {
     }
   }
 
-  convertToEth = (value) => {
+  convertToEth = (value, decimals = 4) => {
     if (!value) return
-    return parseFloat(ethers.utils.formatEther(value)).toFixed(2)
+    return parseFloat(ethers.utils.formatEther(value)).toFixed(decimals)
   }
 
   convertToWei = (value) => {

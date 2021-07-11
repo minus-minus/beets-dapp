@@ -37,8 +37,8 @@ class Metadata extends Component {
   }
 
   render() {
-    const assetPrice = this.props.convertToEth(this.props.assetPrice)
-    const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount)
+    const assetPrice = this.props.convertToEth(this.props.assetPrice, 2)
+    const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount, 2)
     const contractAddress = this.props.contractAddress
     const creatorAddress = this.props.creatorAddress
     const creatorName = this.props.creatorName
