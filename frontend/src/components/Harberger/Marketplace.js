@@ -26,6 +26,8 @@ class Marketplace extends Component {
 
   handleToggle = () => {
     this.setState({
+      estimatedTax: undefined,
+      selectedDate: new Date(),
       toggleHeader: !this.state.toggleHeader
     })
   }
