@@ -42,7 +42,7 @@ class Inventory extends Component {
                   {asset.token_id}
                 </Card.Header>
                 <a href={"/harberger-taxes/asset/" + asset.token_id} rel="noopener noreferrer">
-                  <Card.Img variant="top" src="/references/taxes.jpeg" />
+                  <Card.Img variant="top" src="/logos/dao.gif" />
                 </a>
                 <Card.Body>
                   <Card.Title>

@@ -80,7 +80,7 @@ class Marketplace extends Component {
     const assetForeclosure = this.props.assetForeclosure
     const assetPrice = this.props.assetPrice
     const assetTaxAmount = parseFloat(this.props.convertToEth(this.props.assetTaxAmount))
-    const assetTotalDeposit = this.props.assetTotalDeposit
+    const assetTotalDeposit = parseFloat(this.props.convertToEth(this.props.assetTotalDeposit))
     const baseTaxValue = parseFloat(this.props.convertToEth(this.props.baseTaxValue))
     const baseInterval = this.props.baseInterval
     const contractAddress = this.props.contractAddress
@@ -97,13 +97,16 @@ class Marketplace extends Component {
       <Col className="d-flex justify-content-center">
         {toggleHeader ? (
           <Jumbotron className="mb-5 mx-2 p-5">
-            <div className="text-center mb-3">
+            <div className="subheader justify-content-center mb-3">
+              <h4 className="text-center">
+                How It Works
+              </h4>
               <Button
-                className="subheader"
-                variant="success"
+                className="toggle"
+                variant="primary"
                 onClick={this.handleToggle}
               >
-                How It Works
+                Tax Calculator
               </Button>
             </div>
             <div className="asset-info text-center p-4">
@@ -170,13 +173,16 @@ class Marketplace extends Component {
           </Jumbotron>
         ) : (
           <Jumbotron className="p-5 mb-5 mx-2">
-            <div className="text-center mb-3">
+            <div className="subheader justify-content-center mb-3">
+              <h4 className="text-center">
+                Tax Calculator
+              </h4>
               <Button
-                className="subheader"
-                variant="primary"
+                className="toggle"
+                variant="success"
                 onClick={this.handleToggle}
               >
-                Estimate Tax
+                How It Works
               </Button>
             </div>
             <div className="asset-info text-center p-4">

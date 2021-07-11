@@ -4,24 +4,10 @@
   border-radius: 10px;
 }
 
-button.subheader.btn.btn-primary,
-button.subheader.btn.btn-success {
-  width: 100%;
-  font-weight: bold;
-}
-
-button.subheader.btn.btn-primary:focus,
-button.subheader.btn.btn-primary:active:focus,
-button.subheader.btn.btn-success:focus,
-button.subheader.btn.btn-success:active:focus {
-  outline: none;
-  box-shadow: none;
-}
-
 .asset-media {
   width: 100%;
   height: auto;
-  border: 5px solid #808080;
+  border: 5px solid #ACB2B5;
 }
 
 .asset-price {
@@ -37,6 +23,30 @@ button.subheader.btn.btn-success:active:focus {
 .badge.tax {
   font-size: 14px;
   background-color: #0d6efd;
+}
+
+.subheader {
+  display: flex;
+  position: relative;
+}
+
+.toggle {
+  position: absolute;
+  right: 0;
+}
+
+button.toggle.btn.btn-primary,
+button.toggle.btn.btn-success {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+button.toggle.btn.btn-primary:focus,
+button.toggle.btn.btn-primary:active:focus,
+button.toggle.btn.btn-success:focus,
+button.toggle.btn.btn-success:active:focus {
+  outline: none;
+  box-shadow: none;
 }
 
 .asset-info {
@@ -74,10 +84,25 @@ td {
   }
 }
 
-@media (max-width: 548px) {
+@media (max-width: 768px) {
   .badge.price,
   .badge.tax {
     font-size: 12px;
+  }
+
+  .subheader {
+    display: block;
+  }
+
+  .subheader > h4 {
+    padding-bottom: 10px;
+  }
+
+  button.toggle.btn.btn-primary,
+  button.toggle.btn.btn-success {
+    position: relative;
+    margin: auto;
+    display: flex;
   }
 
   .asset-info > p {
