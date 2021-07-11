@@ -14,8 +14,8 @@ class Asset extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      isLoadingToken: true,
-      isLoadingMetadata: true
+      loadingToken: true,
+      loadingMetadata: true
     }
 
     this.apiRequest = this.apiRequest.bind(this)
@@ -34,7 +34,7 @@ class Asset extends Component {
       const assetOwner = await this.props.contract.ownerOf(tokenId);
       const approvedAccount = await this.props.contract.getApproved(tokenId);
       const baseTaxValue = await this.props.contract.baseTaxValues(tokenId)
-      const timeExpired = await this.props.contract.timeExpired(tokenId);
+      const foreclosure = await this.props.contract.timeExpired(tokenId);
       const tokenURI = await this.props.contract.tokenURI(tokenId);
       const adminBalance = await this.props.contract.balances(tokenId, this.props.adminAddress);
       const creatorBalance = await this.props.contract.balances(tokenId, this.props.creatorAddress);
@@ -50,9 +50,9 @@ class Asset extends Component {
         baseTaxValue: baseTaxValue.toString(),
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
-        timeExpired: timeExpired,
+        foreclosure: foreclosure,
         tokenURI: tokenURI,
-        isLoadingToken: false
+        loadingToken: false
       })
 
       console.log("Harberger Token State:", this.state);
@@ -73,7 +73,7 @@ class Asset extends Component {
         tokenDescription: response.data.description,
         tokenMedia: response.data.image,
         tokenName: response.data.name,
-        isLoadingMetadata: false
+        loadingMetadata: false
       })
 
       console.log("Harberger Metadata State:", this.state);
@@ -97,7 +97,7 @@ class Asset extends Component {
   render() {
     return (
       <div>
-        {!this.isLoadingToken && (
+        {!this.loadingToken && (
           <Container>
             <h1 className="text-center my-5">Harberger Taxes</h1>
             <Row>
@@ -111,9 +111,9 @@ class Asset extends Component {
                 convertToEth={this.convertToEth}
                 creatorAddress={this.props.creatorAddress}
                 creatorName={this.state.creatorName}
-                isLoadingMetadata={this.props.isLoadingMetadata}
+                foreclosure={this.state.foreclosure}
+                loadingMetadata={this.props.loadingMetadata}
                 minifyHash={this.props.minifyHash}
-                timeExpired={this.state.timeExpired}
                 tokenId={this.props.tokenId}
                 tokenMedia={this.state.tokenMedia}
                 tokenName={this.state.tokenName}

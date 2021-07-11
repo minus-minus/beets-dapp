@@ -8,7 +8,7 @@ class Metadata extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      timeExpired: this.props.timeExpired
+      foreclosure: this.props.foreclosure
     }
 
     this.timeRemaining = this.timeRemaining.bind(this)
@@ -19,18 +19,18 @@ class Metadata extends Component {
     setInterval(() => this.timeRemaining(this.props.assetForeclosure), 100)
   }
 
-  timeRemaining = (foreclosure) => {
-    if (!foreclosure) return
+  timeRemaining = (timestamp) => {
+    if (!timestamp) return
 
     var current = Math.floor(Date.now() / 1000)
-    var remaining = foreclosure - current
+    var remaining = timestamp - current
     var days = Math.floor(remaining / (3600 * 24))
     var hrs = Math.floor(remaining % (3600 * 24) / 3600)
     var mins = Math.floor(remaining % 3600 / 60)
     var secs = Math.floor(remaining % 60)
 
-    if (current >= foreclosure) {
-      this.setState({ timeExpired: true })
+    if (current >= timestamp) {
+      this.setState({ foreclosure: true })
     } else {
       this.setState({ days, hrs, mins, secs })
     }
@@ -42,22 +42,22 @@ class Metadata extends Component {
     const contractAddress = this.props.contractAddress
     const creatorAddress = this.props.creatorAddress
     const creatorName = this.props.creatorName
-    const isLoadingMetadata = this.props.isLoadingMetadata
-    const timeExpired = this.state.timeExpired
+    const foreclosure = this.state.foreclosure
+    const loadingMetadata = this.props.loadingMetadata
     const tokenMedia = this.props.tokenMedia
     const tokenId = this.props.tokenId
 
     return (
       <Col className="d-flex justify-content-center">
-        <Jumbotron className="p-5 mb-5 mx-2">
+        <Jumbotron className="mb-5 mx-2 p-5">
           <div className="text-center mb-3">
-            {!timeExpired ? (
+            {!foreclosure ? (
               <b>{this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs</b>
             ) : (
-              <b>TIME EXPIRED</b>
+              <b>ASSET FORECLOSURE</b>
             )}
           </div>
-          {!isLoadingMetadata ? (
+          {!loadingMetadata ? (
             <video
               className="asset-media mb-3"
               style={{border: "5px solid #808080"}}

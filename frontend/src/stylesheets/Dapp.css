@@ -1,0 +1,57 @@
+#dapp {
+  min-height: calc(100vh - 350px);
+}
+
+.loading {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 50px;
+  margin-left: -50px;
+  margin-top: -25px;
+  text-align: center;
+}
+
+.beets {
+  width: 90px;
+  height: 65px;
+}
+
+.container {
+  min-width: 65%;
+}
+
+.navbar {
+  background-color: #0f0823;
+}
+
+.nav-link {
+  font-size: 16px;
+  color: #fff !important;
+  text-transform: uppercase;
+}
+
+a {
+  text-decoration: none !important;
+}
+
+.footer {
+  height: 200px;
+}
+
+.footer-text {
+  color: #fff;
+  font-size: 18px;
+}
+
+@media (max-width: 548px) {
+  .nav-link {
+    font-size: 14px;
+  }
+
+  .connected-account {
+    display: none;
+  }
+}

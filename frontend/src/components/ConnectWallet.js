@@ -1,31 +1,30 @@
 import React from "react";
-
-import { NetworkErrorMessage } from "./NetworkErrorMessage";
+import { NetworkError } from "./NetworkError";
+import { Row, Col, Button } from "react-bootstrap";
 
 export function ConnectWallet({ connectWallet, networkError, dismiss }) {
   return (
     <div className="container">
-      <div className="row justify-content-center">
-        <div className="col-12 my-3 text-center">
-          {/* Metamask network should be set to Localhost:8545. */}
+      <Row className="justify-content-center">
+        <Col className="my-3 text-center">
           {networkError && (
-            <NetworkErrorMessage
+            <NetworkError
               message={networkError}
               dismiss={dismiss}
             />
           )}
-        </div>
-        <div className="col-6 p-4 text-center">
-          <p>Please connect to your wallet.</p>
-          <button
-            className="btn btn-warning"
-            type="button"
+        </Col>
+      </Row>
+      <Row>
+        <Col className="my-4 text-center">
+          <Button
+            variant="warning"
             onClick={connectWallet}
           >
             Connect Wallet
-          </button>
-        </div>
-      </div>
+          </Button>
+        </Col>
+      </Row>
     </div>
   );
 }

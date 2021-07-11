@@ -1,53 +1,52 @@
 import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-// CONTRACTS
-import contractAddress from "../contracts/contract-address.json";
-import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
-import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
-import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
-import { ENIGMA_TOKEN_CONTRACT_ADDRESS } from "../utils/EB/constants";
 // COMPONENTS
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
-import { TransactionErrorMessage } from "./TransactionErrorMessage";
-import { TransactionSuccessMessage } from "./TransactionSuccessMessage";
-// import { WaitingForTransactionMessage } from "./WaitingForTransactionMessage";
+import { NetworkError } from "./NetworkError";
+import { TransactionError } from "./TransactionError";
+import { TransactionPending } from "./TransactionPending";
+import { TransactionSuccess } from "./TransactionSuccess";
 import { PrintList } from './EulerBeat/PrintList';
 import Navigation from "./Navigation";
 import MintAsset from "./Harberger/MintAsset";
+import Inventory from "./Harberger/Inventory";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
-
-// CONSTANTS
+// CONTRACTS
+import contractAddress from "../contracts/contract-address.json";
+import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
+import { ENIGMA_TOKEN_CONTRACT_ADDRESS, ORIGINAL_OWNER } from "../utils/EB/constants";
+import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
+import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
+// NETWORKS
 // const MAINNET_NETWORK_ID = '1';
 const RINKEBY_NETWORK_ID = '4';
 // const HARDHAT_NETWORK_ID = '1337';
-const ERROR_CODE_TX_REJECTED_BY_USER = 4001;
-const originalOwner = "0xf47f5A7F2917800149f638E9f0eD3745D16481C6";
 
 export class Dapp extends React.Component {
   constructor(props) {
     super(props);
     this.initialState = {
       assets: [],
+      loadingContract: true,
       networkError: undefined,
       selectedAddress: undefined,
       transactionError: undefined,
-      transactionHash: undefined,
-      transactionSuccess: undefined,
-      isLoadingContract: true
+      transactionPending: undefined,
+      transactionSuccess: undefined
     };
 
-    this.loadHarbergerContract = this.loadHarbergerContract.bind(this)
-    this.mintAsset = this.mintAsset.bind(this)
-    this.setApproval = this.setApproval.bind(this)
-    this.listAsset = this.listAsset.bind(this)
-    this.depositTax = this.depositTax.bind(this)
-    this.buyAsset = this.buyAsset.bind(this)
-    this.collectFunds = this.collectFunds.bind(this)
-    this.reclaimAsset = this.reclaimAsset.bind(this)
+    this.loadHarbergerContract = this.loadHarbergerContract.bind(this);
+    this.mintAsset = this.mintAsset.bind(this);
+    this.setApproval = this.setApproval.bind(this);
+    this.listAsset = this.listAsset.bind(this);
+    this.depositTax = this.depositTax.bind(this);
+    this.buyAsset = this.buyAsset.bind(this);
+    this.collectFunds = this.collectFunds.bind(this);
+    this.reclaimAsset = this.reclaimAsset.bind(this);
 
     this.state = this.initialState;
   }
@@ -56,7 +55,7 @@ export class Dapp extends React.Component {
   // dapp to the user's wallet, and initializes it.
   async _connectWallet() {
     console.clear();
-    this.setState({isLoadingWallet: true})
+    this.setState({ loadingWallet: true })
     // To connect to the user's wallet, we have to run this method.
     // It returns a promise that will resolve to the user's address.
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -88,7 +87,26 @@ export class Dapp extends React.Component {
       this._resetState();
     });
 
-    setTimeout(() => this.setState({ isLoadingWallet: false }), 2000)
+    this._dismissNetworkError();
+
+    setTimeout(() => this.setState({ loadingWallet: false }), 2000);
+  }
+
+  _resetState() {
+    console.clear();
+    this.setState(this.initialState);
+  }
+
+  _checkNetwork() {
+    if (window.ethereum.networkVersion === RINKEBY_NETWORK_ID) {
+      return true;
+    }
+
+    this.setState({
+      networkError: 'Please connect MetaMask to Rinkeby Testnet'
+    });
+
+    return false;
   }
 
   // This method initializes the dapp
@@ -138,12 +156,10 @@ export class Dapp extends React.Component {
   async mintPrint(originalTokenId, price) {
     // console.log("contractInstance", this.EBcontract);
     try {
-      const tx = await this.EBcontract.mintPrint(originalTokenId, originalOwner, {
-        value: price,
-        gasLimit: 220000,
-      });
-
-      const receipt = await tx.wait();
+      const transaction = await this.EBcontract.mintPrint(originalTokenId, ORIGINAL_OWNER, { value: price });
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      const receipt = await transaction.wait();
 
       // The receipt, contains a status flag, which is 0 to indicate an error.
       if (receipt.status === 0) {
@@ -152,16 +168,17 @@ export class Dapp extends React.Component {
         throw new Error("Transaction Failed");
       }
 
-      this.setState({ transactionSuccess: "Mint Print" });
+      this.setState({
+        transactionPending: undefined,
+        transactionSuccess: "Mint Print"
+      });
 
     } catch (error) {
-      // We check the error code to see if this error was produced because the
-      // user rejected a tx. If that's the case, we do nothing.
-      if (error.code === ERROR_CODE_TX_REJECTED_BY_USER) {
-        return;
-      }
-
-      this.setState({ transactionError: this._getRpcErrorMessage(error) });
+      this._connectWallet();
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(error)
+      });
     }
   }
 
@@ -188,7 +205,7 @@ export class Dapp extends React.Component {
       baseInterval: baseInterval.toString(),
       network: network,
       taxRatePercentage: taxRatePercentage.toString(),
-      isLoadingContract: false
+      loadingContract: false
     })
 
     console.log("Harberger Contract State:", this.state);
@@ -200,16 +217,20 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
-      const receipt = await transaction.wait();
-
       this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
+
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Mint Asset"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
@@ -219,16 +240,21 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
-      const receipt = await transaction.wait();
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
 
       this._connectWallet();
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Approve Contract"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
@@ -239,16 +265,21 @@ export class Dapp extends React.Component {
 
       try {
         const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
-        const receipt = await transaction.wait();
+        this._connectWallet();
+        this.setState({ transactionPending: transaction.hash });
+        await transaction.wait();
 
         this._connectWallet();
         this.setState({
-          transactionHash: receipt.transactionHash,
+          transactionPending: undefined,
           transactionSuccess: "List Asset"
         })
       } catch(err) {
         this._connectWallet();
-        this.setState({ transactionError: this._getRpcErrorMessage(err) });
+        this.setState({
+          transactionPending: undefined,
+          transactionError: this._getRpcErrorMessage(err)
+        });
       }
     }
   }
@@ -259,16 +290,21 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.depositTaxInWei(tokenId, { value: amount });
-      const receipt = await transaction.wait();
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
 
       this._connectWallet();
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Deposit Taxes"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
@@ -278,16 +314,21 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.buyAssetInWei(tokenId, { value: assetPrice });
-      const receipt = await transaction.wait();
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
 
       this._connectWallet();
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Purchase Asset"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
@@ -297,16 +338,21 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.collectFunds(tokenId);
-      const receipt = await transaction.wait();
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
 
       this._connectWallet();
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Collect Funds"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
@@ -316,25 +362,26 @@ export class Dapp extends React.Component {
 
     try {
       const transaction = await contract.reclaimAsset(tokenId);
-      const receipt = await transaction.wait();
+      this._connectWallet();
+      this.setState({ transactionPending: transaction.hash });
+      await transaction.wait();
 
       this._connectWallet();
       this.setState({
-        transactionHash: receipt.transactionHash,
+        transactionPending: undefined,
         transactionSuccess: "Reclaim Asset"
       })
     } catch(err) {
       this._connectWallet();
-      this.setState({ transactionError: this._getRpcErrorMessage(err) });
+      this.setState({
+        transactionPending: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
     }
   }
 
-  _minifyHash(address) {
-    if (!address) return
-    const hashStart = address.substring(0, 6)
-    const hashEnd = address.substring(address.length-4, address.length)
-
-    return `${hashStart}...${hashEnd}`
+  _dismissNetworkError() {
+    this.setState({ networkError: undefined });
   }
 
   _dismissTransactionSuccess() {
@@ -343,10 +390,6 @@ export class Dapp extends React.Component {
 
   _dismissTransactionError() {
     this.setState({ transactionError: undefined });
-  }
-
-  _dismissNetworkError() {
-    this.setState({ networkError: undefined });
   }
 
   _getRpcErrorMessage(error) {
@@ -361,26 +404,15 @@ export class Dapp extends React.Component {
     return error.message
   }
 
-  _resetState() {
-    console.clear();
-    this.setState(this.initialState);
-  }
+  _minifyHash(address) {
+    if (!address) return
+    const hashStart = address.substring(0, 6)
+    const hashEnd = address.substring(address.length-4, address.length)
 
-  _checkNetwork() {
-    if (window.ethereum.networkVersion === RINKEBY_NETWORK_ID) {
-      return true;
-    }
-
-    this.setState({
-      networkError: 'Please connect Metamask to Rinkeby Testnet'
-    });
-
-    return false;
+    return `${hashStart}...${hashEnd}`
   }
 
   render() {
-    // console.log(this.state)
-
     // Ethereum wallets inject the window.ethereum object. If it hasn't been
     // injected, we instruct the user to install MetaMask.
     if (window.ethereum === undefined) {
@@ -398,15 +430,15 @@ export class Dapp extends React.Component {
       return (
         <ConnectWallet
           connectWallet={() => this._connectWallet()}
-          networkError={this.state.networkError}
           dismiss={() => this._dismissNetworkError()}
+          networkError={this.state.networkError}
         />
       );
     }
 
     // If the token data or the user's balance hasn't loaded yet, we show
     // a loading component.
-    if (this.state.isLoadingWallet) {
+    if (this.state.loadingWallet) {
       return <Loading />;
     }
 
@@ -417,36 +449,51 @@ export class Dapp extends React.Component {
           minifyHash={this._minifyHash}
           selectedAddress={this.state.selectedAddress}
         />
+        {this.state.networkError && (
+          <NetworkError
+            dismiss={() => this._dismissNetworkError()}
+            message={this.state.networkError}
+          />
+        )}
+        {this.state.transactionPending && (
+          <TransactionPending
+            transactionHash={this.state.transactionPending}
+          />
+        )}
         {this.state.transactionSuccess && (
-          <TransactionSuccessMessage
+          <TransactionSuccess
             dismiss={() => this._dismissTransactionSuccess()}
             message={this.state.transactionSuccess}
           />
         )}
         {this.state.transactionError && (
-          <TransactionErrorMessage
+          <TransactionError
             dismiss={() => this._dismissTransactionError()}
             message={this.state.transactionError}
           />
         )}
         <div id="dapp">
           <Switch>
-            <Route path="/euler-beats">
+            <Route path="/euler-beats/prints">
               <PrintList
                 mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
                 getTrackSupply={(originalTokenId) => this.getTrackSupply(originalTokenId)}
                 getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
               />
             </Route>
-            {!this.state.assets.length && (
-              <Route path={"/harberger-taxes"}>
+            <Route path={"/harberger-taxes/assets"}>
+              <Inventory
+                assets={this.state.assets}
+                contract={this.HTAXcontract}
+              />
+              {this.state.selectedAddress === this.state.adminAddress && (
                 <MintAsset
                   adminAddress={this.state.adminAddress}
                   mintAsset={this.mintAsset}
                   selectedAddress={this.state.selectedAddress}
                 />
-              </Route>
-            )}
+              )}
+            </Route>
             {this.state.assets.map((asset, index) => {
               return (
                 <Route path={"/harberger-taxes/asset/" + asset.tokenId} key={index}>
@@ -459,7 +506,7 @@ export class Dapp extends React.Component {
                     creatorAddress={ethers.utils.getAddress(asset.creator)}
                     contract={this.HTAXcontract}
                     eventLogs={this.state.eventLogs}
-                    isLoadingContract={this.state.isLoadingContract}
+                    loadingContract={this.state.loadingContract}
                     selectedAddress={this.state.selectedAddress}
                     taxRatePercentage={this.state.taxRatePercentage}
                     tokenId={asset.tokenId}

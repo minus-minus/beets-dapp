@@ -1,24 +1,24 @@
 import React from "react";
+import { Row, Col } from "react-bootstrap";
 
 export function NoWalletDetected() {
   return (
     <div className="container">
-      <div className="row justify-content-md-center">
-        <div className="col-6 p-4 text-center">
+      <Row className="justify-content-center">
+        <Col className="my-3 text-center">
           <p>
-            No Ethereum wallet was detected. <br />
+            No Ethereum wallet was detected.<br/>
             Please install{" "}
             <a
               href="http://metamask.io"
-              target="_blank"
               rel="noopener noreferrer"
+              target="_blank"
             >
               MetaMask
             </a>
-            .
           </p>
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   );
 }

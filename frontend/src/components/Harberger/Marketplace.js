@@ -96,7 +96,7 @@ class Marketplace extends Component {
     return (
       <Col className="d-flex justify-content-center">
         {toggleHeader ? (
-          <Jumbotron className="p-5 mb-5 mx-2">
+          <Jumbotron className="mb-5 mx-2 p-5">
             <div className="text-center mb-3">
               <Button
                 className="subheader"
@@ -131,7 +131,7 @@ class Marketplace extends Component {
               {ownerAddress !== selectedAddress && (
                 <Button
                   className="my-2 mx-3 py-2 px-4"
-                  variant="danger"
+                  variant="success"
                   disabled={parseFloat(assetPrice) === 0 || approvedAddress !== contractAddress}
                   onClick={(e) => this.props.buyAsset(tokenId, assetPrice)}
                 >

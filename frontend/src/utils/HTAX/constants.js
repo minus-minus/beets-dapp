@@ -9,5 +9,6 @@ export const HTAX_EVENT_ABI = [
   "event Sale(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
   "event Refund(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
   "event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value)",
+  // "event Collect(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value)",
   "event Foreclosure(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to)"
 ]

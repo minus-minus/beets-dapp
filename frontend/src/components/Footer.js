@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Navbar, Container } from "react-bootstrap";
-import "../stylesheets/HarbergerAsset.css";
+import "../stylesheets/Dapp.css";
 
 class Footer extends Component {
   render() {

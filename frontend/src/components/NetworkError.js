@@ -1,10 +1,10 @@
 import React from "react";
 import { Alert, Button } from "react-bootstrap";
 
-export function TransactionErrorMessage({ message, dismiss }) {
+export function NetworkError({ message, dismiss }) {
   return (
     <Alert variant="danger" className="text-center">
-      Transaction Failed: {message}
+      Network Error: {message}
       <Button
         className="close mx-2"
         style={{ float: "right" }}

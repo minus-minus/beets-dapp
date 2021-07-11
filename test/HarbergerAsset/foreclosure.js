@@ -17,7 +17,7 @@ describe("HarbergerAsset", function () {
     await contract.deployed();
   });
 
-  describe("timeExpired", function () {
+  describe("foreclosure", function () {
     beforeEach(async function () {
       transaction = await contract.mintAsset(ipfsHash, creator.address);
       await transaction.wait();
@@ -25,7 +25,7 @@ describe("HarbergerAsset", function () {
 
     it("requires token to exist", async function () {
       try {
-        transaction = await contract.timeExpired(2);
+        transaction = await contract.foreclosure(2);
       } catch(err) {
         error = err.message.split("'")[1];
       }
@@ -34,13 +34,13 @@ describe("HarbergerAsset", function () {
     });
 
     it("returns false if time has not yet expired", async function() {
-      expect(await contract.timeExpired(tokenId)).to.equal(false);
+      expect(await contract.foreclosure(tokenId)).to.equal(false);
     });
 
     // it("returns true if current time is greater than foreclosure time", async function() {
     //   await network.provider.send("evm_increaseTime", [oneDay]);
     //
-    //   expect(await contract.timeExpired(tokenId)).to.equal(true);
+    //   expect(await contract.foreclosure(tokenId)).to.equal(true);
     // });
   });
 });

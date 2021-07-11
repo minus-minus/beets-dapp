@@ -12,15 +12,14 @@ class MintAsset extends Component {
 
     return (
       <div className="text-center mt-5">
-        {selectedAddress === adminAddress && (
-          <Button
-            className="py-2 px-4"
-            variant="success"
-            onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
-          >
-            Mint Token
-          </Button>
-        )}
+        <Button
+          className="py-2 px-4 mb-5"
+          variant="success"
+          disabled={selectedAddress !== adminAddress}
+          onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
+        >
+          Mint Token
+        </Button>
       </div>
     )
   }
