@@ -13,7 +13,7 @@ export function TransactionError({ message, dismiss }) {
         aria-label="Close"
         onClick={dismiss}
       >
-        <span aria-hidden="true">&times;</span>
+        <span style={{ color: "#fff" }} aria-hidden="true">&times;</span>
       </Button>
     </Alert>
   );

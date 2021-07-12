@@ -185,6 +185,7 @@ export class Dapp extends React.Component {
   async loadHarbergerContract() {
     const contractAdmin = await this.HTAXcontract.admin();
     const contractBalance = await this._provider.getBalance(contractAddress.HarbergerAsset);
+    const selectedBalance = await this._provider.getBalance(this.state.selectedAddress);
     const assets = await this.HTAXcontract.fetchAssets();
     const taxRatePercentage = await this.HTAXcontract.taxRatePercentage();
     const baseInterval = await this.HTAXcontract.baseInterval();
@@ -204,6 +205,7 @@ export class Dapp extends React.Component {
       contractBalance: contractBalance.toString(),
       baseInterval: baseInterval.toString(),
       network: network,
+      selectedBalance: selectedBalance,
       taxRatePercentage: taxRatePercentage.toString(),
       loadingContract: false
     })
@@ -508,6 +510,7 @@ export class Dapp extends React.Component {
                     eventLogs={this.state.eventLogs}
                     loadingContract={this.state.loadingContract}
                     selectedAddress={this.state.selectedAddress}
+                    selectedBalance={this.state.selectedBalance}
                     taxRatePercentage={this.state.taxRatePercentage}
                     tokenId={asset.tokenId}
                     // Functions

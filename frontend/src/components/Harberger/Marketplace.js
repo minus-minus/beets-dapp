@@ -83,6 +83,7 @@ class Marketplace extends Component {
     const estimatedTax = this.state.estimatedTax
     const ownerAddress = this.props.ownerAddress
     const selectedAddress = this.props.selectedAddress
+    const selectedBalance = parseFloat(this.props.convertToEth(this.props.selectedBalance, 2))
     const selectedDate = this.state.selectedDate
     const taxRatePercentage = this.props.taxRatePercentage
     const toggleHeader = this.state.toggleHeader
@@ -95,7 +96,7 @@ class Marketplace extends Component {
           <Jumbotron className="mb-5 mx-2 p-5">
             <div className="subheader justify-content-center mb-3">
               <h4 className="text-center">
-                How It Works
+                Property Rights
               </h4>
               <Button
                 className="toggle"
@@ -103,6 +104,12 @@ class Marketplace extends Component {
                 onClick={this.handleToggle}
               >
                 Tax Calculator
+              </Button>
+              <Button
+                className="balance"
+                variant="success"
+              >
+                Balance Ξ {selectedBalance}
               </Button>
             </div>
             <div className="asset-info text-center p-4">
@@ -178,7 +185,13 @@ class Marketplace extends Component {
                 variant="success"
                 onClick={this.handleToggle}
               >
-                How It Works
+                Property Rights
+              </Button>
+              <Button
+                className="balance"
+                variant="primary"
+              >
+                Balance Ξ {selectedBalance}
               </Button>
             </div>
             <div className="asset-info text-center p-4">

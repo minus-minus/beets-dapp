@@ -32,21 +32,41 @@
 
 .toggle {
   position: absolute;
+  left: 0;
+}
+
+.balance {
+  position: absolute;
   right: 0;
 }
 
+button.balance.btn.btn-primary,
+button.balance.btn.btn-success,
 button.toggle.btn.btn-primary,
 button.toggle.btn.btn-success {
   font-size: 12px;
   font-weight: bold;
 }
 
+button.balance.btn.btn-success:focus,
+button.balance.btn.btn-success:active:focus,
+button.balance.btn.btn-primary:focus,
+button.balance.btn.btn-primary:active:focus,
+button.btn.btn-warning:focus,
+button.btn.btn-warning:active:focus,
 button.toggle.btn.btn-primary:focus,
 button.toggle.btn.btn-primary:active:focus,
 button.toggle.btn.btn-success:focus,
 button.toggle.btn.btn-success:active:focus {
   outline: none;
   box-shadow: none;
+}
+
+.badge.balance {
+  font-size: 12px;
+  background-color: #198754;
+  position: absolute;
+  right: 0;
 }
 
 .asset-info {
@@ -103,6 +123,11 @@ td {
     position: relative;
     margin: auto;
     display: flex;
+  }
+
+  button.balance.btn.btn-primary,
+  button.balance.btn.btn-success {
+    display: none;
   }
 
   .asset-info > p {

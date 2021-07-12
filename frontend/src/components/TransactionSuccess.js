@@ -13,7 +13,7 @@ export function TransactionSuccess({ message, dismiss }) {
         aria-label="Close"
         onClick={dismiss}
       >
-        <span className="justify-content-right" aria-hidden="true">&times;</span>
+        <span style={{ color: "#fff" }} aria-hidden="true">&times;</span>
       </Button>
     </Alert>
   );

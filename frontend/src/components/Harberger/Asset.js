@@ -136,6 +136,7 @@ class Asset extends Component {
                 minifyHash={this.props.minifyHash}
                 ownerAddress={this.state.ownerAddress}
                 selectedAddress={this.props.selectedAddress}
+                selectedBalance={this.props.selectedBalance}
                 setApproval={this.props.setApproval}
                 taxRatePercentage={this.props.taxRatePercentage}
                 tokenDescription={this.state.tokenDescription}

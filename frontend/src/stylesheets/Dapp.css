@@ -2,6 +2,10 @@
   min-height: calc(100vh - 350px);
 }
 
+.container {
+  min-width: 65%;
+}
+
 .loading {
   position: absolute;
   z-index: 3;
@@ -14,17 +18,13 @@
   text-align: center;
 }
 
+.navbar {
+  background-color: #0f0823;
+}
+
 .beets {
   width: 90px;
   height: 65px;
-}
-
-.container {
-  min-width: 65%;
-}
-
-.navbar {
-  background-color: #0f0823;
 }
 
 .nav-link {
@@ -35,6 +35,27 @@
 
 a {
   text-decoration: none !important;
+}
+
+.alert.alert-danger {
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  background-color: #E26868;
+}
+
+.alert.alert-primary {
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  background-color: #694D9F;
+}
+
+.alert.alert-success {
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  background-color: #20A385;
 }
 
 .footer {
