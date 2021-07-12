@@ -333,7 +333,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _refundAmount Amount used to calculate actual `totalDepositAmount` of the previous owner
    */
   function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
-    if (!depositHistory[_tokenId][_currentOwner]) {
+    if (depositHistory[_tokenId][_currentOwner] == 0) {
       totalOwners[_tokenId] += 1;
     }
 
