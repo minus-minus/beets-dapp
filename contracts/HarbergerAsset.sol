@@ -69,11 +69,11 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
   mapping(uint256 => mapping(address => uint256)) public depositHistory;
 
-  // Mapping tokenId to total count of previous owners
-  mapping(uint256 => uint256) public ownerHistory;
-
   // Mapping tokenURI to boolean value
   mapping(string => bool) public tokenURIs;
+
+  // Mapping tokenId to total count of previous owners
+  mapping(uint256 => uint256) public totalOwners;
 
   /**
    * @dev Object that represents the current state of each asset
@@ -327,14 +327,14 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Updates the `depositHistory` and `ownerHistory` mappings to keep track of asset provenance.
+   * @dev Updates the `depositHistory` and `totalOwners` mappings to keep track of asset provenance.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of the previous owner
    * @param _refundAmount Amount used to calculate actual `totalDepositAmount` of the previous owner
    */
   function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
-    if (depositHistory[_tokenId][_currentOwner] == 0) {
-      ownerHistory[_tokenId] += 1;
+    if (!depositHistory[_tokenId][_currentOwner]) {
+      totalOwners[_tokenId] += 1;
     }
 
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
@@ -507,6 +507,11 @@ contract HarbergerAsset is ERC721URIStorage {
 
   /**
    * @dev See {IERC721-safeTransferFrom}.
+   *
+   * Requirements:
+   *
+   * - `currentOwner` or `approvedAccount` must be equal to `_msgSender()` OR
+   * - `creator` must be equal to `msgSender` AND `foreclosure()` must be equal to true.
    */
   function safeTransferFrom(
       address from,

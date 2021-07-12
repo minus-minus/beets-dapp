@@ -13,7 +13,7 @@ class MintAsset extends Component {
     return (
       <div className="text-center mt-5">
         <Button
-          className="py-2 px-4 mb-5"
+          className="my-2 py-2 px-4"
           variant="success"
           disabled={selectedAddress !== adminAddress}
           onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}

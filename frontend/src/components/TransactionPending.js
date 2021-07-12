@@ -1,10 +1,22 @@
 import React from "react";
-import { Alert } from "react-bootstrap";
+import { Alert, Button } from "react-bootstrap";
 
-export function TransactionPending({ transactionHash }) {
+const ETHERSCAN_TX_URI = "https://rinkeby.etherscan.io/tx/"
+
+export function TransactionPending({ transactionHash, minifyHash, dismiss }) {
   return (
     <Alert variant="primary" className="text-center">
-      Waiting for transaction <b>{transactionHash}</b> to be mined...
+      Transaction Pending: <b><a href={ETHERSCAN_TX_URI + transactionHash} style={{ color: "#fff"}} rel="noopener noreferrer" target="_blank">{minifyHash(transactionHash)}</a></b>
+      <Button
+        className="close mx-2"
+        style={{ float: "right" }}
+        variant="transparent"
+        data-dismiss="alert"
+        aria-label="Close"
+        onClick={dismiss}
+      >
+        <b><span style={{ color: "#fff" }} aria-hidden="true">&times;</span></b>
+      </Button>
     </Alert>
   );
 }

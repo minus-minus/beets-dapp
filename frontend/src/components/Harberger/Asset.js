@@ -32,6 +32,7 @@ class Asset extends Component {
     try {
       const tokenId = this.props.tokenId
       const assetOwner = await this.props.contract.ownerOf(tokenId);
+      const ownerAddressENS = await this.props.provider.lookupAddress(assetOwner);
       const approvedAccount = await this.props.contract.getApproved(tokenId);
       const baseTaxValue = await this.props.contract.baseTaxValues(tokenId)
       const foreclosure = await this.props.contract.timeExpired(tokenId);
@@ -50,6 +51,7 @@ class Asset extends Component {
         baseTaxValue: baseTaxValue.toString(),
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
+        ownerAddressENS: ownerAddressENS,
         foreclosure: foreclosure,
         tokenURI: tokenURI,
         loadingToken: false
@@ -135,6 +137,7 @@ class Asset extends Component {
                 listAsset={this.props.listAsset}
                 minifyHash={this.props.minifyHash}
                 ownerAddress={this.state.ownerAddress}
+                ownerAddressENS={this.state.ownerAddressENS}
                 selectedAddress={this.props.selectedAddress}
                 selectedBalance={this.props.selectedBalance}
                 setApproval={this.props.setApproval}
@@ -157,6 +160,7 @@ class Asset extends Component {
                 collectFunds={this.props.collectFunds}
                 creatorAddress={this.props.creatorAddress}
                 reclaimAsset={this.props.reclaimAsset}
+                provider={this.props.provider}
                 selectedAddress={this.props.selectedAddress}
                 tokenId={this.props.tokenId}
               />

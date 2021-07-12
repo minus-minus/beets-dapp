@@ -82,6 +82,7 @@ class Marketplace extends Component {
     const contractAddress = this.props.contractAddress
     const estimatedTax = this.state.estimatedTax
     const ownerAddress = this.props.ownerAddress
+    const ownerAddressENS = this.props.ownerAddressENS
     const selectedAddress = this.props.selectedAddress
     const selectedBalance = parseFloat(this.props.convertToEth(this.props.selectedBalance, 2))
     const selectedDate = this.state.selectedDate
@@ -235,7 +236,7 @@ class Marketplace extends Component {
                       rel="noopener noreferrer"
                       target="_blank"
                     >
-                      {this.props.minifyHash(ownerAddress)}
+                      {ownerAddressENS || this.props.minifyHash(ownerAddress)}
                     </a>
                   </Card.Body>
                 </Accordion.Collapse>

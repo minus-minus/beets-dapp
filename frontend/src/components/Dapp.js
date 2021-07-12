@@ -158,9 +158,8 @@ export class Dapp extends React.Component {
     try {
       const transaction = await this.EBcontract.mintPrint(originalTokenId, ORIGINAL_OWNER, { value: price });
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
       const receipt = await transaction.wait();
-
       // The receipt, contains a status flag, which is 0 to indicate an error.
       if (receipt.status === 0) {
         // We can't know the exact error that make the transaction fail once it
@@ -172,7 +171,6 @@ export class Dapp extends React.Component {
         transactionPending: undefined,
         transactionSuccess: "Mint Print"
       });
-
     } catch (error) {
       this._connectWallet();
       this.setState({
@@ -220,13 +218,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
+      this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Mint Asset"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -243,14 +242,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
       this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Approve Contract"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -268,14 +267,14 @@ export class Dapp extends React.Component {
       try {
         const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
         this._connectWallet();
-        this.setState({ transactionPending: transaction.hash });
-        await transaction.wait();
+        this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+        await transaction.wait();
         this._connectWallet();
         this.setState({
           transactionPending: undefined,
           transactionSuccess: "List Asset"
-        })
+        });
       } catch(err) {
         this._connectWallet();
         this.setState({
@@ -293,14 +292,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.depositTaxInWei(tokenId, { value: amount });
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
       this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Deposit Taxes"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -317,14 +316,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.buyAssetInWei(tokenId, { value: assetPrice });
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
       this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Purchase Asset"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -341,14 +340,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.collectFunds(tokenId);
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
       this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Collect Funds"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -365,14 +364,14 @@ export class Dapp extends React.Component {
     try {
       const transaction = await contract.reclaimAsset(tokenId);
       this._connectWallet();
-      this.setState({ transactionPending: transaction.hash });
-      await transaction.wait();
+      this.setState({ transactionPending: true, transactionHash: transaction.hash });
 
+      await transaction.wait();
       this._connectWallet();
       this.setState({
         transactionPending: undefined,
         transactionSuccess: "Reclaim Asset"
-      })
+      });
     } catch(err) {
       this._connectWallet();
       this.setState({
@@ -384,6 +383,10 @@ export class Dapp extends React.Component {
 
   _dismissNetworkError() {
     this.setState({ networkError: undefined });
+  }
+
+  _dismissTransactionPending() {
+    this.setState({ transactionPending: undefined });
   }
 
   _dismissTransactionSuccess() {
@@ -459,13 +462,16 @@ export class Dapp extends React.Component {
         )}
         {this.state.transactionPending && (
           <TransactionPending
-            transactionHash={this.state.transactionPending}
+            dismiss={() => this._dismissTransactionPending()}
+            minifyHash={this._minifyHash}
+            transactionHash={this.state.transactionHash}
           />
         )}
         {this.state.transactionSuccess && (
           <TransactionSuccess
             dismiss={() => this._dismissTransactionSuccess()}
             message={this.state.transactionSuccess}
+            transactionHash={this.state.transactionHash}
           />
         )}
         {this.state.transactionError && (
@@ -484,10 +490,6 @@ export class Dapp extends React.Component {
               />
             </Route>
             <Route path={"/harberger-taxes/assets"}>
-              <Inventory
-                assets={this.state.assets}
-                contract={this.HTAXcontract}
-              />
               {this.state.selectedAddress === this.state.adminAddress && (
                 <MintAsset
                   adminAddress={this.state.adminAddress}
@@ -495,6 +497,10 @@ export class Dapp extends React.Component {
                   selectedAddress={this.state.selectedAddress}
                 />
               )}
+              <Inventory
+                assets={this.state.assets}
+                contract={this.HTAXcontract}
+              />
             </Route>
             {this.state.assets.map((asset, index) => {
               return (
@@ -509,6 +515,7 @@ export class Dapp extends React.Component {
                     contract={this.HTAXcontract}
                     eventLogs={this.state.eventLogs}
                     loadingContract={this.state.loadingContract}
+                    provider={this._provider}
                     selectedAddress={this.state.selectedAddress}
                     selectedBalance={this.state.selectedBalance}
                     taxRatePercentage={this.state.taxRatePercentage}

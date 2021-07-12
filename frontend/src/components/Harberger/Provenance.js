@@ -31,8 +31,8 @@ class Provenance extends Component {
             <Table striped bordered hover>
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Asset</th>
+                  <th>Created</th>
+                  {/* <th>Asset</th> */}
                   <th>Event</th>
                   <th>From</th>
                   <th>To</th>
@@ -42,7 +42,7 @@ class Provenance extends Component {
               <tbody>
                 {tokenEvents.map((event, index) => {
                   const timestamp = event.args.timestamp
-                  const tokenId = event.args.tokenId
+                  // const tokenId = event.args.tokenId
                   const name = event.name
                   const from = event.args.from
                   const to = event.args.to
@@ -55,7 +55,7 @@ class Provenance extends Component {
                           this.formatTime(timestamp.toString())
                         )}
                       </td>
-                      <td>{tokenId.toNumber()}</td>
+                      {/* <td>{tokenId.toNumber()}</td> */ }
                       <td>{name}</td>
                       <td>
                         <a href={OPEN_SEA_BASE_URI + from} rel="noopener noreferrer" target="_blank">
