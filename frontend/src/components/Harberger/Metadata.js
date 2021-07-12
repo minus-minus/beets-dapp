@@ -50,7 +50,7 @@ class Metadata extends Component {
     return (
       <Col className="d-flex justify-content-center">
         <Jumbotron className="mb-5 mx-2 p-5">
-          <div className="text-center mb-3">
+          <div className="foreclosure text-center mb-3">
             {!foreclosure ? (
               <b>{this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs</b>
             ) : (

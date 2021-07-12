@@ -104,6 +104,12 @@ td {
   }
 }
 
+@media (max-width: 548px) {
+  .foreclosure {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 768px) {
   .badge.price,
   .badge.tax {
