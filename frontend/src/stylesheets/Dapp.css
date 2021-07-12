@@ -22,6 +22,10 @@
   background-color: #0f0823;
 }
 
+button.navbar-toggler {
+  background-color: #fff;
+}
+
 .beets {
   width: 90px;
   height: 65px;
@@ -67,12 +71,15 @@ a {
   font-size: 18px;
 }
 
-@media (max-width: 548px) {
+@media (max-width: 767px) {
+  .btn.btn-warning {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 967px) {
   .nav-link {
     font-size: 14px;
-  }
-
-  .connected-account {
-    display: none;
   }
 }

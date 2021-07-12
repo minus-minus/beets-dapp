@@ -40,18 +40,15 @@
   right: 0;
 }
 
-button.balance.btn.btn-primary,
-button.balance.btn.btn-success,
+button.balance.btn.btn-warning,
 button.toggle.btn.btn-primary,
 button.toggle.btn.btn-success {
   font-size: 12px;
   font-weight: bold;
 }
 
-button.balance.btn.btn-success:focus,
-button.balance.btn.btn-success:active:focus,
-button.balance.btn.btn-primary:focus,
-button.balance.btn.btn-primary:active:focus,
+button.balance.btn.btn-warning:focus,
+button.balance.btn.btn-warning:active:focus,
 button.btn.btn-warning:focus,
 button.btn.btn-warning:active:focus,
 button.toggle.btn.btn-primary:focus,
@@ -104,13 +101,13 @@ td {
   }
 }
 
-@media (max-width: 548px) {
+@media (max-width: 547px) {
   .foreclosure {
     font-size: 12px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .badge.price,
   .badge.tax {
     font-size: 12px;
@@ -121,7 +118,7 @@ td {
   }
 
   .subheader > h4 {
-    padding-bottom: 10px;
+    padding-top: 20px;
   }
 
   button.toggle.btn.btn-primary,
@@ -131,8 +128,7 @@ td {
     display: flex;
   }
 
-  button.balance.btn.btn-primary,
-  button.balance.btn.btn-success {
+  button.balance.btn.btn-warning {
     display: none;
   }
 
@@ -142,7 +138,7 @@ td {
   }
 }
 
-@media (max-width: 992px) {
+@media (max-width: 991px) {
   td {
     font-size: 14px;
   }

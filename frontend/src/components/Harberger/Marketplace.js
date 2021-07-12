@@ -95,9 +95,6 @@ class Marketplace extends Component {
         {toggleHeader ? (
           <Jumbotron className="mb-5 mx-2 p-5">
             <div className="subheader justify-content-center mb-3">
-              <h4 className="text-center">
-                Property Rights
-              </h4>
               <Button
                 className="toggle"
                 variant="primary"
@@ -105,9 +102,12 @@ class Marketplace extends Component {
               >
                 Tax Calculator
               </Button>
+              <h4 className="text-center">
+                Property Rights
+              </h4>
               <Button
                 className="balance"
-                variant="success"
+                variant="warning"
               >
                 Balance Ξ {selectedBalance}
               </Button>
@@ -177,9 +177,6 @@ class Marketplace extends Component {
         ) : (
           <Jumbotron className="p-5 mb-5 mx-2">
             <div className="subheader justify-content-center mb-3">
-              <h4 className="text-center">
-                Tax Calculator
-              </h4>
               <Button
                 className="toggle"
                 variant="success"
@@ -187,9 +184,12 @@ class Marketplace extends Component {
               >
                 Property Rights
               </Button>
+              <h4 className="text-center">
+                Tax Calculator
+              </h4>
               <Button
                 className="balance"
-                variant="primary"
+                variant="warning"
               >
                 Balance Ξ {selectedBalance}
               </Button>
