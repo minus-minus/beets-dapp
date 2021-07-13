@@ -17,6 +17,12 @@ export function ConnectWallet({ connectWallet, networkError, dismiss }) {
       </Row>
       <Row>
         <Col className="my-4 text-center">
+          <img
+            className="my-1"
+            style={{ height: "100px", width: "133px" }}
+            src="/logos/metamask.gif"
+            alt="MetaMask"
+          /><br/>
           <Button
             variant="warning"
             onClick={connectWallet}
