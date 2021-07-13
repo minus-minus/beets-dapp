@@ -267,22 +267,21 @@ contract HarbergerAsset is ERC721URIStorage {
   function buyAssetInWei(uint256 _tokenId) public payable validToken(_tokenId) {
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
     require(assets[_tokenId].priceAmount > 0, "This asset is currently not up for sale");
-    require(assets[_tokenId].priceAmount == msg.value, "Incorrect payment amount");
+    require(assets[_tokenId].priceAmount == msg.value, "Invalid payment amount");
 
     address currentOwner = ownerOf(_tokenId);
     address creator = assets[_tokenId].creator;
 
     transferPayment(msg.value, currentOwner, creator);
     uint256 refundAmount = refundTax(_tokenId, currentOwner);
-    updateAssetHistory(_tokenId, currentOwner, refundAmount);
+    uint256 depositAfterRefund = updateAssetHistory(_tokenId, currentOwner, refundAmount);
+
+    updateBalance(_tokenId, creator, depositAfterRefund);
+    initializeAsset(_tokenId, creator);
+    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
 
     emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
-
-    updateBalance(_tokenId, creator);
-    initializeAsset(_tokenId, creator);
-
-    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
   }
 
   /**
@@ -331,30 +330,31 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _tokenId ID of the token
    * @param _currentOwner Address of the previous owner
    * @param _refundAmount Amount used to calculate actual `totalDepositAmount` of the previous owner
+   * @return total deposit amount after refund
    */
-  function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
+  function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal returns (uint256) {
     if (depositHistory[_tokenId][_currentOwner] == 0) {
       totalOwners[_tokenId] += 1;
     }
 
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
-    depositHistory[_tokenId][_currentOwner] += totalDepositAmount - _refundAmount;
+    uint256 depositAfterRefund = totalDepositAmount - _refundAmount;
+    depositHistory[_tokenId][_currentOwner] += depositAfterRefund;
+
+    return depositAfterRefund;
   }
 
   /**
    * @dev Updates the `admin` and `creator` balances.
    * @param _tokenId ID of the token
    * @param _creator Address of artist who created the asset
+   * @param _totalDeposit Amount deposited after refund used to update balances
    */
-  function updateBalance(uint256 _tokenId, address _creator) internal {
-    uint256 contractBalance = address(this).balance;
-    uint256 adminBalance = balances[_tokenId][admin];
-    uint256 creatorBalance = balances[_tokenId][_creator];
-    uint256 remainingBalance = contractBalance.sub(adminBalance).sub(creatorBalance);
-    uint256 splitBalance = remainingBalance.div(2);
+  function updateBalance(uint256 _tokenId, address _creator, uint256 _totalDeposit) internal {
+    uint256 splitBalance = _totalDeposit.div(2);
 
-    balances[_tokenId][admin] += splitBalance.sub(adminBalance);
-    balances[_tokenId][_creator] += splitBalance.sub(creatorBalance);
+    balances[_tokenId][admin] += splitBalance;
+    balances[_tokenId][_creator] += splitBalance;
   }
 
   /**

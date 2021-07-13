@@ -78,7 +78,7 @@ describe("HarbergerAsset", function () {
         error = err.message.split("'")[1];
       }
 
-      expect(error).to.equal("Incorrect payment amount");
+      expect(error).to.equal("Invalid payment amount");
     });
 
     it("transfers payment and royalty amount", async function () {
