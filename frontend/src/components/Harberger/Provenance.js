@@ -21,7 +21,7 @@ class Provenance extends Component {
 
   render() {
     const eventLogs = this.props.eventLogs.filter(e => e.name !== "Approval").reverse()
-    const tokenEvents = eventLogs.filter(e => e.args.tokenId.toNumber() !== this.props.tokenId)
+    const tokenEvents = eventLogs.filter(e => e.args.tokenId.toNumber() === this.props.tokenId.toNumber())
 
     return (
       <Col className="d-flex justify-center">
