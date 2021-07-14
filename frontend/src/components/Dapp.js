@@ -1,6 +1,7 @@
 import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import "../stylesheets/Dapp.css";
 // COMPONENTS
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
@@ -482,6 +483,13 @@ export class Dapp extends React.Component {
         )}
         <div id="dapp">
           <Switch>
+            <Route path="/" exact>
+              <img
+                className="header"
+                src="/header.png"
+                alt="BeetsDAO"
+              />
+            </Route>
             <Route path="/euler-beats/prints">
               <PrintList
                 mintPrint={(originalTokenId, price) => this.mintPrint(originalTokenId, price)}
