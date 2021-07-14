@@ -14,6 +14,7 @@ class Navigation extends Component {
               <img
                 className="beets"
                 src="/logos/beets.png"
+                title="BeetsDAO"
                 alt="BeetsDAO"
               />
             </Nav.Link>
@@ -34,7 +35,11 @@ class Navigation extends Component {
             </Nav>
             <Navbar.Brand className="connected-account justify-content-end">
               {selectedAddress ? (
-                <Button className="py-2 px-4" variant="warning">
+                <Button
+                  className="py-2 px-4"
+                  variant="warning"
+                  title={this.props.selectedAddress}
+                >
                   {selectedAddress}
                 </Button>
               ) : (

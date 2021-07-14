@@ -68,7 +68,7 @@ class Marketplace extends Component {
   formatTime = (unixTime) => {
     if (!unixTime) return
     const localtz = moment.tz.guess()
-    return moment.unix(unixTime).tz(localtz).format('MMMM Do YYYY [@] h:mm a')
+    return moment.unix(unixTime).tz(localtz).format('MMMM Do, YYYY [@] h:mm a')
   }
 
   render() {
@@ -108,6 +108,7 @@ class Marketplace extends Component {
               <Button
                 className="balance"
                 variant="warning"
+                title={'Ξ ' + this.props.convertToEth(this.props.selectedBalance)}
               >
                 Balance Ξ {selectedBalance}
               </Button>
@@ -139,6 +140,7 @@ class Marketplace extends Component {
                   className="my-2 mx-3 py-2 px-4"
                   variant="success"
                   disabled={parseFloat(assetPrice) === 0 || approvedAddress !== contractAddress}
+                  title="Purchase Asset"
                   onClick={(e) => this.props.buyAsset(tokenId, assetPrice)}
                 >
                   Buy
@@ -156,6 +158,7 @@ class Marketplace extends Component {
                     className="my-3 mx-3 py-2 px-4"
                     required={true}
                     variant="success"
+                    title="Offer Asset for Sale"
                     type="submit"
                   >
                     List
@@ -166,7 +169,7 @@ class Marketplace extends Component {
                 <Button
                   className="my-2 mx-3 py-2 px-4"
                   variant="danger"
-                  title="You must first set approval for this contract before listing the asset"
+                  title="You must first approve this contract as an escrow before listing your asset"
                   onClick={(e) => this.props.setApproval(tokenId)}
                 >
                   Approve
@@ -190,6 +193,7 @@ class Marketplace extends Component {
               <Button
                 className="balance"
                 variant="warning"
+                title={'Ξ ' + this.props.convertToEth(this.props.selectedBalance)}
               >
                 Balance Ξ {selectedBalance}
               </Button>
@@ -254,6 +258,7 @@ class Marketplace extends Component {
                   className="my-3 mx-2 py-2 px-4"
                   variant="primary"
                   disabled={ownerAddress !== selectedAddress}
+                  title="Deposit Taxes"
                   type="submit"
                 >
                   Deposit

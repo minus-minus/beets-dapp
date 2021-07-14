@@ -15,6 +15,7 @@ class Ownership extends Component {
           <Button
             className="mx-3 py-2 px-3"
             variant="success"
+            title="Withdraw Tax Funds"
             onClick={(e) => {this.props.collectFunds(tokenId)}}
           >
             Collect Funds
@@ -24,6 +25,7 @@ class Ownership extends Component {
           <Button
             className="mx-3 py-2 px-3"
             variant="danger"
+            title="Perform Asset Foreclosure"
             onClick={(e) => {this.props.reclaimAsset(tokenId)}}
           >
             Reclaim Asset

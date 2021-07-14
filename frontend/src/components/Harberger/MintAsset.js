@@ -16,6 +16,7 @@ class MintAsset extends Component {
           className="my-2 py-2 px-4"
           variant="success"
           disabled={selectedAddress !== adminAddress}
+          title="Create Asset"
           onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
         >
           Mint Token

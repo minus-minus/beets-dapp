@@ -73,10 +73,16 @@ class Metadata extends Component {
             />
           )}
           <div className="asset-price">
-            <Badge className="p-2 price">
+            <Badge
+              className="p-2 price"
+              title={'Ξ ' + this.props.convertToEth(this.props.assetPrice)}
+            >
               Price <b>Ξ {assetPrice}</b>
             </Badge>
-            <Badge className="p-2 tax">
+            <Badge
+              className="p-2 tax"
+              title={'Ξ ' + this.props.convertToEth(this.props.assetTaxAmount)}
+            >
               Tax <b>Ξ {assetTaxAmount}</b>
             </Badge>
           </div>
