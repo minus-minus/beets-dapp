@@ -151,3 +151,9 @@ td {
     font-size: 14px;
   }
 }
+
+@media (min-width: 2224px) {
+  .asset-info > p {
+    font-size: 18px;
+  }
+}
