@@ -199,14 +199,13 @@ class Marketplace extends Component {
               </Button>
             </div>
             <div className="asset-info text-center p-4">
-              <h5>Calendar</h5>
               <DatePicker
                 className="my-2"
                 selected={selectedDate}
                 minDate={moment().toDate()}
                 onChange={(date) => this.calculateTax(date)}
               />
-              <p className="mt-4">
+              <p className="mt-3">
                 The tax price can be calculated by applying a fixed percentage of <b>{taxRatePercentage}%</b> to the current sales price. For every <b>{baseTaxValue} Ξ</b> that is deposited in taxes, the clock will extend for an additional <b>{baseInterval / 3600} hours</b>. You can adjust the calendar to estimate the total amount of taxes that would be due for the selected date.
               </p>
               {(assetPrice <= 0 && assetTotalDeposit <= 0) && (

@@ -87,9 +87,14 @@ a {
 }
 
 @media (max-width: 767px) {
+  .beets {
+    margin-left: -25px;
+  }
+
   .btn.btn-warning {
     margin-top: 10px;
     margin-bottom: 20px;
+    margin-left: 5px;
   }
 
   .header {
