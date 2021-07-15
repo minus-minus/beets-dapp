@@ -64,9 +64,8 @@ a {
   top: 40%;
   left: 50%;
   max-width: 75%;
-  max-height: 250px;
+  max-height: 30vh;
   padding: 1.5rem;
-  color: #0f0823;
   background-color: #0f0823;
   border-radius: 10px;
   box-shadow: 0 10px 20px rgba(0,0,0,0.9);

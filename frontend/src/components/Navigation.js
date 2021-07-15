@@ -7,7 +7,7 @@ class Navigation extends Component {
     const selectedAddress = this.props.minifyHash(this.props.selectedAddress)
 
     return (
-      <Navbar collapseOnSelect expand="md">
+      <Navbar className="sticky-top" collapseOnSelect expand="md">
         <Container>
           <Navbar.Brand>
             <Nav.Link href="/">
