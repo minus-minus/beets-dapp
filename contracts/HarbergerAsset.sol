@@ -395,7 +395,7 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(foreclosure(_tokenId), "Time has not yet expired for you to reclaim this asset");
-    require(ownerOf(_tokenId != _msgSender(), "You are already the owner of this asset")
+    require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
 
     address currentOwner = ownerOf(_tokenId);
     emit Foreclosure(block.timestamp, _tokenId, _msgSender(), currentOwner);
