@@ -1,12 +1,13 @@
 const hre = require("hardhat")
 const fs = require("fs");
 const contractsDir = __dirname + "/../frontend/src/contracts";
+const CONTRACT_ADMIN = "0xED29CfC3Bd78019e57b3b2BbFf62258a7e674eE5";
 
 async function main() {
   await hre.run("compile")
 
   const HarbergerAsset = await hre.ethers.getContractFactory("HarbergerAsset");
-  const harbergerAsset = await HarbergerAsset.deploy();
+  const harbergerAsset = await HarbergerAsset.deploy(CONTRACT_ADMIN);
   await harbergerAsset.deployed();
 
   console.log("HarbergerAsset deployed to:", harbergerAsset.address);

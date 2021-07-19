@@ -49,6 +49,7 @@ class Asset extends Component {
         assetTaxAmount: this.props.asset.taxAmount.toString(),
         assetTotalDeposit: this.props.asset.totalDepositAmount.toString(),
         baseTaxValue: baseTaxValue.toString(),
+        creatorAddress: this.props.creatorAddress,
         creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
         foreclosure: foreclosure,
@@ -110,7 +111,7 @@ class Asset extends Component {
                 assetTaxAmount={this.state.assetTaxAmount}
                 contractAddress={this.props.contractAddress}
                 convertToEth={this.convertToEth}
-                creatorAddress={this.props.creatorAddress}
+                creatorAddress={this.state.creatorAddress}
                 creatorName={this.state.creatorName}
                 foreclosure={this.state.foreclosure}
                 loadingMetadata={this.props.loadingMetadata}
@@ -156,7 +157,7 @@ class Asset extends Component {
               <Ownership
                 adminAddress={this.props.adminAddress}
                 collectFunds={this.props.collectFunds}
-                creatorAddress={this.props.creatorAddress}
+                creatorAddress={this.state.creatorAddress}
                 reclaimAsset={this.props.reclaimAsset}
                 provider={this.props.provider}
                 selectedAddress={this.props.selectedAddress}

@@ -1,7 +1,6 @@
 import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import "../stylesheets/Dapp.css";
 // COMPONENTS
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
@@ -22,6 +21,8 @@ import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
 import { ENIGMA_TOKEN_CONTRACT_ADDRESS, ORIGINAL_OWNER } from "../utils/EB/constants";
 import { HTAX_EVENT_ABI } from "../utils/HTAX/constants";
 import HTAX_ARTIFACT from "../contracts/HarbergerAsset.json";
+// STYLESHEETS
+import "../stylesheets/Dapp.css";
 // NETWORKS
 // const MAINNET_NETWORK_ID = '1';
 const RINKEBY_NETWORK_ID = '4';
