@@ -32,7 +32,7 @@ class Inventory extends Component {
 
   render() {
     return (
-      <Row className="text-center">
+      <Row className="text-center mb-5">
         <h1 className="text-center my-5">Assets</h1>
         <Col className="d-flex justify-content-center mb-5">
           {this.state.data.map((asset, index) => {

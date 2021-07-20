@@ -5,7 +5,7 @@ import "../../stylesheets/HarbergerAsset.css";
 class Reference extends Component {
   render() {
     return (
-      <Row>
+      <Row className="mb-5">
         <h1 className="text-center my-5">External Sources</h1>
         <Col className="d-flex justify-content-center mb-5">
           <Card style={{ width: '24rem' }}>

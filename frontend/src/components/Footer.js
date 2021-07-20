@@ -5,7 +5,7 @@ import "../stylesheets/Dapp.css";
 class Footer extends Component {
   render() {
     return (
-      <Navbar className="footer mt-5">
+      <Navbar className="footer">
         <Container className="justify-content-center">
           <p className="footer-text">
             Copyright © 2021 BeetsDAO, LLC
