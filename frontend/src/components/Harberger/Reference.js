@@ -14,13 +14,13 @@ class Reference extends Component {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <Card.Img variant="top" src="/references/harberger.jpeg" />
+              <Card.Img variant="top" src="/references/harberger.jpg" />
             </a>
-            <Card.Body>
+            <Card.Body className="mt-2">
               <Card.Title>
                 Harberger Taxes on Ethereum
               </Card.Title>
-              <Card.Text>
+              <Card.Text className="pt-2">
                 Harberger Taxes is an economic abstraction that aims to democratize the control of assets between private and commons ownership. In this taxation system, asset owners self-assess...
               </Card.Text>
             </Card.Body>
@@ -33,7 +33,7 @@ class Reference extends Component {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <Card.Img variant="top" src="/references/taxes.jpeg" />
+              <Card.Img variant="top" src="/references/taxes.jpg" />
             </a>
             <Card.Body>
               <Card.Text>
@@ -60,11 +60,11 @@ class Reference extends Component {
             >
               <Card.Img variant="top" src="/references/artwork.png" />
             </a>
-            <Card.Body>
+            <Card.Body className="mt-2">
               <Card.Title>
                 This Artwork Is Always On Sale
               </Card.Title>
-              <Card.Text>
+              <Card.Text className="pt-2">
                 Using the Ethereum blockchain, it is possible to introduce scarcity of ownership alongside novel economic and property rights. Inspired by Radical Markets, this artwork follows a modified Harberger Tax property ownership where...
               </Card.Text>
             </Card.Body>

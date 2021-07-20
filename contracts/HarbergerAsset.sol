@@ -29,7 +29,7 @@ import "hardhat/console.sol";
 /**
  * @author swaHili
  * @title HarbergerAsset
- * @dev Assets are controlled through the property rights enforced by harberger taxation
+ * @dev Assets are controlled through the property rights enforced by Harberger taxation
  */
 contract HarbergerAsset is ERC721URIStorage {
   using SafeMath for uint256;
@@ -199,7 +199,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Lists asset for sale in wei.
+   * @dev Lists asset for sale in wei and sets corresponding tax price in wei.
    * @param _tokenId ID of the token
    * @param _priceAmount Price amount in wei of the asset
    *
@@ -208,7 +208,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - 'priceAmount' of asset must be greater than 0.
-   * - 'foreclosure()' of asset must not be in process.
+   * - 'foreclosure()' of asset must not be in process OR `msgSender()` must be equal to creator of asset.
    *
    * Emits a {List} event.
    */
@@ -389,7 +389,8 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenId` must exist.
    * - `creator` must be equal to `msgSender()`.
-   * - `foreclosure()` of `tokenId` must be equal to true.
+   * - `foreclosure()` of asset must be equal to true.
+   * - `creator` must not be current owner of the asset.
    *
    * Emits a {Foreclosure} event.
    */
@@ -456,6 +457,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `tokenId` must exist.
    * - `creator` must be equal to `_msgSender()`.
    * - `amount` must be different than the current value.
+   * - `creator` may only update value when in posession of the asset.
    */
   function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
@@ -470,7 +472,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
-   * - `admin` must be equal to `_msgSender()`.
+   * - `admin` must be equal to `msgSender()`.
    * - `interval` must be different than the current value.
    */
   function setBaseIntervalInSeconds(uint256 _interval) public onlyAdmin {
@@ -485,7 +487,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
-   * - `admin` must be equal to `_msgSender()`.
+   * - `admin` must be equal to `msgSender()`.
    * - `percentage` must be different than the current value.
    */
   function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
@@ -500,7 +502,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
-   * - `admin` must be equal to `_msgSender()`.
+   * - `admin` must be equal to `msgSender()`.
    * - `percentage` must be different than the current value.
    */
   function setTaxRatePercentage(uint256 _percentage) public onlyAdmin {
@@ -514,7 +516,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Requirements:
    *
-   * - `currentOwner` or `approvedAccount` must be equal to `_msgSender()` OR
+   * - `currentOwner` or `approvedAccount` must be equal to `msgSender()` OR
    * - `creator` must be equal to `msgSender` AND `foreclosure()` must be equal to true.
    */
   function safeTransferFrom(
