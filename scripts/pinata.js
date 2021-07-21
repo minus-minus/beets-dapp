@@ -1,7 +1,7 @@
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
-const tokenFileName = "./frontend/public/assets/freestyle.mp4"
+const tokenFileName = "./frontend/public/assets/tokens/1.mp4"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {

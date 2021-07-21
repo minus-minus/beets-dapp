@@ -40,8 +40,8 @@ class Metadata extends Component {
     const assetPrice = this.props.convertToEth(this.props.assetPrice, 2)
     const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount, 2)
     const contractAddress = this.props.contractAddress
-    const creatorAddress = this.props.creatorAddress
-    const creatorName = this.props.creatorName
+    // const creatorAddress = this.props.creatorAddress
+    // const creatorName = this.props.creatorName
     const foreclosure = this.state.foreclosure
     const loadingMetadata = this.props.loadingMetadata
     const tokenMedia = this.props.tokenMedia
@@ -50,12 +50,15 @@ class Metadata extends Component {
     return (
       <Col className="d-flex justify-content-center">
         <Jumbotron className="mb-5 mx-2 p-5">
-          <div className="foreclosure text-center mb-3">
-            {!foreclosure ? (
-              <b>{this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs</b>
-            ) : (
-              <b>ASSET FORECLOSURE</b>
-            )}
+          <div className="text-center mb-4">
+            <h4 className="asset-name">
+              <a
+                href={OPEN_SEA_BASE_URI + 'assets/' + contractAddress.toLowerCase() + '/' + tokenId}
+                rel="noopener noreferrer"
+                target="_blank">
+                {this.props.tokenName}
+              </a>
+            </h4>
           </div>
           {!loadingMetadata ? (
             <video
@@ -88,28 +91,22 @@ class Metadata extends Component {
           </div>
           <Accordion className="text-center mt-4">
             <Card>
-              <Accordion.Toggle as={Card.Header} variant="link" eventKey="0">
-                <b>Artist</b>
-              </Accordion.Toggle>
-              <Accordion.Collapse eventKey="0">
+              <Accordion as={Card.Header}>
+                <b>Asset Foreclosure</b>
+              </Accordion>
+              <Accordion>
                 <Card.Body>
-                  <a href={OPEN_SEA_BASE_URI + creatorAddress} rel="noopener noreferrer" target="_blank">
-                    {creatorName}
-                  </a>
+                  {!foreclosure ? (
+                    <b className="foreclosure">
+                      {this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs
+                    </b>
+                  ) : (
+                    <b className="time-expired">
+                      TIME EXPIRED
+                    </b>
+                  )}
                 </Card.Body>
-              </Accordion.Collapse>
-            </Card>
-            <Card>
-              <Accordion.Toggle as={Card.Header} variant="link" eventKey="1">
-                <b>Asset</b>
-              </Accordion.Toggle>
-              <Accordion.Collapse eventKey="1">
-                <Card.Body>
-                  <a href={OPEN_SEA_BASE_URI + 'assets/' + contractAddress.toLowerCase() + '/' + tokenId} rel="noopener noreferrer" target="_blank">
-                    {this.props.tokenName}
-                  </a>
-                </Card.Body>
-              </Accordion.Collapse>
+              </Accordion>
             </Card>
           </Accordion>
         </Jumbotron>

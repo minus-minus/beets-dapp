@@ -134,7 +134,7 @@ class Marketplace extends Component {
                 </Accordion.Collapse>
               </Card>
             </Accordion>
-            <div className="text-center mt-4 mb-3">
+            <div className="text-center mt-4">
               {ownerAddress !== selectedAddress && (
                 <Button
                   className="my-2 mx-3 py-2 px-4"
@@ -244,7 +244,7 @@ class Marketplace extends Component {
                 </Accordion.Collapse>
               </Card>
             </Accordion>
-            <div className="text-center mt-4 mb-3">
+            <div className="text-center mt-4">
               <form onSubmit={this.depositTax}>
                 <CurrencyInput
                   prefix="Ξ "
