@@ -40,16 +40,37 @@ async function pinMetadataToIPFS(ipfsHash) {
     },
     pinataContent: {
       "creator": "Jonathan Mann",
-      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics through the power of radical markets. The Harberger Taxes asset is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend a foreclosure on the asset. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
-      "external_url": "https://app.beetsdao.com/harberger-taxes/asset/1",
+      "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics through the power of radical markets. The Harberger Tax Song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend a foreclosure on the asset. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
+      "external_url": "https://harberger-taxes.d36bhk6ximwheo.amplifyapp.com/harberger-taxes/assets/1",
       "image": process.env.IPFS_BASE_URI + ipfsHash,
-      "name": "Harberger Taxes",
+      "name": "The Harberger Tax Song",
       "producer": "BeetsDAO",
       "token_id": 1,
       "attributes": [
         {
           "trait_type": "Artist",
           "value": "Jonathan Mann"
+        },
+        {
+          "trait_type": "Primary Topic",
+          "value": "Ethereum"
+        },
+        {
+          "trait_type": "Location",
+          "value": "Hartford, CT"
+        },
+        {
+          "trait_type": "Mood",
+          "value": "Excited"
+        },
+        {
+          "trait_type": "Instruments",
+          "value": "Acoustic Guitar, Electric Guitar"
+        },
+        {
+          "display_type": "number",
+          "trait_type": "SongADay",
+          "value": 4600
         }
       ]
     }
