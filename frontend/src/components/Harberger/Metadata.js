@@ -64,9 +64,10 @@ class Metadata extends Component {
             <video
               className="asset-media mb-3"
               style={{border: "5px solid #ACB2B5"}}
+              poster="/assets/tokens/thumbnail.png"
+              src={tokenMedia}
               controls
               playsInline
-              src={tokenMedia}
             />
           ) : (
             <img
