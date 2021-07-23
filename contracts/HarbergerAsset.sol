@@ -461,24 +461,9 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
-    /* require(ownerOf(_tokenId) == _msgSender(), "You may only update this value once you are in possession of the asset"); */
+    require(ownerOf(_tokenId) == _msgSender(), "You may only update this value once you are in possession of the asset");
 
     baseTaxValues[_tokenId] = _amount;
-  }
-
-  /**
-   * @dev Updates the state variable `baseInterval`.
-   * @param _interval New base time interval in seconds
-   *
-   * Requirements:
-   *
-   * - `admin` must be equal to `msgSender()`.
-   * - `interval` must be different than the current value.
-   */
-  function setBaseIntervalInSeconds(uint256 _interval) public onlyAdmin {
-    require(baseInterval != _interval, "New value must be different than the current value");
-
-    baseInterval = _interval;
   }
 
   /**

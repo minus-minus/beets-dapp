@@ -11,7 +11,7 @@ describe("HarbergerAsset", function () {
     HarbergerAsset = await ethers.getContractFactory("HarbergerAsset");
     [admin, creator, owner, collector, ...addresses] = await ethers.getSigners();
 
-    contract = await HarbergerAsset.deploy();
+    contract = await HarbergerAsset.deploy(admin.address);
     await contract.deployed();
   });
 

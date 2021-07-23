@@ -1,10 +1,10 @@
 import React from "react";
 import { NetworkError } from "./NetworkError";
-import { Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 
 export function ConnectWallet({ connectWallet, networkError, dismiss }) {
   return (
-    <div className="container">
+    <Container>
       <Row className="justify-content-center">
         <Col className="my-3 text-center">
           {networkError && (
@@ -31,6 +31,6 @@ export function ConnectWallet({ connectWallet, networkError, dismiss }) {
           </Button>
         </Col>
       </Row>
-    </div>
+    </Container>
   );
 }
