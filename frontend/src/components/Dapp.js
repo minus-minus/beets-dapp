@@ -498,7 +498,7 @@ export class Dapp extends React.Component {
                 getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
               />
             </Route>
-            <Route path={"/harberger-taxes/assets"}>
+            <Route path={"/harberger-taxes/assets"} exact>
               {this.state.selectedAddress === this.state.adminAddress && (
                 <MintAsset
                   adminAddress={this.state.adminAddress}
