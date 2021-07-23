@@ -484,7 +484,7 @@ export class Dapp extends React.Component {
         )}
         <div id="dapp">
           <Switch>
-            <Route path="/" exact>
+            <Route exact path="/">
               <img
                 className="header"
                 src="/header.png"
@@ -498,7 +498,7 @@ export class Dapp extends React.Component {
                 getTrackPrice={(printSupply) => this.getTrackPrice(printSupply)}
               />
             </Route>
-            <Route path={"/harberger-taxes/assets"} exact>
+            <Route exact path={"/harberger-taxes/assets"}>
               {this.state.selectedAddress === this.state.adminAddress && (
                 <MintAsset
                   adminAddress={this.state.adminAddress}
