@@ -35,7 +35,7 @@ class Asset extends Component {
       // const ownerAddressENS = await this.props.provider.lookupAddress(assetOwner);
       const approvedAccount = await this.props.contract.getApproved(tokenId);
       const baseTaxValue = await this.props.contract.baseTaxValues(tokenId)
-      const foreclosure = await this.props.contract.timeExpired(tokenId);
+      const foreclosure = await this.props.contract.foreclosure(tokenId);
       const tokenURI = await this.props.contract.tokenURI(tokenId);
       const adminBalance = await this.props.contract.balances(tokenId, this.props.adminAddress);
       const creatorBalance = await this.props.contract.balances(tokenId, this.props.creatorAddress);
