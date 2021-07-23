@@ -48,28 +48,27 @@ async function pinMetadataToIPFS(ipfsHash) {
       "token_id": 1,
       "attributes": [
         {
-          "trait_type": "Artist",
-          "value": "Jonathan Mann"
+          "trait_type": "ARTIST",
+          "value": "JONATHAN MANN"
         },
         {
-          "trait_type": "Primary Topic",
-          "value": "Ethereum"
+          "trait_type": "TOPIC",
+          "value": "ETHEREUM"
         },
         {
-          "trait_type": "Location",
-          "value": "Hartford, CT"
+          "trait_type": "LOCATION",
+          "value": "HARTFORD, CT"
         },
         {
-          "trait_type": "Mood",
-          "value": "Excited"
+          "trait_type": "MOOD",
+          "value": "EXCITED"
         },
         {
-          "trait_type": "Instruments",
-          "value": "Acoustic Guitar, Electric Guitar"
+          "trait_type": "INSTRUMENT",
+          "value": "ACOUSTIC GUITAR"
         },
         {
-          "display_type": "number",
-          "trait_type": "SongADay",
+          "trait_type": "SONG A DAY",
           "value": 4600
         }
       ]

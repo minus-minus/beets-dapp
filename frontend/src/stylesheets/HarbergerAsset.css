@@ -59,6 +59,17 @@ button.toggle.btn.btn-success {
   font-weight: bold;
 }
 
+button.btn.btn-primary:hover,
+button.btn.btn-success:hover,
+button.btn.btn-danger:hover {
+  font-weight: bold;
+  text-shadow: 2px 2px 4px #000;
+}
+
+button.btn.btn-warning:hover {
+  font-weight: bold;
+}
+
 button.balance.btn.btn-warning:focus,
 button.balance.btn.btn-warning:active:focus,
 button.btn.btn-warning:focus,
