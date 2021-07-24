@@ -11,7 +11,6 @@
 .asset-media {
   width: 100%;
   height: auto;
-  border: 5px solid #ACB2B5;
 }
 
 .asset-price {
@@ -21,15 +20,28 @@
 
 .badge.price {
   font-size: 14px;
-  background-color: #198754;
+  background-color: #0f0823;
 }
 
 .badge.tax {
   font-size: 14px;
-  background-color: #0d6efd;
+  background-color: #0f0823;
 }
 
-.foreclosure {
+.asset-creator {
+  display: flex;
+  justify-content: center;
+  margin-top: -1.75rem;
+}
+
+.badge.creator,
+.badge.creator > a {
+  font-size: 14px;
+  color: #000;
+  background-color: #fff;
+}
+
+.time-remaining {
   color: #198754;
 }
 
@@ -82,13 +94,6 @@ button.toggle.btn.btn-success:active:focus {
   box-shadow: none;
 }
 
-.badge.balance {
-  font-size: 12px;
-  background-color: #198754;
-  position: absolute;
-  right: 0;
-}
-
 .asset-info {
   flex: 1;
   overflow-y: scroll;
@@ -133,7 +138,15 @@ td {
     padding: 2rem !important;
   }
 
-  .foreclosure,
+  .asset-creator {
+    margin-top: 2rem;
+  }
+
+  .badge.creator {
+    width: 100%;
+  }
+
+  .time-remaining,
   .time-expired {
     font-size: 14px;
   }
@@ -149,6 +162,7 @@ td {
 
 @media (max-width: 767px) {
   .badge.price,
+  .badge.creator,
   .badge.tax {
     font-size: 12px;
   }

@@ -40,8 +40,8 @@ class Metadata extends Component {
     const assetPrice = this.props.convertToEth(this.props.assetPrice, 2)
     const assetTaxAmount = this.props.convertToEth(this.props.assetTaxAmount, 2)
     const contractAddress = this.props.contractAddress
-    // const creatorAddress = this.props.creatorAddress
-    // const creatorName = this.props.creatorName
+    const creatorAddress = this.props.creatorAddress
+    const creatorName = this.props.creatorName
     const foreclosure = this.state.foreclosure
     const loadingMetadata = this.props.loadingMetadata
     const tokenMedia = this.props.tokenMedia
@@ -90,6 +90,19 @@ class Metadata extends Component {
               Tax <b>Ξ {assetTaxAmount}</b>
             </Badge>
           </div>
+          <div className="asset-creator">
+            <Badge
+              className="p-2 creator"
+              title={creatorName}
+            >
+              <a
+                href={OPEN_SEA_BASE_URI + 'accounts/' + creatorAddress}
+                rel="noopener noreferrer"
+                target="_blank">
+                Artist: {creatorName}
+              </a>
+            </Badge>
+          </div>
           <Accordion className="text-center mt-4">
             <Card>
               <Accordion as={Card.Header}>
@@ -98,7 +111,7 @@ class Metadata extends Component {
               <Accordion>
                 <Card.Body>
                   {!foreclosure ? (
-                    <b className="foreclosure">
+                    <b className="time-remaining">
                       {this.state.days} days, {this.state.hrs} hrs, {this.state.mins} mins, {this.state.secs} secs
                     </b>
                   ) : (

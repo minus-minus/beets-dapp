@@ -151,6 +151,7 @@ class Marketplace extends Component {
                   <CurrencyInput
                     prefix="Ξ "
                     decimalsLimit={4}
+                    placeholder="Ξ 0.00"
                     ref={(input) => {this.listing = input}}
                   />
                   <br/>
@@ -250,6 +251,7 @@ class Marketplace extends Component {
                   prefix="Ξ "
                   decimalsLimit={4}
                   value={estimatedTax}
+                  placeholder="Ξ 0.00"
                   ref={(input) => {this.deposit = input}}
                 />
                 <br/>
