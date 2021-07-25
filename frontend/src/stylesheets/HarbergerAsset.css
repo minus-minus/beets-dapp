@@ -1,6 +1,6 @@
 .jumbotron {
   width: 100%;
-  background-color: #e9ecef;
+  background-color: #0f0823;
   border-radius: 10px;
 }
 
@@ -20,12 +20,14 @@
 
 .badge.price {
   font-size: 14px;
-  background-color: #0f0823;
+  color: #0f0823;
+  background-color: #fff;
 }
 
 .badge.tax {
   font-size: 14px;
-  background-color: #0f0823;
+  color: #0f0823;
+  background-color: #fff;
 }
 
 .asset-creator {
@@ -37,7 +39,7 @@
 .badge.creator,
 .badge.creator > a {
   font-size: 14px;
-  color: #000;
+  color: #0f0823;
   background-color: #fff;
 }
 
@@ -135,7 +137,7 @@ td {
   }
 
   div.mb-5.p-5.jumbotron {
-    padding: 2rem !important;
+    padding: 2.5rem !important;
   }
 
   .asset-creator {

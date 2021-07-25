@@ -26,7 +26,7 @@ class Provenance extends Component {
     return (
       <Col className="d-flex justify-center">
         <Jumbotron className="mb-5 p-5">
-          <h4 className="text-center mb-3">Provenance</h4>
+          <h4 className="text-center mb-3" style={{ color: "#fff" }}>Provenance</h4>
           <div className="asset-history text-center p-4">
             <Table striped bordered hover>
               <thead>
