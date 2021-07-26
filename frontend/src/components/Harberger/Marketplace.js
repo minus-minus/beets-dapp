@@ -102,7 +102,7 @@ class Marketplace extends Component {
               >
                 Tax Calculator
               </Button>
-              <h4 className="text-center" style={{ color: "#fff" }}>
+              <h4 className="text-center">
                 Property Rights
               </h4>
               <Button
@@ -188,7 +188,7 @@ class Marketplace extends Component {
               >
                 Property Rights
               </Button>
-              <h4 className="text-center" style={{ color: "#fff" }}>
+              <h4 className="text-center">
                 Tax Calculator
               </h4>
               <Button

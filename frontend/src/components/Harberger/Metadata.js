@@ -54,7 +54,6 @@ class Metadata extends Component {
             <h4 className="asset-name">
               <a
                 href={OPEN_SEA_BASE_URI + 'assets/' + contractAddress.toLowerCase() + '/' + tokenId}
-                style={{ color: "#fff" }}
                 rel="noopener noreferrer"
                 target="_blank">
                 {this.props.tokenName}
@@ -100,7 +99,7 @@ class Metadata extends Component {
                 href={OPEN_SEA_BASE_URI + 'accounts/' + creatorAddress}
                 rel="noopener noreferrer"
                 target="_blank">
-                Artist: {creatorName}
+                Created by {creatorName}
               </a>
             </Badge>
           </div>

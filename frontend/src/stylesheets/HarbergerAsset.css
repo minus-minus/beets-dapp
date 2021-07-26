@@ -1,6 +1,6 @@
 .jumbotron {
   width: 100%;
-  background-color: #0f0823;
+  background-color: #e9ecef;
   border-radius: 10px;
 }
 
@@ -21,26 +21,31 @@
 .badge.price {
   font-size: 14px;
   color: #0f0823;
-  background-color: #fff;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
 }
 
 .badge.tax {
   font-size: 14px;
   color: #0f0823;
-  background-color: #fff;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
 }
 
 .asset-creator {
   display: flex;
   justify-content: center;
-  margin-top: -1.75rem;
+  margin-top: -2rem;
 }
 
-.badge.creator,
-.badge.creator > a {
+.badge.creator {
   font-size: 14px;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
+}
+
+.badge.creator > a {
   color: #0f0823;
-  background-color: #fff;
 }
 
 .time-remaining {
