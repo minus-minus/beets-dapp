@@ -2,7 +2,7 @@ const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
 const tokenId = 1
-const tokenFileName = "./frontend/public/logos/blue.png"
+const tokenFileName = "./frontend/public/assets/tokens/1.png"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
