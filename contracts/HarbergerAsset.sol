@@ -42,8 +42,8 @@ contract HarbergerAsset is ERC721URIStorage {
   // Base time interval in seconds used to calculate foreclosure date (24 hours)
   uint256 public baseInterval = 86400 seconds;
 
-  // Prepend baseURI to IPFS Hash to create tokenURI (alternate baseURI: `ipfs://`)
-  string  public baseURI = "https://ipfs.io/ipfs/";
+  // Prepend baseURI to Arweave ID to create tokenURI
+  string  public baseURI = "https://arweave.net/";
 
   // Percentage of sales price shows how royalty amount is calculated
   uint256 public royaltyPercentage = 10;
@@ -66,11 +66,11 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint256 => uint256) public baseTaxValues;
 
+  // Mapping tokenId to content identifiers (IPFS Hashes)
+  mapping(uint256 => string) public contentIds;
+
   // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
   mapping(uint256 => mapping(address => uint256)) public depositHistory;
-
-  // Mapping tokenURI to boolean value
-  mapping(string => bool) public tokenURIs;
 
   // Mapping tokenId to total count of previous owners
   mapping(uint256 => uint256) public totalOwners;
@@ -167,28 +167,26 @@ contract HarbergerAsset is ERC721URIStorage {
 
   /**
    * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI`
-   * @param _tokenURI IPFS hash generated from JSON metadata
+   * @param _arweaveId Arweave ID used to create tokenURI
+   * @param _ipfsHash Content ID generated from JSON metadata
    * @param _creator Address of artist who created the asset
    * @return the newly created `tokenId`
    *
    * Requirements:
    *
-   * - `tokenURI` must not exist.
    * - `admin` must be equal to `msgSender()`.
    *
    * Emits a {Mint & Transfer} event.
    */
-  function mintAsset(string memory _tokenURI, address _creator) public onlyAdmin returns (uint256) {
-    require(tokenURIs[_tokenURI] == false, "TokenURI already exists");
-
-    tokenURIs[_tokenURI] = true;
+  function mintAsset(string memory _arweaveId, string memory _ipfsHash, address _creator) public onlyAdmin returns (uint256) {
     _tokenIds.increment();
-
     uint256 newItemId = _tokenIds.current();
+
     emit Mint(block.timestamp, newItemId, address(0), _creator);
 
     _safeMint(_creator, newItemId);
-    _setTokenURI(newItemId, _tokenURI);
+    _setTokenURI(newItemId, _arweaveId);
+    contentIds[newItemId] = _ipfsHash;
 
     initializeAsset(newItemId, _creator);
     balances[newItemId][admin] = 0;
@@ -335,11 +333,12 @@ contract HarbergerAsset is ERC721URIStorage {
    * @return total deposit amount after refund
    */
   function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal returns (uint256) {
-    if (depositHistory[_tokenId][_currentOwner] == 0) {
+    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
+
+    if (depositHistory[_tokenId][_currentOwner] == 0 && totalDepositAmount > 0) {
       totalOwners[_tokenId] += 1;
     }
 
-    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
     uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);
     depositHistory[_tokenId][_currentOwner] += depositAfterRefund;
 

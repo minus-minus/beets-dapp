@@ -33,7 +33,7 @@ class Navigation extends Component {
                 </Nav.Link>
               </Nav.Item>
             </Nav>
-            <Navbar.Brand className="connected-account justify-content-end">
+            <Navbar.Brand className="justify-content-end">
               {selectedAddress ? (
                 <Button
                   className="py-2 px-4"

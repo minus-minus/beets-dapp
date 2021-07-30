@@ -6,6 +6,7 @@ describe("HarbergerAsset", function () {
   let admin, creator, owner, collector, addresses;
   let transaction, error;
   let tokenId = 1;
+  let arweaveId = "kdpsb5a43J9PIUEkfxnXUTuXSH631OOdk6UWvypVAlg";
   let ipfsHash = "QmWthViHXmEHUkweUp6u5NTrFX6MsdXcQEUXZop75vUafZ";
   let priceAmount = '1000000000000000000';
   let taxAmount = '100000000000000000';
@@ -22,7 +23,7 @@ describe("HarbergerAsset", function () {
 
   describe("buyAssetInWei", function () {
     beforeEach(async function () {
-      transaction = await contract.mintAsset(ipfsHash, creator.address);
+      transaction = await contract.mintAsset(arweaveId, ipfsHash, creator.address);
       await transaction.wait();
 
       transaction = await contract.connect(creator).transferFrom(creator.address, owner.address, tokenId);

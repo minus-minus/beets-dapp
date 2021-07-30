@@ -68,13 +68,14 @@ class Asset extends Component {
     try {
       const tokenURI = this.state.tokenURI;
       const response = await axios.get(tokenURI);
+      const data = response.data
 
       this.setState({
-        artistName: response.data.artist,
-        creatorName: response.data.creator,
-        tokenDescription: response.data.description,
-        tokenMedia: response.data.image,
-        tokenName: response.data.name,
+        artistName: data.artist,
+        creatorName: data.creator,
+        tokenDescription: data.description,
+        tokenMedia: data.image,
+        tokenName: data.name,
         loadingMetadata: false
       })
 

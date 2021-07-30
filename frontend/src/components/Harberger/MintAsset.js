@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import ipfsHash from "../../contracts/ipfs.json";
-// import arweave from "../../contracts/arweave.json";
+import arweave from "../../contracts/arweave.json";
+import ipfs from "../../contracts/ipfs.json";
 import { HTAX_CREATOR_ADDRESS } from "../../utils/HTAX/constants";
 import { Button } from "react-bootstrap";
 import "../../stylesheets/HarbergerAsset.css";
@@ -17,7 +17,7 @@ class MintAsset extends Component {
           variant="success"
           disabled={selectedAddress !== adminAddress}
           title="Create Asset"
-          onClick={(e) => {this.props.mintAsset(ipfsHash.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
+          onClick={(e) => {this.props.mintAsset(arweave.HarbergerAsset, ipfs.HarbergerAsset, HTAX_CREATOR_ADDRESS)}}
         >
           Mint Token
         </Button>

@@ -6,6 +6,7 @@ describe("HarbergerAsset", function () {
   let admin, creator, owner, collector, addresses;
   let transaction, error;
   let tokenId = 1;
+  let arweaveId = "kdpsb5a43J9PIUEkfxnXUTuXSH631OOdk6UWvypVAlg";
   let ipfsHash = "QmWthViHXmEHUkweUp6u5NTrFX6MsdXcQEUXZop75vUafZ";
 
   beforeEach(async function () {
@@ -20,7 +21,7 @@ describe("HarbergerAsset", function () {
     let newBaseTaxValue = '50000000000000000';
 
     beforeEach(async function () {
-      transaction = await contract.mintAsset(ipfsHash, creator.address);
+      transaction = await contract.mintAsset(arweaveId, ipfsHash, creator.address);
       await transaction.wait();
     });
 

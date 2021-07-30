@@ -5,7 +5,7 @@ export function NoWalletDetected() {
   return (
     <div className="container">
       <Row className="justify-content-center">
-        <Col className="my-3 text-center">
+        <Col className="my-5 text-center">
           <p>
             No Ethereum wallet was detected.<br/>
             Please install{" "}

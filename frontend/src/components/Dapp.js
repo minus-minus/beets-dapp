@@ -123,12 +123,12 @@ export class Dapp extends React.Component {
 
     // Fetching the token data and the user's balance are specific to this
     // sample project, but you can reuse the same initialization pattern.
-    this._intializeEthers();
+    this._initializeEthers();
 
     this.loadHarbergerContract();
   }
 
-  async _intializeEthers() {
+  async _initializeEthers() {
     // We first initialize ethers by creating a provider using window.ethereum
     this._provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -213,12 +213,12 @@ export class Dapp extends React.Component {
     console.log("Harberger Contract State:", this.state);
   }
 
-  async mintAsset(ipfsHash, creatorAddress) {
+  async mintAsset(arweaveId, ipfsHash, creatorAddress) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
 
     try {
-      const transaction = await contract.mintAsset(ipfsHash, creatorAddress);
+      const transaction = await contract.mintAsset(arweaveId, ipfsHash, creatorAddress);
       this._connectWallet();
       this.setState({ transactionPending: true, transactionHash: transaction.hash });
 

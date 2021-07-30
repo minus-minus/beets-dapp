@@ -5,6 +5,7 @@ describe("HarbergerAsset", function () {
   let HarbergerAsset, contract;
   let admin, creator, owner, collector, addresses;
   let transaction;
+  let arweaveId = "kdpsb5a43J9PIUEkfxnXUTuXSH631OOdk6UWvypVAlg";
   let ipfsHash = "QmWthViHXmEHUkweUp6u5NTrFX6MsdXcQEUXZop75vUafZ";
 
   beforeEach(async function () {
@@ -17,13 +18,13 @@ describe("HarbergerAsset", function () {
 
   describe("fetchAssets", function () {
     beforeEach(async function () {
-      transaction = await contract.mintAsset(ipfsHash, creator.address);
+      transaction = await contract.mintAsset(arweaveId, ipfsHash, creator.address);
       await transaction.wait();
 
-      transaction = await contract.mintAsset('asset2', owner.address);
+      transaction = await contract.mintAsset('arweaveId2', 'ipfsHash2', owner.address);
       await transaction.wait();
 
-      transaction = await contract.mintAsset('asset3', collector.address);
+      transaction = await contract.mintAsset('arweaveId3', 'ipfsHash3', collector.address);
       await transaction.wait();
     });
 

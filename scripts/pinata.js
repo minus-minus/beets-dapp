@@ -1,7 +1,8 @@
 const axios = require('axios')
 const fs = require('fs')
 const FormData = require('form-data')
-const tokenFileName = "./frontend/public/assets/tokens/1.mp4"
+const tokenId = 1
+const tokenFileName = "./frontend/public/logos/blue.png"
 const contractsDir = __dirname + "/../frontend/src/contracts"
 
 async function pinFileToIPFS() {
@@ -23,15 +24,16 @@ async function pinFileToIPFS() {
 
   try {
     const ipfsHash = response.data["IpfsHash"]
-    console.log("Media IPFS Hash:", ipfsHash);
-    // const arweave = await pinIPFSToArweave(ipfsHash)
-    pinMetadataToIPFS(ipfsHash)
+    console.log("Media IPFS CID:", ipfsHash)
+    const arweaveId = await pinIPFSToArweave(ipfsHash)
+    console.log("Media Arweave ID:", arweaveId)
+    pinMetadataToIPFS(ipfsHash, arweaveId)
   } catch (err) {
     console.log(err)
   }
 }
 
-async function pinMetadataToIPFS(ipfsHash) {
+async function pinMetadataToIPFS(ipfsHash, arweaveId) {
   const pinJsonUrl = process.env.PINATA_BASE_URI + "pinJSONToIPFS"
   const metadata =
   {
@@ -41,11 +43,12 @@ async function pinMetadataToIPFS(ipfsHash) {
     pinataContent: {
       "creator": "Jonathan Mann",
       "description": "Welcome to the land where smart contracts get intertwined in the crosshairs of economics through the power of radical markets. The Harberger Tax Song is ALWAYS on sale. The owner of this asset MUST set a sales price while also paying the corresponding tax rate over a given period of time. The higher the sales price, the higher the amount in taxes that must be deposited in order to extend a foreclosure on the asset. If either of these conditions is failed to be met once the time has expired, the creator of this non-fungible token has the ability to reclaim their rightful asset.",
-      "external_url": "app.beetsdao.com/harberger-taxes/asset/1",
-      "image": process.env.IPFS_BASE_URI + ipfsHash,
+      "external_url": "app.beetsdao.com/harberger-taxes/asset/" + tokenId,
+      "image": process.env.ARWEAVE_BASE_URI + arweaveId,
+      "image_cid": ipfsHash,
       "name": "The Harberger Tax Song",
       "producer": "BeetsDAO",
-      "token_id": 1,
+      "token_id": tokenId,
       "attributes": [
         {
           "trait_type": "ARTIST",
@@ -75,7 +78,7 @@ async function pinMetadataToIPFS(ipfsHash) {
     }
   }
 
-  console.log("Metadata:" + "\n", metadata);
+  console.log("Metadata:" + "\n", metadata)
 
   const header = {
     headers: {
@@ -89,27 +92,27 @@ async function pinMetadataToIPFS(ipfsHash) {
   try {
     const ipfsHash = response.data["IpfsHash"]
     console.log("JSON IPFS Hash:", ipfsHash)
-    // const arweave = await pinIPFSToArweave(ipfsHash)
-    saveTokenURI(ipfsHash)
+    const arweaveId = await pinIPFSToArweave(ipfsHash)
+    console.log("JSON Arweave ID:", arweaveId)
+    saveTokenURI(ipfsHash, arweaveId)
   } catch (err) {
     console.log(err)
   }
 }
 
-// async function pinIPFSToArweave(ipfsHash) {
-//   const permapinUrl = process.env.ARWEAVE_PERMAPIN_URI + ipfsHash
-//   const response = await axios.post(permapinUrl)
-//
-//   try {
-//     const arweaveId = response.data.arweaveId
-//     console.log("Arweave ID:", arweaveId)
-//     return arweaveId
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }
+async function pinIPFSToArweave(ipfsHash) {
+  const permapinUrl = process.env.ARWEAVE_PERMAPIN_URI + ipfsHash
+  const response = await axios.post(permapinUrl)
 
-function saveTokenURI(ipfsHash) {
+  try {
+    const arweaveId = response.data.arweaveId
+    return arweaveId
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function saveTokenURI(ipfsHash, arweaveId) {
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir)
   }
@@ -119,10 +122,10 @@ function saveTokenURI(ipfsHash) {
     JSON.stringify({ HarbergerAsset: ipfsHash }, undefined, 2)
   )
 
-  // fs.writeFileSync(
-  //   contractsDir + "/arweave.json",
-  //   JSON.stringify({ HarbergerAsset: arweaveId }, undefined, 2)
-  // )
+  fs.writeFileSync(
+    contractsDir + "/arweave.json",
+    JSON.stringify({ HarbergerAsset: arweaveId }, undefined, 2)
+  )
 }
 
 pinFileToIPFS()
