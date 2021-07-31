@@ -8,7 +8,7 @@ class Footer extends Component {
       <Navbar className="footer">
         <Container className="justify-content-center">
           <p className="footer-text">
-            Copyright © 2021 BeetsDAO, LLC
+            Powered by BeetsDAO
           </p>
         </Container>
       </Navbar>
