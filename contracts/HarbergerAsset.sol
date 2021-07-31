@@ -66,11 +66,11 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint256 => uint256) public baseTaxValues;
 
-  // Mapping tokenId to IPFS Hashes
-  mapping(uint256 => string) public ipfsHashes;
-
   // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
   mapping(uint256 => mapping(address => uint256)) public depositHistory;
+
+  // Mapping tokenId to IPFS Hash
+  mapping(uint256 => string) public ipfsHash;
 
   // Mapping tokenId to total count of previous owners
   mapping(uint256 => uint256) public totalOwners;
@@ -168,7 +168,7 @@ contract HarbergerAsset is ERC721URIStorage {
   /**
    * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI`
    * @param _arweaveId Arweave ID used to create tokenURI
-   * @param _ipfsHash Content ID generated from JSON metadata
+   * @param _ipfsHash IPFS Hash generated from JSON metadata
    * @param _creator Address of artist who created the asset
    * @return the newly created `tokenId`
    *
@@ -186,7 +186,7 @@ contract HarbergerAsset is ERC721URIStorage {
 
     _safeMint(_creator, newItemId);
     _setTokenURI(newItemId, _arweaveId);
-    ipfsHashes[newItemId] = _ipfsHash;
+    ipfsHash[newItemId] = _ipfsHash;
 
     initializeAsset(newItemId, _creator);
     balances[newItemId][admin] = 0;
