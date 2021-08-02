@@ -226,12 +226,11 @@ export class Dapp extends React.Component {
 
   async getHarbergerContract() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-
     return new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
   }
 
   async mintAsset(arweaveId, ipfsHash, creatorAddress) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.mintAsset(arweaveId, ipfsHash, creatorAddress);
@@ -262,7 +261,7 @@ export class Dapp extends React.Component {
   }
 
   async setApproval(tokenId) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.approve(contractAddress.HarbergerAsset, tokenId);
@@ -294,7 +293,7 @@ export class Dapp extends React.Component {
 
   async listAsset(tokenId, amount, approvedAddress) {
     if (approvedAddress === this.state.contractAddress) {
-      const contract = this.getHarbergerContract();
+      const contract = await this.getHarbergerContract();
 
       try {
         const transaction = await contract.listAssetForSaleInWei(tokenId, amount);
@@ -326,7 +325,7 @@ export class Dapp extends React.Component {
   }
 
   async depositTax(tokenId, amount, approvedAddress) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.depositTaxInWei(tokenId, { value: amount });
@@ -357,7 +356,7 @@ export class Dapp extends React.Component {
   }
 
   async buyAsset(tokenId, assetPrice) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.buyAssetInWei(tokenId, { value: assetPrice });
@@ -388,7 +387,7 @@ export class Dapp extends React.Component {
   }
 
   async collectFunds(tokenId) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.collectFunds(tokenId);
@@ -419,7 +418,7 @@ export class Dapp extends React.Component {
   }
 
   async reclaimAsset(tokenId) {
-    const contract = this.getHarbergerContract();
+    const contract = await this.getHarbergerContract();
 
     try {
       const transaction = await contract.reclaimAsset(tokenId);
