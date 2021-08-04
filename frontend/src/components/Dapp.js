@@ -470,7 +470,7 @@ export class Dapp extends React.Component {
     }
 
     if (error.message.includes("reverted")) {
-      return error.message.split(',"data"')[0].split("reverted:")[1].slice(0, -1)
+      return error.message.split(',"data"')[0]
     }
 
     return error.message

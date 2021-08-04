@@ -308,11 +308,13 @@ contract HarbergerAsset is ERC721URIStorage {
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
   function refundTax(uint256 _tokenId, address _currentOwner) internal returns(uint256) {
+    if (_currentOwner == assets[_tokenId].creator) return 0;
     uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
-    uint256 timeRemainingTimestamp = foreclosureTimestamp.sub(block.timestamp);
+    uint256 cutoffTimestamp = block.timestamp.add(baseInterval);
 
-    if (int256(timeRemainingTimestamp) > int256(baseInterval)) {
-      uint256 taxMultiplier = timeRemainingTimestamp.div(baseInterval);
+    if (foreclosureTimestamp > cutoffTimestamp) {
+      uint256 remainingTimestamp = foreclosureTimestamp.sub(cutoffTimestamp);
+      uint256 taxMultiplier = remainingTimestamp.div(baseInterval);
       uint256 baseTaxValue = baseTaxValues[_tokenId];
       uint256 refundAmount = baseTaxValue.mul(taxMultiplier);
 
