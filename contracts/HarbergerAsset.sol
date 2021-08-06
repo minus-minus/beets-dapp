@@ -335,6 +335,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @return total deposit amount after refund
    */
   function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal returns (uint256) {
+    if (_currentOwner == assets[_tokenId].creator) return 0;
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
 
     if (depositHistory[_tokenId][_currentOwner] == 0 && totalDepositAmount > 0) {
@@ -354,6 +355,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _totalDeposit Amount deposited after refund used to update balances
    */
   function updateBalance(uint256 _tokenId, address _creator, uint256 _totalDeposit) internal {
+    if (ownerOf(_tokenId) == _creator) return;
     uint256 splitBalance = _totalDeposit.div(2);
 
     balances[_tokenId][admin] += splitBalance;
@@ -457,12 +459,11 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenId` must exist.
    * - `creator` must be equal to `_msgSender()`.
+   * - `creator` may only update value if they are also the owner of the asset.
    * - `amount` must be different than the current value.
-   * - `creator` may only update value when in posession of the asset.
    */
-  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) {
+  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) onlyOwner(_tokenId) {
     require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
-    require(ownerOf(_tokenId) == _msgSender(), "You may only update this value once you are in possession of the asset");
 
     baseTaxValues[_tokenId] = _amount;
   }
