@@ -31,13 +31,15 @@ class Inventory extends Component {
   }
 
   render() {
+    const inventory = this.state.data.sort((a, b) => (a.token_id > b.token_id) ? 1 : -1)
+
     return (
       <Row className="text-center mb-5">
         <h1 className="text-center my-5">Assets</h1>
-        <Col className="d-flex justify-content-center mb-5">
-          {this.state.data.map((asset, index) => {
-            return (
-              <Card className="mx-4" style={{ width: '24rem' }} key={index}>
+        {inventory.map((asset, index) => {
+          return (
+            <Col className="d-flex justify-content-center mb-5" key={index}>
+              <Card className="mx-3" style={{ width: '24rem' }}>
                 <Card.Header>
                   {asset.token_id}
                 </Card.Header>
@@ -53,9 +55,9 @@ class Inventory extends Component {
                   </Card.Text>
                 </Card.Body>
               </Card>
-            )
-          })}
-        </Col>
+            </Col>
+          )
+        })}
       </Row>
     )
   }
