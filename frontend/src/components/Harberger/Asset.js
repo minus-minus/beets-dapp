@@ -102,7 +102,7 @@ class Asset extends Component {
       <div>
         {!this.loadingToken && (
           <Container>
-            <h1 className="text-center my-5">Beets Market</h1>
+            <h1 className="text-center my-5">Radical Beets</h1>
             <Row>
               <Metadata
                 artistName={this.state.artistName}

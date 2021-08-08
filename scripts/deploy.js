@@ -1,8 +1,7 @@
 const hre = require("hardhat")
 const fs = require("fs");
 const contractsDir = __dirname + "/../frontend/src/contracts";
-const CONTRACT_ADMIN = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-// const CONTRACT_ADMIN = "0x232E02988970e8aB920c83964cC7922d9C282DCA";
+const CONTRACT_ADMIN = "0xED29CfC3Bd78019e57b3b2BbFf62258a7e674eE5";
 
 async function main() {
   await hre.run("compile")
