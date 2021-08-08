@@ -100,7 +100,7 @@ describe("HarbergerAsset", function () {
 
       expect(adminRoyalty.toFixed(2)).to.equal('0.05');
       expect(creatorRoyalty.toFixed(2)).to.equal('0.05');
-      expect(ownerPayment.toFixed(2)).to.equal('0.99');
+      expect(ownerPayment.toFixed(2)).to.equal('1.00');
     });
 
     it("transfers asset to new owner", async function () {
