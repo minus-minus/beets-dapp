@@ -72,8 +72,8 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to IPFS Hash
   mapping(uint256 => string) public ipfsHash;
 
-  // Mapping tokenId to total count of previous owners
-  mapping(uint256 => uint256) public totalOwners;
+  // Array of previous owner addresses
+  address[] public previousOwners;
 
   /**
    * @dev Object that represents the current state of each asset
@@ -327,7 +327,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Updates the `depositHistory` and `totalOwners` mappings to keep track of asset provenance.
+   * @dev Updates the `depositHistory` mapping and `previousOwners` array to keep track of asset provenance.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of the previous owner
    * @param _refundAmount Amount used to calculate actual `totalDepositAmount` of the previous owner
@@ -338,7 +338,7 @@ contract HarbergerAsset is ERC721URIStorage {
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
 
     if (depositHistory[_tokenId][_currentOwner] == 0 && totalDepositAmount > 0) {
-      totalOwners[_tokenId] += 1;
+      previousOwners.push(_currentOwner);
     }
 
     uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);

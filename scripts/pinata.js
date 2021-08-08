@@ -70,7 +70,7 @@ async function pinMetadataToIPFS() {
         },
         {
           "trait_type": "SONG A DAY",
-          "value": 4625
+          "value": "4630"
         }
       ]
     }
