@@ -3,7 +3,7 @@ import { Alert, Button } from "react-bootstrap";
 
 export function TransactionError({ message, dismiss }) {
   return (
-    <Alert variant="danger" className="text-center">
+    <Alert variant="danger" className="text-center" style={{ borderRadius: 0 }}>
       Transaction Failed: {message}
       <Button
         className="close mx-2"

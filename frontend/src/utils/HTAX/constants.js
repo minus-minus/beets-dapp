@@ -1,4 +1,5 @@
-export const HTAX_CREATOR_ADDRESS = "0x3d9456Ad6463a77bD77123Cb4836e463030bfAb4"
+// export const HTAX_CREATOR_ADDRESS = "0x3d9456Ad6463a77bD77123Cb4836e463030bfAb4"
+export const HTAX_CREATOR_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 export const HTAX_TOKEN_ID = 1
 export const HTAX_EVENT_ABI = [
   "event Mint(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to)",
