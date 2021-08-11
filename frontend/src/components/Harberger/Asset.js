@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { ethers } from "ethers";
 import Metadata from "./Metadata";
 import Marketplace from "./Marketplace";
+import Auction from "./Auction";
 import Provenance from "./Provenance";
 import Ownership from "./Ownership";
 import Reference from "./Reference";
@@ -146,6 +147,21 @@ class Asset extends Component {
                 tokenId={this.props.tokenId}
               />
             </Row>
+            <Auction
+              beginAuction={this.props.beginAuction}
+              cancelAuction={this.props.cancelAuction}
+              createAuction={this.props.createAuction}
+              creatorAddress={this.state.creatorAddress}
+              createBid={this.props.createBid}
+              contractAddress={this.props.contractAddress}
+              convertToEth={this.convertToEth}
+              convertToWei={this.convertToWei}
+              curatorAddress={this.props.adminAddress}
+              endAuction={this.props.endAuction}
+              minifyHash={this.props.minifyHash}
+              selectedAddress={this.props.selectedAddress}
+              tokenId={this.props.tokenId}
+            />
             <Row>
               <Provenance
                 convertToEth={this.convertToEth}

@@ -118,6 +118,19 @@ input {
   text-align: center;
 }
 
+.asset-auction {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  max-height: 400px;
+  border-radius: 5px;
+}
+
+.auction-info {
+  display: flex;
+  justify-content: space-between;
+}
+
 .asset-history {
   flex: 1;
   overflow-y: scroll;

@@ -2,6 +2,7 @@ import React from "react";
 import { ethers } from "ethers";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 // COMPONENTS
+import { AuctionHouse } from "@zoralabs/zdk";
 import { NoWalletDetected } from "./NoWalletDetected";
 import { ConnectWallet } from "./ConnectWallet";
 import { Loading } from "./Loading";
@@ -43,6 +44,11 @@ export class Dapp extends React.Component {
 
     this.loadHarbergerContract = this.loadHarbergerContract.bind(this);
     this.getHarbergerContract = this.getHarbergerContract.bind(this);
+    this.createAuction = this.createAuction.bind(this);
+    this.beginAuction = this.beginAuction.bind(this);
+    this.createBid = this.createBid.bind(this);
+    this.endAuction = this.endAuction.bind(this);
+    this.cancelAuction = this.cancelAuction.bind(this);
     this.mintAsset = this.mintAsset.bind(this);
     this.setApproval = this.setApproval.bind(this);
     this.listAsset = this.listAsset.bind(this);
@@ -227,6 +233,204 @@ export class Dapp extends React.Component {
   async getHarbergerContract() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     return new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+  }
+
+  async fetchAcuction(creatorAddress) {
+
+  }
+
+  async createAuction(curatorAddress, tokenId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const contract = new ethers.Contract(contractAddress.HarbergerAsset, HTAX_ARTIFACT.abi, provider.getSigner());
+    const auctionHouse = new AuctionHouse(provider.getSigner(), 4);
+    const auctionHouseAccount = auctionHouse.auctionHouse.address
+    const approvedAccount = await contract.getApproved(tokenId);
+
+    if (approvedAccount !== auctionHouseAccount) {
+      try {
+        const approvalTx = await contract.approve(auctionHouseAccount, tokenId);
+        this._connectWallet();
+        this.setState({
+          transactionPending: true,
+          transactionHash: approvalTx.hash,
+          transactionSuccess: undefined,
+          transactionError: undefined
+        });
+
+        await approvalTx.wait();
+        this._connectWallet();
+        this.setState({
+          transactionError: undefined,
+          transactionPending: undefined,
+          transactionSuccess: "Approve Auction"
+        });
+
+      } catch(err) {
+        this._connectWallet();
+        this.setState({
+          transactionPending: undefined,
+          transactionSuccess: undefined,
+          transactionError: this._getRpcErrorMessage(err)
+        });
+      }
+    }
+
+    const duration = 172800;
+    const reservePrice = 1;
+    const curatorFeePercentage = 10;
+    const auctionCurrency = "0x0";
+
+    try {
+      const createAuctionTx = await auctionHouse.createAuction(tokenId, duration, reservePrice, curatorAddress, curatorFeePercentage, auctionCurrency, contractAddress.HarbergerAsset);
+      this._connectWallet();
+      this.setState({
+        transactionPending: true,
+        transactionHash: createAuctionTx.hash,
+        transactionSuccess: undefined,
+        transactionError: undefined
+      });
+
+      const receipt = await createAuctionTx.wait();
+      console.log(receipt);
+      this._connectWallet();
+      this.setState({
+        transactionError: undefined,
+        transactionPending: undefined,
+        transactionSuccess: "Create Auction"
+      });
+
+      this.setState({ auction: receipt, auctionHouse: auctionHouse });
+    } catch(err) {
+      this._connectWallet();
+      this.setState({
+        transactionPending: undefined,
+        transactionSuccess: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
+    }
+  }
+
+  async beginAuction(auctionId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const auctionHouse = new AuctionHouse(provider.getSigner(), 4);
+
+    try {
+      const beginAuctionTx = await auctionHouse.setAuctionApproval(auctionId, true)
+      this._connectWallet();
+      this.setState({
+        transactionPending: true,
+        transactionHash: beginAuctionTx.hash,
+        transactionSuccess: undefined,
+        transactionError: undefined
+      });
+
+      await beginAuctionTx.wait();
+      this._connectWallet();
+      this.setState({
+        transactionError: undefined,
+        transactionPending: undefined,
+        transactionSuccess: "Begin Auction"
+      });
+
+    } catch(err) {
+      console.log(err.message.data);
+    }
+  }
+
+  async createBid(auctionId, amount) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const auctionHouse = new AuctionHouse(provider.getSigner(), 4);
+
+    try {
+      const createBidTx = await auctionHouse.createBid(auctionId, amount)
+      this._connectWallet();
+      this.setState({
+        transactionPending: true,
+        transactionHash: createBidTx.hash,
+        transactionSuccess: undefined,
+        transactionError: undefined
+      });
+
+      await createBidTx.wait();
+      this._connectWallet();
+      this.setState({
+        transactionError: undefined,
+        transactionPending: undefined,
+        transactionSuccess: "Create Bid"
+      });
+
+    } catch(err) {
+      this._connectWallet();
+      this.setState({
+        transactionPending: undefined,
+        transactionSuccess: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
+    }
+  }
+
+  async endAuction(auctionId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const auctionHouse = new AuctionHouse(provider.getSigner(), 4);
+
+    try {
+      const endAuctionTx = await auctionHouse.endAuction(auctionId)
+      this._connectWallet();
+      this.setState({
+        transactionPending: true,
+        transactionHash: endAuctionTx.hash,
+        transactionSuccess: undefined,
+        transactionError: undefined
+      });
+
+      await endAuctionTx.wait();
+      this._connectWallet();
+      this.setState({
+        transactionError: undefined,
+        transactionPending: undefined,
+        transactionSuccess: "End Auction"
+      });
+
+    } catch(err) {
+      this._connectWallet();
+      this.setState({
+        transactionPending: undefined,
+        transactionSuccess: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
+    }
+  }
+
+  async cancelAuction(auctionId) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const auctionHouse = new AuctionHouse(provider.getSigner(), 4);
+
+    try {
+      const cancelAuctionTx = await auctionHouse.cancelAuction(auctionId)
+      this._connectWallet();
+      this.setState({
+        transactionPending: true,
+        transactionHash: cancelAuctionTx.hash,
+        transactionSuccess: undefined,
+        transactionError: undefined
+      });
+
+      await cancelAuctionTx.wait();
+      this._connectWallet();
+      this.setState({
+        transactionError: undefined,
+        transactionPending: undefined,
+        transactionSuccess: "Cancel Auction"
+      });
+
+    } catch(err) {
+      this._connectWallet();
+      this.setState({
+        transactionPending: undefined,
+        transactionSuccess: undefined,
+        transactionError: this._getRpcErrorMessage(err)
+      });
+    }
   }
 
   async mintAsset(arweaveId, ipfsHash, creatorAddress) {
@@ -595,9 +799,14 @@ export class Dapp extends React.Component {
                     taxRatePercentage={this.state.taxRatePercentage}
                     tokenId={asset.tokenId}
                     // Functions
+                    beginAuction={this.beginAuction}
                     buyAsset={this.buyAsset}
+                    cancelAuction={this.cancelAuction}
                     collectFunds={this.collectFunds}
+                    createAuction={this.createAuction}
+                    createBid={this.createBid}
                     depositTax={this.depositTax}
+                    endAuction={this.endAuction}
                     listAsset={this.listAsset}
                     minifyHash={this._minifyHash}
                     reclaimAsset={this.reclaimAsset}
