@@ -14,12 +14,12 @@ describe("HarbergerAsset", function () {
     await contract.deployed();
   });
 
-  describe("setTaxRatePercentage", function () {
-    let newTaxRatePercentage = 5;
+  describe("setTaxPercentage", function () {
+    let newTaxPercentage = 5;
 
     it("requires caller to be admin", async function () {
       try {
-        transaction = await contract.connect(collector).setTaxRatePercentage(newTaxRatePercentage);
+        transaction = await contract.connect(collector).setTaxPercentage(newTaxPercentage);
       } catch(err) {
         error = err.message.split("'")[1];
       }
@@ -29,7 +29,7 @@ describe("HarbergerAsset", function () {
 
     it("requires new value to be different than current value", async function () {
       try {
-        transaction = await contract.setTaxRatePercentage(10);
+        transaction = await contract.setTaxPercentage(10);
       } catch(err) {
         error = err.message.split("'")[1];
       }
@@ -38,10 +38,10 @@ describe("HarbergerAsset", function () {
     });
 
     it("updates tax rate percentage with new value", async function () {
-      transaction = await contract.setTaxRatePercentage(newTaxRatePercentage);
+      transaction = await contract.setTaxPercentage(newTaxPercentage);
       await transaction.wait();
 
-      expect(await contract.taxRatePercentage()).to.equal(newTaxRatePercentage);
+      expect(await contract.taxPercentage()).to.equal(newTaxPercentage);
     });
   });
 });

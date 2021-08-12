@@ -40,22 +40,22 @@ contract HarbergerAsset is ERC721URIStorage {
   address public admin;
 
   // Base time interval in seconds used to calculate foreclosure date (24 hours)
-  uint256 public baseInterval = 86400 seconds;
+  uint256 public constant baseInterval = 86400 seconds;
 
   // Prepend baseURI to Arweave ID to create tokenURI
-  string  public baseURI = "https://arweave.net/";
+  string  public constant baseURI = "https://arweave.net/";
 
   // Percentage of sales price shows how royalty amount is calculated
   uint256 public royaltyPercentage = 10;
 
   // Percentage of sales price shows how tax amount is calculated
-  uint256 public taxRatePercentage = 10;
+  uint256 public taxPercentage = 10;
 
   // Denominator used to calculate royalty amount
   uint256 private royaltyDenominator = 100 / royaltyPercentage;
 
   // Denominator used to calculate tax amount
-  uint256 private taxDenominator = 100 / taxRatePercentage;
+  uint256 private taxDenominator = 100 / taxPercentage;
 
   // Mapping tokenId to Asset struct
   mapping(uint256 => Asset) public assets;
@@ -66,14 +66,8 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint256 => uint256) public baseTaxValues;
 
-  // Mapping tokenId to Mapping of previous owner address to total deposit amount after refund
-  mapping(uint256 => mapping(address => uint256)) public depositHistory;
-
   // Mapping tokenId to IPFS Hash
   mapping(uint256 => string) public ipfsHash;
-
-  // Array of previous owner addresses
-  address[] public previousOwners;
 
   /**
    * @dev Object that represents the current state of each asset
@@ -252,7 +246,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer, asset history and balance updates.
+   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer, and balance updates.
    * @param _tokenId ID of the token
    *
    * Requirements:
@@ -269,15 +263,14 @@ contract HarbergerAsset is ERC721URIStorage {
     require(assets[_tokenId].priceAmount > 0, "This asset is currently not up for sale");
     require(assets[_tokenId].priceAmount == msg.value, "Invalid payment amount");
 
-    address currentOwner = ownerOf(_tokenId);
     address creator = assets[_tokenId].creator;
+    address currentOwner = ownerOf(_tokenId);
+    uint256 refundAmount = refundTax(_tokenId, currentOwner);
 
     transferPayment(msg.value, currentOwner, creator);
-    uint256 refundAmount = refundTax(_tokenId, currentOwner);
-    uint256 depositAfterRefund = updateAssetHistory(_tokenId, currentOwner, refundAmount);
-
-    updateBalance(_tokenId, creator, depositAfterRefund);
+    updateBalance(_tokenId, creator, refundAmount);
     initializeAsset(_tokenId, creator);
+
     baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
 
     emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
@@ -290,7 +283,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _currentOwner Address of current owner of the asset
    * @param _creator Address of artist who created the asset
    */
-  function transferPayment(uint256 _payment, address _currentOwner, address _creator) internal {
+  function transferPayment(uint256 _payment, address _currentOwner, address _creator) private {
     uint256 royaltyAmount = _payment.div(royaltyDenominator);
     uint256 paymentAmount = _payment.sub(royaltyAmount);
 
@@ -307,7 +300,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
-  function refundTax(uint256 _tokenId, address _currentOwner) internal returns(uint256) {
+  function refundTax(uint256 _tokenId, address _currentOwner) private returns(uint256) {
     if (_currentOwner == assets[_tokenId].creator) return 0;
     uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
 
@@ -327,35 +320,17 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Updates the `depositHistory` mapping and `previousOwners` array to keep track of asset provenance.
-   * @param _tokenId ID of the token
-   * @param _currentOwner Address of the previous owner
-   * @param _refundAmount Amount used to calculate actual `totalDepositAmount` of the previous owner
-   * @return total deposit amount after refund
-   */
-  function updateAssetHistory(uint256 _tokenId, address _currentOwner, uint256 _refundAmount) internal returns (uint256) {
-    if (_currentOwner == assets[_tokenId].creator) return 0;
-    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
-
-    if (depositHistory[_tokenId][_currentOwner] == 0 && totalDepositAmount > 0) {
-      previousOwners.push(_currentOwner);
-    }
-
-    uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);
-    depositHistory[_tokenId][_currentOwner] += depositAfterRefund;
-
-    return depositAfterRefund;
-  }
-
-  /**
    * @dev Updates the `admin` and `creator` balances.
    * @param _tokenId ID of the token
    * @param _creator Address of artist who created the asset
-   * @param _totalDeposit Amount deposited after refund used to update balances
+   * @param _refundAmount Amount refunded to current owner
    */
-  function updateBalance(uint256 _tokenId, address _creator, uint256 _totalDeposit) internal {
+  function updateBalance(uint256 _tokenId, address _creator, uint256 _refundAmount) private {
     if (ownerOf(_tokenId) == _creator) return;
-    uint256 splitBalance = _totalDeposit.div(2);
+
+    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
+    uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);
+    uint256 splitBalance = depositAfterRefund.div(2);
 
     balances[_tokenId][admin] += splitBalance;
     balances[_tokenId][_creator] += splitBalance;
@@ -450,6 +425,21 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
+   * @dev Updates the `admin` user
+   * @param _admin Address of the new admin account
+   *
+   * Requirements:
+   *
+   * - `admin` must be equal to `_msgSender()`.
+   * - `address` must be different than the current `admin` address.
+   */
+  function setAdmin(address _admin) public onlyAdmin {
+    require(admin != _admin, "New value must be different than the current value");
+
+    admin = _admin;
+  }
+
+  /**
    * @dev Updates the mapping value of `baseTaxValues`.
    * @param _tokenId ID of the token
    * @param _amount New base tax value in wei
@@ -483,7 +473,7 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Updates the state variable `taxRatePercentage`.
+   * @dev Updates the state variable `taxPercentage`.
    * @param _percentage New tax percentage
    *
    * Requirements:
@@ -491,10 +481,10 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `admin` must be equal to `msgSender()`.
    * - `percentage` must be different than the current value.
    */
-  function setTaxRatePercentage(uint256 _percentage) public onlyAdmin {
-    require(taxRatePercentage != _percentage, "New value must be different than the current value");
+  function setTaxPercentage(uint256 _percentage) public onlyAdmin {
+    require(taxPercentage != _percentage, "New value must be different than the current value");
 
-    taxRatePercentage = _percentage;
+    taxPercentage = _percentage;
   }
 
   /**

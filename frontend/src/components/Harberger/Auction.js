@@ -206,8 +206,8 @@ class Auction extends Component {
                   <thead>
                     <tr>
                       <th>Created</th>
-                      <th>Status</th>
                       <th>From</th>
+                      <th>Bid</th>
                       <th>Amount</th>
                     </tr>
                   </thead>
@@ -219,13 +219,13 @@ class Auction extends Component {
                           {this.formatTime(bid["createdAtTimestamp"])}
                         </td>
                         <td>
-                          <a href={ETHERSCAN_TX_URI + bid["transactionHash"]} rel="noopener noreferrer" target="_blank">
-                            {bid["bidType"]}
+                          <a href={OPEN_SEA_BASE_URI + bid["bidder"]["id"]} rel="noopener noreferrer" target="_blank">
+                            {this.props.minifyHash(bid["bidder"]["id"])}
                           </a>
                         </td>
                         <td>
-                          <a href={OPEN_SEA_BASE_URI + bid["bidder"]["id"]} rel="noopener noreferrer" target="_blank">
-                            {this.props.minifyHash(bid["bidder"]["id"])}
+                          <a href={ETHERSCAN_TX_URI + bid["transactionHash"]} rel="noopener noreferrer" target="_blank">
+                            {bid["bidType"]}
                           </a>
                         </td>
                         <td>
