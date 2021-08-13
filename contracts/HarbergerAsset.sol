@@ -16,9 +16,9 @@ pragma solidity ^0.8.3;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "hardhat/console.sol";
 
 /*
  * External Sources:
@@ -31,7 +31,7 @@ import "hardhat/console.sol";
  * @title HarbergerAsset
  * @dev Assets are controlled through the property rights enforced by Harberger taxation
  */
-contract HarbergerAsset is ERC721URIStorage {
+contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   using SafeMath for uint256;
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
@@ -58,16 +58,16 @@ contract HarbergerAsset is ERC721URIStorage {
   uint256 private taxDenominator = 100 / taxPercentage;
 
   // Mapping tokenId to Asset struct
-  mapping(uint256 => Asset) public assets;
+  mapping(uint64 => Asset) public assets;
 
   // Mapping tokenId to Mapping of tax collector address to balance amount
-  mapping(uint256 => mapping(address => uint256)) public balances;
+  mapping(uint64 => mapping(address => uint256)) public balances;
 
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
-  mapping(uint256 => uint256) public baseTaxValues;
+  mapping(uint64 => uint256) public baseTaxValues;
 
   // Mapping tokenId to IPFS CID Hash
-  mapping(uint256 => string) public ipfsHash;
+  mapping(uint64 => string) public ipfsHash;
 
   /**
    * @dev Object that represents the current state of each asset
@@ -80,7 +80,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * `foreclosureTimestamp` Timestamp of the foreclosure for which taxes must be paid by the current owner
    */
   struct Asset {
-    uint256 tokenId;
+    uint64 tokenId;
     address creator;
     uint256 priceAmount;
     uint256 taxAmount;
@@ -92,13 +92,13 @@ contract HarbergerAsset is ERC721URIStorage {
   /**
    * @dev List of possible events emitted after every user transaction.
    */
-  event Mint       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
-  event List       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, uint256 value);
-  event Deposit    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Sale       (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Refund     (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Collect    (uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to, uint256 value);
-  event Foreclosure(uint256 indexed timestamp, uint256 indexed tokenId, address indexed from, address to);
+  event Mint       (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to);
+  event List       (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, uint256 value);
+  event Deposit    (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to, uint256 value);
+  event Sale       (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to, uint256 value);
+  event Refund     (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to, uint256 value);
+  event Collect    (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to, uint256 value);
+  event Foreclosure(uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to);
 
   /**
    * @dev Initializes contract and sets `admin` to specified owner of contract.
@@ -120,7 +120,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Modifier that checks if `creator` of asset is equal to `msgSender()`.
    * @param _tokenId ID of the token
    */
-  modifier onlyCreator(uint256 _tokenId) {
+  modifier onlyCreator(uint64 _tokenId) {
     require(assets[_tokenId].creator == _msgSender(), "You are not the creator of this asset");
     _;
   }
@@ -129,7 +129,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Modifier that checks if `admin` or `creator` of asset is equal to `msgSender()`.
    * @param _tokenId ID of the token
    */
-  modifier onlyAdminOrCreator(uint256 _tokenId) {
+  modifier onlyAdminOrCreator(uint64 _tokenId) {
     require(admin == _msgSender() || assets[_tokenId].creator == _msgSender(), "You are not the admin nor creator of this asset");
     _;
   }
@@ -138,7 +138,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Modifier that checks if `owner` of asset is equal to `msgSender()`.
    * @param _tokenId ID of the token
    */
-  modifier onlyOwner(uint256 _tokenId) {
+  modifier onlyOwner(uint64 _tokenId) {
     require(ownerOf(_tokenId) == _msgSender(), "You are not the owner of this asset");
     _;
   }
@@ -147,7 +147,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @dev Modifier that checks if `tokenId` exists.
    * @param _tokenId ID of the token
    */
-  modifier validToken(uint256 _tokenId) {
+  modifier validToken(uint64 _tokenId) {
     require(_exists(_tokenId), "Token does not exist");
     _;
   }
@@ -174,7 +174,7 @@ contract HarbergerAsset is ERC721URIStorage {
    */
   function mintAsset(string memory _arweaveId, string memory _ipfsHash, address _creator) public onlyAdmin returns (uint256) {
     _tokenIds.increment();
-    uint256 newItemId = _tokenIds.current();
+    uint64 newItemId = uint64(_tokenIds.current());
 
     emit Mint(block.timestamp, newItemId, address(0), _creator);
 
@@ -204,7 +204,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {List} event.
    */
-  function listAssetForSaleInWei(uint256 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
+  function listAssetForSaleInWei(uint64 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
     require(_priceAmount > 0, "You must set a sales price greater than 0");
     require(foreclosure(_tokenId) == false || assets[_tokenId].creator == _msgSender(), "A foreclosure on this asset has already begun");
 
@@ -229,7 +229,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Deposit} event.
    */
-  function depositTaxInWei(uint256 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) {
+  function depositTaxInWei(uint64 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) nonReentrant() {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
     require(msg.value > 0, "You must deposit a tax amount greater than 0");
     require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
@@ -258,7 +258,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Sale} event.
    */
-  function buyAssetInWei(uint256 _tokenId) public payable validToken(_tokenId) {
+  function buyAssetInWei(uint64 _tokenId) public payable validToken(_tokenId) nonReentrant() {
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
     require(assets[_tokenId].priceAmount > 0, "This asset is currently not up for sale");
     require(assets[_tokenId].priceAmount == msg.value, "Invalid payment amount");
@@ -267,12 +267,11 @@ contract HarbergerAsset is ERC721URIStorage {
     address currentOwner = ownerOf(_tokenId);
     uint256 refundAmount = refundTax(_tokenId, currentOwner);
 
-    transferPayment(msg.value, currentOwner, creator);
     updateBalance(_tokenId, creator, refundAmount);
     initializeAsset(_tokenId, creator);
-
     baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
 
+    transferPayment(msg.value, currentOwner, creator);
     emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
   }
@@ -285,7 +284,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
-  function refundTax(uint256 _tokenId, address _currentOwner) private returns(uint256) {
+  function refundTax(uint64 _tokenId, address _currentOwner) internal returns(uint256) {
     if (_currentOwner == assets[_tokenId].creator) return 0;
     uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
 
@@ -310,7 +309,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _currentOwner Address of current owner of the asset
    * @param _creator Address of artist who created the asset
    */
-  function transferPayment(uint256 _payment, address _currentOwner, address _creator) private {
+  function transferPayment(uint256 _payment, address _currentOwner, address _creator) internal {
     uint256 royaltyAmount = _payment.div(royaltyDenominator);
     uint256 paymentAmount = _payment.sub(royaltyAmount);
 
@@ -325,7 +324,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _creator Address of artist who created the asset
    * @param _refundAmount Amount refunded to current owner
    */
-  function updateBalance(uint256 _tokenId, address _creator, uint256 _refundAmount) private {
+  function updateBalance(uint64 _tokenId, address _creator, uint256 _refundAmount) internal {
     if (ownerOf(_tokenId) == _creator) return;
 
     uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
@@ -348,7 +347,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Collect} event.
    */
-  function collectFunds(uint256 _tokenId) public validToken(_tokenId) onlyAdminOrCreator(_tokenId) {
+  function collectFunds(uint64 _tokenId) public validToken(_tokenId) onlyAdminOrCreator(_tokenId) {
     require(balances[_tokenId][_msgSender()] > 0, "You do not have any funds available to withdraw");
 
     uint256 amount = balances[_tokenId][_msgSender()];
@@ -371,7 +370,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * Emits a {Foreclosure} event.
    */
-  function reclaimAsset(uint256 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
+  function reclaimAsset(uint64 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
     require(foreclosure(_tokenId), "Time has not yet expired for you to reclaim this asset");
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
 
@@ -391,7 +390,7 @@ contract HarbergerAsset is ERC721URIStorage {
    *
    * - `tokenId` must exist.
    */
-  function foreclosure(uint256 _tokenId) public view validToken(_tokenId) returns (bool) {
+  function foreclosure(uint64 _tokenId) public view validToken(_tokenId) returns (bool) {
     return block.timestamp >= assets[_tokenId].foreclosureTimestamp;
   }
 
@@ -400,7 +399,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * @param _tokenId ID of the token
    * @param _creator Address of the creator of the asset
    */
-  function initializeAsset(uint256 _tokenId, address _creator) internal {
+  function initializeAsset(uint64 _tokenId, address _creator) internal {
     assets[_tokenId].tokenId = _tokenId;
     assets[_tokenId].creator = _creator;
     assets[_tokenId].priceAmount = 0;
@@ -408,20 +407,6 @@ contract HarbergerAsset is ERC721URIStorage {
     assets[_tokenId].totalDepositAmount = 0;
     assets[_tokenId].lastDepositTimestamp = block.timestamp;
     assets[_tokenId].foreclosureTimestamp = block.timestamp.add(baseInterval);
-  }
-
-  /**
-   * @dev Fetches inventory of assets that currently exist on this contract
-   */
-  function fetchAssets() public view returns(Asset[] memory) {
-    uint256 totalCount = _tokenIds.current();
-    Asset[] memory inventory = new Asset[](totalCount);
-
-    for (uint i = 0; i < totalCount; i++) {
-      inventory[i] = assets[i + 1];
-    }
-
-    return inventory;
   }
 
   /**
@@ -451,7 +436,7 @@ contract HarbergerAsset is ERC721URIStorage {
    * - `creator` may only update value if they are also the owner of the asset.
    * - `amount` must be different than the current value.
    */
-  function setBaseTaxValueInWei(uint256 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) onlyOwner(_tokenId) {
+  function setBaseTaxValueInWei(uint64 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) onlyOwner(_tokenId) {
     require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
 
     baseTaxValues[_tokenId] = _amount;
@@ -501,9 +486,10 @@ contract HarbergerAsset is ERC721URIStorage {
       uint256 tokenId,
       bytes memory _data
     ) public virtual override {
+    uint64 _tokenId = uint64(tokenId);
     require(
-      _isApprovedOrOwner(_msgSender(), tokenId) ||
-      (assets[tokenId].creator == _msgSender() && foreclosure(tokenId)),
+      _isApprovedOrOwner(_msgSender(), _tokenId) ||
+      (assets[_tokenId].creator == _msgSender() && foreclosure(_tokenId)),
       "Transfer caller is not the owner, approved nor the creator of the asset"
     );
 
