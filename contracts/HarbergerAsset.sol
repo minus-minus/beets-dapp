@@ -66,7 +66,7 @@ contract HarbergerAsset is ERC721URIStorage {
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint256 => uint256) public baseTaxValues;
 
-  // Mapping tokenId to IPFS Hash
+  // Mapping tokenId to IPFS CID Hash
   mapping(uint256 => string) public ipfsHash;
 
   /**
@@ -278,21 +278,6 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Transfers royalties to `admin` and `creator` of asset and transfers remaining payment to `currentOwner`.
-   * @param _payment Value in wei paid by the new owner
-   * @param _currentOwner Address of current owner of the asset
-   * @param _creator Address of artist who created the asset
-   */
-  function transferPayment(uint256 _payment, address _currentOwner, address _creator) private {
-    uint256 royaltyAmount = _payment.div(royaltyDenominator);
-    uint256 paymentAmount = _payment.sub(royaltyAmount);
-
-    payable(admin).transfer(royaltyAmount.div(2));
-    payable(_creator).transfer(royaltyAmount.div(2));
-    payable(_currentOwner).transfer(paymentAmount);
-  }
-
-  /**
    * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure date is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
@@ -317,6 +302,21 @@ contract HarbergerAsset is ERC721URIStorage {
     }
 
     return 0;
+  }
+
+  /**
+   * @dev Transfers royalties to `admin` and `creator` of asset and transfers remaining payment to `currentOwner`.
+   * @param _payment Value in wei paid by the new owner
+   * @param _currentOwner Address of current owner of the asset
+   * @param _creator Address of artist who created the asset
+   */
+  function transferPayment(uint256 _payment, address _currentOwner, address _creator) private {
+    uint256 royaltyAmount = _payment.div(royaltyDenominator);
+    uint256 paymentAmount = _payment.sub(royaltyAmount);
+
+    payable(admin).transfer(royaltyAmount.div(2));
+    payable(_creator).transfer(royaltyAmount.div(2));
+    payable(_currentOwner).transfer(paymentAmount);
   }
 
   /**
@@ -425,18 +425,18 @@ contract HarbergerAsset is ERC721URIStorage {
   }
 
   /**
-   * @dev Updates the `admin` user
-   * @param _admin Address of the new admin account
+   * @dev Updates the `admin` account
+   * @param _account Address of new admin account
    *
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
-   * - `address` must be different than the current `admin` address.
+   * - `account` must be different than the current `admin` address.
    */
-  function setAdmin(address _admin) public onlyAdmin {
-    require(admin != _admin, "New value must be different than the current value");
+  function setAdmin(address _account) public onlyAdmin {
+    require(admin != _account, "New value must be different than the current value");
 
-    admin = _admin;
+    admin = _account;
   }
 
   /**
