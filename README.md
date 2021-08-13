@@ -106,6 +106,7 @@ Also you can [follow us on Twitter](https://twitter.com/HardhatHQ).
 ALCHEMY_API_KEY=
 ARWEAVE_BASE_URI=https://arweave.net/
 ARWEAVE_PERMAPIN_URI=https://ipfs2arweave.com/permapin/
+ETHERSCAN_API_KEY=
 HARDHAT_PRIVATE_KEY=
 INFURA_PROJECT_ID=
 INFURA_PROJECT_SECRET=
@@ -113,6 +114,7 @@ IPFS_BASE_URI=https://ipfs.io/ipfs/
 PINATA_API_KEY=
 PINATA_BASE_URI=https://api.pinata.cloud/pinning/
 PINATA_SECRET_KEY=
+RINKEBY_PRIVATE_KEY=
 ```
 
 7. Open new window in root dir and run `npx hardhat node`
