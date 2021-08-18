@@ -60,14 +60,14 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   // Mapping tokenId to Asset struct
   mapping(uint64 => Asset) public assets;
 
-  // Mapping tokenId to Mapping of tax collector address to balance amount
-  mapping(uint64 => mapping(address => uint256)) public balances;
-
   // Mapping tokenId to base tax value in wei which is used to calculate foreclosure date
   mapping(uint64 => uint256) public baseTaxValues;
 
   // Mapping tokenId to IPFS CID Hash
   mapping(uint64 => string) public ipfsHash;
+
+  // Mapping tokenId to address of tax collector account
+  mapping(uint64 => address) public taxCollectors;
 
   /**
    * @dev Object that represents the current state of each asset
@@ -90,7 +90,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   }
 
   /**
-   * @dev List of possible events emitted after every user transaction.
+   * @dev List of possible events emitted after every transaction.
    */
   event Mint       (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, address to);
   event List       (uint256 indexed timestamp, uint64 indexed tokenId, address indexed from, uint256 value);
@@ -160,10 +160,11 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   }
 
   /**
-   * @dev Mints `tokenId`, transfers it to `creator`, and sets `tokenURI`
+   * @dev Mints `tokenId`, transfers it to `creator`, sets `tokenURI` and initializes asset state.
    * @param _arweaveId Arweave ID used to create tokenURI
-   * @param _ipfsHash IPFS Hash generated from JSON metadata
+   * @param _ipfsHash IPFS CID Hash generated from JSON metadata
    * @param _creator Address of artist who created the asset
+   * @param _taxCollector Address of tax collector account
    * @return the newly created `tokenId`
    *
    * Requirements:
@@ -172,7 +173,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    *
    * Emits a {Mint & Transfer} event.
    */
-  function mintAsset(string memory _arweaveId, string memory _ipfsHash, address _creator) public onlyAdmin returns (uint256) {
+  function mintAsset(string memory _arweaveId, string memory _ipfsHash, address _creator, address _taxCollector) public onlyAdmin returns (uint256) {
     _tokenIds.increment();
     uint64 newItemId = uint64(_tokenIds.current());
 
@@ -183,8 +184,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
     ipfsHash[newItemId] = _ipfsHash;
 
     initializeAsset(newItemId, _creator);
-    balances[newItemId][admin] = 0;
-    balances[newItemId][_creator] = 0;
+    taxCollectors[newItemId] = _taxCollector;
     baseTaxValues[newItemId] = 10000000000000000; // .01 ETH
 
     return newItemId;
@@ -200,13 +200,18 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - 'priceAmount' of asset must be greater than 0.
-   * - 'foreclosure()' of asset must not be in process OR `msgSender()` must be equal to creator of asset.
+   * - 'foreclosure()' of asset must not be in process OR `msgSender()` must be equal to creator OR `msgSender() must be equal to admin`.
    *
    * Emits a {List} event.
    */
   function listAssetForSaleInWei(uint64 _tokenId, uint256 _priceAmount) public validToken(_tokenId) onlyOwner(_tokenId) {
     require(_priceAmount > 0, "You must set a sales price greater than 0");
-    require(foreclosure(_tokenId) == false || assets[_tokenId].creator == _msgSender(), "A foreclosure on this asset has already begun");
+    require(
+      foreclosure(_tokenId) == false ||
+      assets[_tokenId].creator == _msgSender() ||
+      admin == _msgSender(),
+      "A foreclosure on this asset has already begun"
+    );
 
     assets[_tokenId].priceAmount = _priceAmount;
     assets[_tokenId].taxAmount = _priceAmount.div(taxDenominator);
@@ -223,16 +228,14 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * - `tokenId` must exist.
    * - `owner` of asset must be equal to `msgSender()`.
    * - `priceAmount` of asset must be greater than 0.
-   * - `msg.value` must be greater than 0.
-   * - `msg.value` must be greater than or equal to `taxAmount` of asset OR `totalDepositAmount` must be greater than 0.
+   * - `msg.value` must be greater than or equal to `taxAmount`.
    * - 'foreclosure()' of asset must not be in process.
    *
    * Emits a {Deposit} event.
    */
   function depositTaxInWei(uint64 _tokenId) public payable validToken(_tokenId) onlyOwner(_tokenId) nonReentrant() {
     require(assets[_tokenId].priceAmount > 0, "You must first set a sales price");
-    require(msg.value > 0, "You must deposit a tax amount greater than 0");
-    require(assets[_tokenId].taxAmount <= msg.value || assets[_tokenId].totalDepositAmount > 0, "Your initial deposit must not be less than the current tax price");
+    require(msg.value >= assets[_tokenId].taxAmount, "Your tax deposit must not be less than the current tax price");
     require(foreclosure(_tokenId) == false, "A foreclosure on this asset has already begun");
 
     uint256 baseTaxValue = baseTaxValues[_tokenId];
@@ -246,7 +249,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   }
 
   /**
-   * @dev Purchase of asset triggers payment transfers, tax refund, asset transfer, and balance updates.
+   * @dev Purchase of asset triggers tax refund, payment transfers and asset transfer.
    * @param _tokenId ID of the token
    *
    * Requirements:
@@ -267,17 +270,18 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
     address currentOwner = ownerOf(_tokenId);
     uint256 refundAmount = refundTax(_tokenId, currentOwner);
 
-    updateBalance(_tokenId, creator, refundAmount);
+    collectFunds(_tokenId, currentOwner, refundAmount);
     initializeAsset(_tokenId, creator);
-    baseTaxValues[_tokenId] += 1000000000000000; // 0.001 ETH
 
-    transferPayment(msg.value, currentOwner, creator);
+    transferPayments(msg.value, currentOwner, creator);
     emit Sale(block.timestamp, _tokenId, _msgSender(), currentOwner, msg.value);
     this.safeTransferFrom(currentOwner, _msgSender(), _tokenId);
   }
 
   /**
-   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval, if the asset is purchased before the foreclosure date is reached, the `currentOwner` should receive a portion of those taxes back. The refund calculation is simply the reverse of how the asset foreclosure date is calculated.
+   * @dev Refunds `currentOwner` the remaining tax amount. Since taxes are paid in advance based on a time interval,
+     if the asset is purchased before the foreclosure date is reached, the `currentOwner` receives a portion of those taxes back.
+     The refund calculation is simply the reverse of how the asset foreclosure date is calculated.
    * @param _tokenId ID of the token
    * @param _currentOwner Address of current owner of the asset
    * @return refund amount from excess of taxes deposited
@@ -285,7 +289,8 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * Emits a {Refund} event if `timeRemaining` is more than `baseInterval`.
    */
   function refundTax(uint64 _tokenId, address _currentOwner) internal returns(uint256) {
-    if (_currentOwner == assets[_tokenId].creator) return 0;
+    if (_currentOwner == assets[_tokenId].creator || _currentOwner == admin) return 0;
+
     uint256 foreclosureTimestamp = assets[_tokenId].foreclosureTimestamp;
 
     if (foreclosureTimestamp > block.timestamp.add(baseInterval)) {
@@ -304,57 +309,34 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   }
 
   /**
+   * @dev Transfers deposit amount after refund to tax collector account.
+   * @param _tokenId ID of the token
+   * @param _currentOwner Address of current owner of the asset
+   * @param _refundAmount Amount refunded to current owner
+   */
+  function collectFunds(uint64 _tokenId, address _currentOwner, uint256 _refundAmount) internal {
+    if (_currentOwner == assets[_tokenId].creator || _currentOwner == admin) return;
+
+    address taxCollector = taxCollectors[_tokenId];
+    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
+    uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);
+
+    payable(taxCollector).transfer(depositAfterRefund);
+  }
+
+  /**
    * @dev Transfers royalties to `admin` and `creator` of asset and transfers remaining payment to `currentOwner`.
    * @param _payment Value in wei paid by the new owner
    * @param _currentOwner Address of current owner of the asset
    * @param _creator Address of artist who created the asset
    */
-  function transferPayment(uint256 _payment, address _currentOwner, address _creator) internal {
+  function transferPayments(uint256 _payment, address _currentOwner, address _creator) internal {
     uint256 royaltyAmount = _payment.div(royaltyDenominator);
     uint256 paymentAmount = _payment.sub(royaltyAmount);
 
     payable(admin).transfer(royaltyAmount.div(2));
     payable(_creator).transfer(royaltyAmount.div(2));
     payable(_currentOwner).transfer(paymentAmount);
-  }
-
-  /**
-   * @dev Updates the `admin` and `creator` balances.
-   * @param _tokenId ID of the token
-   * @param _creator Address of artist who created the asset
-   * @param _refundAmount Amount refunded to current owner
-   */
-  function updateBalance(uint64 _tokenId, address _creator, uint256 _refundAmount) internal {
-    if (ownerOf(_tokenId) == _creator) return;
-
-    uint256 totalDepositAmount = assets[_tokenId].totalDepositAmount;
-    uint256 depositAfterRefund = totalDepositAmount.sub(_refundAmount);
-    uint256 splitBalance = depositAfterRefund.div(2);
-
-    balances[_tokenId][admin] += splitBalance;
-    balances[_tokenId][_creator] += splitBalance;
-  }
-
-  /**
-   * @dev Collects `balance` and transfers it to `msgSender()`.
-   * @param _tokenId ID of the token
-   *
-   * Requirements:
-   *
-   * - `tokenId` must exist.
-   * - `admin` or `creator` of the asset must be equal to `msgSender()`.
-   * - `balance` of `msgSender()` must be greater than 0.
-   *
-   * Emits a {Collect} event.
-   */
-  function collectFunds(uint64 _tokenId) public validToken(_tokenId) onlyAdminOrCreator(_tokenId) {
-    require(balances[_tokenId][_msgSender()] > 0, "You do not have any funds available to withdraw");
-
-    uint256 amount = balances[_tokenId][_msgSender()];
-    payable(_msgSender()).transfer(amount);
-    balances[_tokenId][_msgSender()] = 0;
-
-    emit Collect(block.timestamp, _tokenId, address(this), _msgSender(), amount);
   }
 
   /**
@@ -370,7 +352,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    *
    * Emits a {Foreclosure} event.
    */
-  function reclaimAsset(uint64 _tokenId) public validToken(_tokenId) onlyCreator(_tokenId) {
+  function reclaimAsset(uint64 _tokenId) public validToken(_tokenId) onlyAdminOrCreator(_tokenId) {
     require(foreclosure(_tokenId), "Time has not yet expired for you to reclaim this asset");
     require(ownerOf(_tokenId) != _msgSender(), "You are already the owner of this asset");
 
@@ -378,7 +360,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
     emit Foreclosure(block.timestamp, _tokenId, _msgSender(), currentOwner);
 
     safeTransferFrom(currentOwner, _msgSender(), _tokenId);
-    initializeAsset(_tokenId, _msgSender());
+    initializeAsset(_tokenId, assets[_tokenId].creator);
   }
 
   /**
@@ -410,16 +392,16 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
   }
 
   /**
-   * @dev Updates the `admin` account
+   * @dev Updates the `admin` account.
    * @param _account Address of new admin account
    *
    * Requirements:
    *
    * - `admin` must be equal to `_msgSender()`.
-   * - `account` must be different than the current `admin` address.
+   * - `address` must be different than the current account.
    */
   function setAdmin(address _account) public onlyAdmin {
-    require(admin != _account, "New value must be different than the current value");
+    require(admin != _account, "New address must be different than the current account");
 
     admin = _account;
   }
@@ -437,7 +419,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * - `amount` must be different than the current value.
    */
   function setBaseTaxValueInWei(uint64 _tokenId, uint256 _amount) public validToken(_tokenId) onlyCreator(_tokenId) onlyOwner(_tokenId) {
-    require(baseTaxValues[_tokenId] != _amount, "New value must be different than the current value");
+    require(baseTaxValues[_tokenId] != _amount, "New amount must be different than the current value");
 
     baseTaxValues[_tokenId] = _amount;
   }
@@ -452,7 +434,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * - `percentage` must be different than the current value.
    */
   function setRoyaltyPercentage(uint256 _percentage) public onlyAdmin {
-    require(royaltyPercentage != _percentage, "New value must be different than the current value");
+    require(royaltyPercentage != _percentage, "New percentage must be different than the current value");
 
     royaltyPercentage = _percentage;
   }
@@ -478,7 +460,7 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
    * Requirements:
    *
    * - `currentOwner` or `approvedAccount` must be equal to `msgSender()` OR
-   * - `creator` must be equal to `msgSender` AND `foreclosure()` must be equal to true.
+   * - `admin` or `creator` must be equal to `msgSender()` AND `foreclosure()` of asset must be equal to true.
    */
   function safeTransferFrom(
       address from,
@@ -489,8 +471,8 @@ contract HarbergerAsset is ERC721URIStorage, ReentrancyGuard {
     uint64 _tokenId = uint64(tokenId);
     require(
       _isApprovedOrOwner(_msgSender(), _tokenId) ||
-      (assets[_tokenId].creator == _msgSender() && foreclosure(_tokenId)),
-      "Transfer caller is not the owner, approved nor the creator of the asset"
+      ((admin == _msgSender() || assets[_tokenId].creator == _msgSender()) && foreclosure(_tokenId)),
+      "Transfer caller is not owner nor approved OR a foreclosure on this asset has not yet begun"
     );
 
     _safeTransfer(from, to, tokenId, _data);
