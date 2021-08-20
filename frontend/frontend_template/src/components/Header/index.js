@@ -14,7 +14,7 @@ const nav = [
   },
   {
     url: "/faq",
-    title: "How it work",
+    title: "How it works",
   },
   {
     url: "/item",
@@ -58,24 +58,24 @@ const Headers = () => {
               </Link>
             ))}
           </nav>
-          <form
-            className={styles.search}
-            action=""
-            onSubmit={() => handleSubmit()}
-          >
-            <input
-              className={styles.input}
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              name="search"
-              placeholder="Search"
-              required
-            />
-            <button className={styles.result}>
-              <Icon name="search" size="20" />
-            </button>
-          </form>
+          {/*<form*/}
+            {/*className={styles.search}*/}
+            {/*action=""*/}
+            {/*onSubmit={() => handleSubmit()}*/}
+          {/*>*/}
+            {/*<input*/}
+              {/*className={styles.input}*/}
+              {/*type="text"*/}
+              {/*value={search}*/}
+              {/*onChange={(e) => setSearch(e.target.value)}*/}
+              {/*name="search"*/}
+              {/*placeholder="Search"*/}
+              {/*required*/}
+            {/*/>*/}
+            {/*<button className={styles.result}>*/}
+              {/*<Icon name="search" size="20" />*/}
+            {/*</button>*/}
+          {/*</form>*/}
           <Link
             className={cn("button-small", styles.button)}
             to="/upload-variants"
@@ -85,18 +85,12 @@ const Headers = () => {
         </div>
         <Notification className={styles.notification} />
         <Link
-          className={cn("button-small", styles.button)}
-          to="/upload-variants"
-        >
-          Upload
-        </Link>
-        {/* <Link
           className={cn("button-stroke button-small", styles.button)}
           to="/connect-wallet"
         >
           Connect Wallet
-        </Link> */}
-        <User className={styles.user} />
+        </Link>
+        {/*<User className={styles.user} />*/}
         <button
           className={cn(styles.burger, { [styles.active]: visibleNav })}
           onClick={() => setVisibleNav(!visibleNav)}

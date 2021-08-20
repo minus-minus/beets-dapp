@@ -9,9 +9,19 @@
     +m
         margin-bottom: 64px
 
+.headALT
+    max-width: 600px
+    margin: 83px auto 50px
+    text-align: center
+
 .stage
     margin-bottom: 8px
     +hairline-2
+    color: $neutrals4
+
+.stage2
+    margin-bottom: 8px
+    +hairline-1
     color: $neutrals4
 
 .title
@@ -70,6 +80,13 @@
     flex: 0 0 calc(50% - 32px)
     width: calc(50% - 32px)
     margin: 0 16px
+
+.formItem
+    display: flex
+    align-items: center
+    flex: 0 0 calc(50% - 32px)
+    width: calc(50% - 32px)
+    margin: 0 13%
 
 .avatar,
 .icon
@@ -160,3 +177,14 @@
         width: 100%
         &:not(:last-child)
             margin-bottom: 8px
+
+.category
+    +body-bold-2
+
+.fieldset
+    margin-top: 32px
+    .field
+        &:not(:last-child)
+            margin-bottom: 32px
+            +m
+                margin-bottom: 20px

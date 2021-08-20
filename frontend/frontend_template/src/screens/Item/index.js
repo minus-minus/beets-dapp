@@ -74,17 +74,17 @@ const Item = () => {
               </div>
               <div className={styles.counter}>10 in stock</div>
             </div>
-            <div className={styles.info}>
-              This NFT Card will give you Access to Special Airdrops. To learn
-              more about UI8 please visit{" "}
-              <a
-                href="https://ui8.net"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                https://ui8.net
-              </a>
-            </div>
+            {/*<div className={styles.info}>*/}
+              {/*This NFT Card will give you Access to Special Airdrops. To learn*/}
+              {/*more about UI8 please visit{" "}*/}
+              {/*<a*/}
+                {/*href="https://ui8.net"*/}
+                {/*target="_blank"*/}
+                {/*rel="noopener noreferrer"*/}
+              {/*>*/}
+                {/*https://ui8.net*/}
+              {/*</a>*/}
+            {/*</div>*/}
             <div className={styles.nav}>
               {navLinks.map((x, index) => (
                 <button
