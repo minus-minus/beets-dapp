@@ -35,14 +35,12 @@ class Asset extends Component {
       const assetOwner = await this.props.contract.ownerOf(tokenId);
       // const ownerAddressENS = await this.props.provider.lookupAddress(assetOwner);
       const approvedAccount = await this.props.contract.getApproved(tokenId);
-      const baseTaxValue = await this.props.contract.baseTaxValues(tokenId)
+      const baseTaxValue = await this.props.contract.baseTaxValues(tokenId);
+      // const prevTaxValue = await this.props.contract.prevTaxValues(tokenId);
       const foreclosure = await this.props.contract.foreclosure(tokenId);
       const tokenURI = await this.props.contract.tokenURI(tokenId);
-      const adminBalance = await this.props.contract.balances(tokenId, this.props.adminAddress);
-      const creatorBalance = await this.props.contract.balances(tokenId, this.props.creatorAddress);
 
       this.setState({
-        adminBalance: adminBalance.toString(),
         approvedAddress: ethers.utils.getAddress(approvedAccount),
         assetForeclosure: this.props.asset.foreclosureTimestamp.toString(),
         assetLastDeposit: this.props.asset.lastDepositTimestamp.toString(),
@@ -51,8 +49,8 @@ class Asset extends Component {
         assetTotalDeposit: this.props.asset.totalDepositAmount.toString(),
         baseTaxValue: baseTaxValue.toString(),
         creatorAddress: this.props.creatorAddress,
-        creatorBalance: creatorBalance.toString(),
         ownerAddress: ethers.utils.getAddress(assetOwner),
+        // prevTaxValue: prevTaxValue.toString(),
         foreclosure: foreclosure,
         tokenURI: tokenURI,
         loadingToken: false
@@ -139,6 +137,7 @@ class Asset extends Component {
                 listAsset={this.props.listAsset}
                 minifyHash={this.props.minifyHash}
                 ownerAddress={this.state.ownerAddress}
+                // prevTaxValue={this.state.prevTaxValue}
                 selectedAddress={this.props.selectedAddress}
                 selectedBalance={this.props.selectedBalance}
                 setApproval={this.props.setApproval}

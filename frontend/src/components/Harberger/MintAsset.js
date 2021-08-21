@@ -23,7 +23,7 @@ class MintAsset extends Component {
               arweave.HarbergerAsset,
               ipfs.HarbergerAsset,
               HTAX_CREATOR_ADDRESS,
-              contractAddress.TaxCollector
+              contractAddress.PaymentSplitter
             )
           }}
         >

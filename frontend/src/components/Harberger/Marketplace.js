@@ -43,6 +43,7 @@ class Marketplace extends Component {
     const selectedTime = Math.floor(new Date(date) / 1000)
 
     var timeRemaining = foreclosure - currentTime
+    // var timeRemaining = this.props.prevTaxValue === this.props.baseTaxValue ? foreclosure - currentTime : 0
     if (timeRemaining < 0) timeRemaining = 0
 
     const estimatedTime = selectedTime - currentTime - timeRemaining

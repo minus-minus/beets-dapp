@@ -11,17 +11,7 @@ class Ownership extends Component {
 
     return (
       <Col className="d-flex justify-content-center mb-5">
-        {(selectedAddress === creatorAddress || selectedAddress === adminAddress) && (
-          <Button
-            className="mx-3 py-2 px-3"
-            variant="success"
-            title="Withdraw Tax Funds"
-            onClick={(e) => {this.props.collectFunds(tokenId)}}
-          >
-            Collect Funds
-          </Button>
-        )}
-        {selectedAddress === creatorAddress && (
+        {(selectedAddress === adminAddress || selectedAddress === creatorAddress) && (
           <Button
             className="mx-3 py-2 px-3"
             variant="danger"

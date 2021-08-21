@@ -64,8 +64,8 @@ class Auction extends Component {
       const response = await axios.post(graphURL, query)
       const reserveAuction = response.data.data.reserveAuctions[0]
       console.log("Reserve Auction:", reserveAuction)
-      const currentBid = reserveAuction["currentBid"]
-      const previousBids = reserveAuction["previousBids"]
+      const currentBid = reserveAuction ? reserveAuction["currentBid"] : null
+      const previousBids = reserveAuction ? reserveAuction["previousBids"] : null
 
       this.setState({ reserveAuction, currentBid, previousBids })
     } catch(err) {
@@ -73,7 +73,7 @@ class Auction extends Component {
     }
 
     if (this.state.currentBid) this.currentBidRequest(this.state.currentBid)
-    this.previousBidsRequest(this.state.previousBids)
+    if (this.state.previousBids) this.previousBidsRequest(this.state.previousBids)
   }
 
   async currentBidRequest(currentBid) {
