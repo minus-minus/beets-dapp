@@ -1,21 +1,19 @@
 const hre = require("hardhat")
 const fs = require("fs");
 const contractsDir = __dirname + "/../frontend/src/contracts";
-const ADMIN_ADDRESS = "0xED29CfC3Bd78019e57b3b2BbFf62258a7e674eE5";
-const CREATOR_ADDRESS = "0x232E02988970e8aB920c83964cC7922d9C282DCA";
+const ADMIN_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+const CREATOR_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 const payees = [ADMIN_ADDRESS, CREATOR_ADDRESS];
 const shares = [50, 50];
 
 async function main() {
   await hre.run("compile")
 
-  const TaxCollector = await hre.ethers.getContractFactory("TaxCollector");
-  const taxCollector = await TaxCollector.deploy(payees, shares);
-  await taxCollector.deployed();
+  const PaymentSplitter = await hre.ethers.getContractFactory("PaymentSplitter");
+  const paymentSplitter = await PaymentSplitter.deploy(payees, shares);
+  await paymentSplitter.deployed();
 
-  console.log("TaxCollector deployed to:", taxCollector.address);
-
-  saveFrontendFiles(harbergerAsset);
+  console.log("PaymentSplitter deployed to:", paymentSplitter.address);
 
   const HarbergerAsset = await hre.ethers.getContractFactory("HarbergerAsset");
   const harbergerAsset = await HarbergerAsset.deploy(ADMIN_ADDRESS);
@@ -23,10 +21,10 @@ async function main() {
 
   console.log("HarbergerAsset deployed to:", harbergerAsset.address);
 
-  saveFrontendFiles(taxCollector, harbergerAsset);
+  saveFrontendFiles(paymentSplitter, harbergerAsset);
 }
 
-function saveFrontendFiles(taxCollector, harbergerAsset) {
+function saveFrontendFiles(payment, harberger) {
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
   }
@@ -34,16 +32,16 @@ function saveFrontendFiles(taxCollector, harbergerAsset) {
   fs.writeFileSync(
     contractsDir + "/contract-address.json",
     JSON.stringify({
-      TaxCollector: taxCollector.address,
-      HarbergerAsset: harbergerAsset.address
+      PaymentSplitter: payment.address,
+      HarbergerAsset: harberger.address
     }, undefined, 2)
   );
 
-  const TaxArtifact = artifacts.readArtifactSync("TaxCollector");
+  const PaymentArtifact = artifacts.readArtifactSync("PaymentSplitter");
 
   fs.writeFileSync(
-    contractsDir + "/TaxCollector.json",
-    JSON.stringify(TaxArtifact, null, 2)
+    contractsDir + "/PaymentSplitter.json",
+    JSON.stringify(PaymentArtifact, null, 2)
   );
 
   const HarbergerArtifact = artifacts.readArtifactSync("HarbergerAsset");
