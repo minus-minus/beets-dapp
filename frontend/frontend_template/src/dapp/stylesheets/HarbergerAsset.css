@@ -1,0 +1,225 @@
+.jumbotron {
+  width: 100%;
+  background-color: #e9ecef;
+  border-radius: 10px;
+}
+
+.asset-name > a {
+  color: #000;
+}
+
+.asset-media {
+  width: 100%;
+  height: auto;
+}
+
+.asset-price {
+  display: flex;
+  justify-content: space-between;
+}
+
+.badge.price {
+  font-size: 14px;
+  color: #0f0823;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
+}
+
+.badge.tax {
+  font-size: 14px;
+  color: #0f0823;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
+}
+
+.asset-creator {
+  display: flex;
+  justify-content: center;
+  margin-top: -2rem;
+}
+
+.badge.creator {
+  font-size: 14px;
+  border: 1px solid #808080;
+  background-color: #F7F7F7;
+}
+
+.badge.creator > a {
+  color: #0f0823;
+}
+
+.time-remaining {
+  color: #198754;
+}
+
+.time-expired {
+  color: #BB2D3B;
+}
+
+.subheader {
+  display: flex;
+  position: relative;
+}
+
+.toggle {
+  position: absolute;
+  left: 0;
+}
+
+.balance {
+  position: absolute;
+  right: 0;
+}
+
+button.balance.btn.btn-warning,
+button.toggle.btn.btn-primary,
+button.toggle.btn.btn-success {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+button.btn.btn-primary:hover,
+button.btn.btn-success:hover,
+button.btn.btn-danger:hover {
+  font-weight: bold;
+  text-shadow: 2px 2px 4px #000;
+}
+
+button.btn.btn-warning:hover {
+  font-weight: bold;
+}
+
+button.balance.btn.btn-warning:focus,
+button.balance.btn.btn-warning:active:focus,
+button.btn.btn-warning:focus,
+button.btn.btn-warning:active:focus,
+button.toggle.btn.btn-primary:focus,
+button.toggle.btn.btn-primary:active:focus,
+button.toggle.btn.btn-success:focus,
+button.toggle.btn.btn-success:active:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.asset-info {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  height: auto;
+  border-radius: 5px;
+}
+
+.asset-info > p {
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+input {
+  text-align: center;
+}
+
+.asset-auction {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  max-height: 400px;
+  border-radius: 5px;
+}
+
+.auction-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.asset-history {
+  flex: 1;
+  overflow-y: scroll;
+  background: #fff;
+  max-height: 400px;
+  border-radius: 5px;
+}
+
+td {
+  font-size: 16px;
+}
+
+@media (min-width: 548px) {
+  .jumbotron {
+    min-width: 500px;
+  }
+}
+
+@media (max-width: 547px) {
+  div.mb-5.mx-2.p-5.jumbotron {
+    padding: 2rem !important;
+  }
+
+  div.mb-5.p-5.jumbotron {
+    padding: 2.5rem !important;
+  }
+
+  .asset-creator {
+    margin-top: 2rem;
+  }
+
+  .badge.creator {
+    width: 100%;
+  }
+
+  .time-remaining,
+  .time-expired {
+    font-size: 14px;
+  }
+
+  .asset-info {
+    flex: 1;
+    overflow-y: scroll;
+    height: 300px;
+    background: #fff;
+    border-radius: 5px;
+  }
+}
+
+@media (max-width: 767px) {
+  .badge.price,
+  .badge.creator,
+  .badge.tax {
+    font-size: 12px;
+  }
+
+  .subheader {
+    display: block;
+  }
+
+  .subheader > h4 {
+    padding-top: 20px;
+  }
+
+  button.toggle.btn.btn-primary,
+  button.toggle.btn.btn-success {
+    position: relative;
+    margin: auto;
+    display: flex;
+  }
+
+  button.balance.btn.btn-warning {
+    display: none;
+  }
+
+  .asset-info > p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 991px) {
+  td {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 2224px) {
+  .asset-info > p {
+    font-size: 18px;
+  }
+}

@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-import { Dapp } from "./dapp/components/Dapp";
+import { Dapp } from "./components/Dapp";
+import "bootstrap/dist/css/bootstrap.css";
+import "./stylesheets/index.css";
 
-const dapp = new Dapp();
 ReactDOM.render(
   <React.StrictMode>
-    <App dapp={dapp}/>
+    <Dapp />
   </React.StrictMode>,
   document.getElementById("root")
 );
