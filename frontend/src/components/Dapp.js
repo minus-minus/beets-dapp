@@ -56,6 +56,7 @@ export class Dapp extends React.Component {
     this.buyAsset = this.buyAsset.bind(this);
     this.collectFunds = this.collectFunds.bind(this);
     this.reclaimAsset = this.reclaimAsset.bind(this);
+    this.connectWallet = this._connectWallet.bind(this);
 
     this.state = this.initialState;
   }

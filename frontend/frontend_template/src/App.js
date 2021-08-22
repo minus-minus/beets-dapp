@@ -14,7 +14,7 @@ import ProfileEdit from "./screens/ProfileEdit";
 import Item from "./screens/Item";
 import PageList from "./screens/PageList";
 
-function App() {
+function App({dapp}) {
   return (
     <Router>
       <Switch>
@@ -50,7 +50,7 @@ function App() {
           path="/connect-wallet"
           render={() => (
             <Page>
-              <ConnectWallet />
+              <ConnectWallet connect={dapp.connectWallet}/>
             </Page>
           )}
         />

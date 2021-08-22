@@ -11,6 +11,11 @@ const menu = [
     color: "#9757D7",
   },
   {
+    title: "Metamask",
+    color: "#997733",
+    click: () => {},
+  },
+  {
     title: "Coinbase Wallet",
     color: "#3772FF",
   },
