@@ -26,7 +26,7 @@ const nav = [
   },
 ];
 
-const Headers = () => {
+const Headers = ({state}) => {
   const [visibleNav, setVisibleNav] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -88,7 +88,7 @@ const Headers = () => {
           className={cn("button-stroke button-small", styles.button)}
           to="/connect-wallet"
         >
-          Connect Wallet
+          {state.selectedAddress ? `${state.selectedAddress.substring(0,10)}...` : "Connect wallet"}
         </Link>
         {/*<User className={styles.user} />*/}
         <button

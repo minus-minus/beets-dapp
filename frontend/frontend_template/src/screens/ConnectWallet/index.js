@@ -4,32 +4,40 @@ import cn from "classnames";
 import styles from "./ConnectWallet.module.sass";
 import Icon from "../../components/Icon";
 import Checkbox from "../../components/Checkbox";
+import { Dapp } from "../../dapp/components/Dapp";
 
 const menu = [
-  {
-    title: "Coinbase Wallet",
-    color: "#9757D7",
-  },
+  // {
+  //   title: "Coinbase Wallet",
+  //   color: "#9757D7",
+  // },
   {
     title: "Metamask",
-    color: "#997733",
-    click: () => {},
+    color: "#FF7733",
   },
-  {
-    title: "Coinbase Wallet",
-    color: "#3772FF",
-  },
-  {
-    title: "MyEtherWallet",
-    color: "#45B26B",
-  },
-  {
-    title: "Wallet Connect",
-    color: "#EF466F",
-  },
+  // {
+  //   title: "Coinbase Wallet",
+  //   color: "#3772FF",
+  // },
+  // {
+  //   title: "MyEtherWallet",
+  //   color: "#45B26B",
+  // },
+  // {
+  //   title: "Wallet Connect",
+  //   color: "#EF466F",
+  // },
 ];
 
-const Connect = () => {
+function checkMetamask(dapp, connect) {
+  if(window.ethereum) {
+    connect();
+  } else {
+    dapp.setState({networkError: "Metamask not detected"})
+  }
+}
+
+const Connect = ({dapp, connect, state}) => {
   const [age, setAge] = useState(true);
   const [conditions, setConditions] = useState(false);
 
@@ -48,6 +56,7 @@ const Connect = () => {
               <div
                 className={cn({ [styles.active]: index === 1 }, styles.link)}
                 key={index}
+                onClick={() => checkMetamask(dapp, connect)}
               >
                 <div
                   className={styles.icon}
@@ -56,7 +65,10 @@ const Connect = () => {
                   <Icon name="wallet" size="24" />
                   <Icon name="check" size="18" fill={x.color} />
                 </div>
-                <span>{x.title}</span>
+                <div>
+                <span>{x.title}</span><br/>
+                {state.networkError ? <span className={cn(styles.errorNotice)}>{state.networkError}</span> : ""}
+                </div>
                 <div className={styles.arrow}>
                   <Icon name="arrow-next" size="14" />
                 </div>
@@ -71,7 +83,7 @@ const Connect = () => {
                 alt="Connect wallet"
               />
             </div>
-            <div className={styles.item}>
+            {/* <div className={styles.item}>
               <div className={cn("h3", styles.title)}>Scan to connect</div>
               <div className={styles.text}>Powered by UI8.Wallet</div>
               <div className={styles.box}>
@@ -82,8 +94,8 @@ const Connect = () => {
               <button className={cn("button-stroke", styles.button)}>
                 Don’t have a wallet app?
               </button>
-            </div>
-            <div className={styles.item}>
+            </div> */}
+            {/* <div className={styles.item}>
               <div className={cn("h3", styles.title)}>Terms of service</div>
               <div className={styles.text}>
                 Please take a few minutes to read and understand{" "}
@@ -119,7 +131,7 @@ const Connect = () => {
                   Get started now
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

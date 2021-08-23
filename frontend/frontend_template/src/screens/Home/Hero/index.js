@@ -55,7 +55,7 @@ const SlickArrow = ({ currentSlide, slideCount, children, ...props }) => (
   <button {...props}>{children}</button>
 );
 
-const Hero = () => {
+const Hero = ({state}) => {
   const settings = {
     infinite: false,
     speed: 500,
@@ -76,7 +76,7 @@ const Hero = () => {
 
   const [visibleModalBid, setVisibleModalBid] = useState(false);
 
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(!!state.selectedAddress);
 
   return (
     <>
@@ -172,7 +172,7 @@ const Hero = () => {
         onClose={() => setVisibleModalBid(false)}
       >
         {!isConnected ?
-          <Connect /> :
+          <Connect state={state}/> :
           <form>
             <div className={styles.formItem}>
               <div className={styles.fieldset}>

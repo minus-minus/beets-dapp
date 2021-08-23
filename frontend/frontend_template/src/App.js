@@ -22,8 +22,8 @@ function App({dapp}) {
           exact
           path="/"
           render={() => (
-            <Page>
-              <Home />
+            <Page state={dapp.state}>
+              <Home state={dapp.state}/>
             </Page>
           )}
         />
@@ -31,7 +31,7 @@ function App({dapp}) {
           exact
           path="/upload-variants"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <UploadVariants />
             </Page>
           )}
@@ -40,7 +40,7 @@ function App({dapp}) {
           exact
           path="/upload-details"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <UploadDetails />
             </Page>
           )}
@@ -49,8 +49,8 @@ function App({dapp}) {
           exact
           path="/connect-wallet"
           render={() => (
-            <Page>
-              <ConnectWallet connect={dapp.connectWallet}/>
+            <Page state={dapp.state}>
+              <ConnectWallet connect={dapp.connectWallet} state={dapp.state} dapp={dapp}/>
             </Page>
           )}
         />
@@ -58,7 +58,7 @@ function App({dapp}) {
           exact
           path="/faq"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Faq />
             </Page>
           )}
@@ -67,7 +67,7 @@ function App({dapp}) {
           exact
           path="/activity"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Activity />
             </Page>
           )}
@@ -76,7 +76,7 @@ function App({dapp}) {
           exact
           path="/search01"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Search01 />
             </Page>
           )}
@@ -85,7 +85,7 @@ function App({dapp}) {
           exact
           path="/search02"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Search02 />
             </Page>
           )}
@@ -94,7 +94,7 @@ function App({dapp}) {
           exact
           path="/profile"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Profile />
             </Page>
           )}
@@ -103,7 +103,7 @@ function App({dapp}) {
           exact
           path="/profile-edit"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <ProfileEdit />
             </Page>
           )}
@@ -112,7 +112,7 @@ function App({dapp}) {
           exact
           path="/item"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <Item />
             </Page>
           )}
@@ -121,7 +121,7 @@ function App({dapp}) {
           exact
           path="/pagelist"
           render={() => (
-            <Page>
+            <Page state={dapp.state}>
               <PageList />
             </Page>
           )}

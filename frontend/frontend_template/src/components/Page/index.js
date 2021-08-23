@@ -5,7 +5,7 @@ import styles from "./Page.module.sass";
 import Header from "../Header";
 import Footer from "../Footer";
 
-const Page = ({ children }) => {
+const Page = ({ state, children }) => {
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -15,7 +15,7 @@ const Page = ({ children }) => {
 
   return (
     <div className={styles.page}>
-      <Header />
+      <Header state={state}/>
       <div className={styles.inner}>{children}</div>
       <Footer />
     </div>

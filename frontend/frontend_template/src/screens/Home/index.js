@@ -7,10 +7,10 @@ import Collections from "./Collections";
 import Discover from "./Discover";
 import Description from "./Description";
 
-const Home = () => {
+const Home = ({state}) => {
   return (
     <>
-      <Hero />
+      <Hero state={state}/>
       <Selection />
       <Popular />
       <HotBid classSection="section" />

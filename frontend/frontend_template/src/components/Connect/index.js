@@ -3,7 +3,7 @@ import cn from "classnames";
 import styles from "./Connect.module.sass";
 import Icon from "../Icon";
 
-const Connect = ({ className }) => {
+const Connect = ({ state, className }) => {
   return (
     <div className={cn(className, styles.connect)}>
       <div className={styles.icon}>
@@ -14,7 +14,7 @@ const Connect = ({ className }) => {
         transaction to Ethereum network
       </div>
       <div className={styles.btns}>
-        <button className={cn("button", styles.button)}>Connect wallet</button>
+        <button className={cn("button", styles.button)}>{state.selectedAddress ? state.selectedAddress : "Connect wallet"}</button>
         <button className={cn("button-stroke", styles.button)}>Cancel</button>
       </div>
     </div>

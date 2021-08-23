@@ -16,6 +16,8 @@ import MintAsset from "./Harberger/MintAsset";
 import Inventory from "./Harberger/Inventory";
 import Asset from "./Harberger/Asset";
 import Footer from "./Footer";
+import App from "../../App";
+import { Storage } from "../utils";
 // CONTRACTS
 import contractAddress from "../contracts/contract-address.json";
 import { ENIGMA_ABI } from "../utils/EB/EulerBeatsAbi";
@@ -57,9 +59,19 @@ export class Dapp extends React.Component {
     this.collectFunds = this.collectFunds.bind(this);
     this.reclaimAsset = this.reclaimAsset.bind(this);
     this.connectWallet = this._connectWallet.bind(this);
+    // this.setState = this.setState.bind(this);
 
     this.state = this.initialState;
+    const currentAddress = Storage.Local.get("lastUsedAddress") 
+    if (currentAddress) {
+      console.log("found stored address", currentAddress)
+      // this._initialize(currentAddress);
+    }
   }
+
+  // setState(state) {
+  //   this.state = {...this.state,...state};
+  // }
 
   // This method is run when the user clicks the Connect. It connects the
   // dapp to the user's wallet, and initializes it.
@@ -125,6 +137,8 @@ export class Dapp extends React.Component {
     this.setState({
       selectedAddress: ethers.utils.getAddress(userAddress)
     });
+
+    Storage.Local.put({ key: 'lastUsedAddress', value: userAddress, expiry: -1 });
 
     // Then, we initialize ethers, fetch the token's data, and start polling
     // for the user's balance.
@@ -690,6 +704,10 @@ export class Dapp extends React.Component {
   }
 
   render() {
+    return <div><App dapp={this}/></div>
+  }
+
+  renderOriginal() {
     // Ethereum wallets inject the window.ethereum object. If it hasn't been
     // injected, we instruct the user to install MetaMask.
     if (window.ethereum === undefined) {
